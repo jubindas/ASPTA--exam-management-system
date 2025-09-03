@@ -1,14 +1,16 @@
-"use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+
 import type { Student } from "@/table-types/student-table-types";
 
 import { Button } from "@/components/ui/button";
+
 import {
   Popover,
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+
 import { MoreHorizontal, Edit } from "lucide-react";
 
 export const columns: ColumnDef<Student>[] = [

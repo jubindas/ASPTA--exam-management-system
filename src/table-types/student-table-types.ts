@@ -1,5 +1,5 @@
 export type Student = {
-  si: number; // Serial Index
+  si: number; 
   studentId: string;
   studentName: string;
   mobile: string;

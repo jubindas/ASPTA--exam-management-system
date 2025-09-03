@@ -23,28 +23,28 @@ import {
 export default function CenterDialog() {
   return (
     <Dialog>
-    
+
       <DialogTrigger asChild>
-        <Button className="bg-zinc-800 text-white hover:bg-zinc-700 shadow-md px-4">
+        <Button className="bg-zinc-800 text-white hover:bg-zinc-700 shadow-md px-4 rounded-lg transition">
           Add Center
         </Button>
       </DialogTrigger>
 
      
-      <DialogContent className="max-w-md bg-zinc-100 text-zinc-900 rounded-xl shadow-xl p-6">
+      <DialogContent className="max-w-lg w-full bg-zinc-100 text-zinc-900 rounded-xl shadow-lg p-6">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-zinc-800">
             Add Center Details
           </DialogTitle>
         </DialogHeader>
 
-     
-        <form className="grid grid-cols-1 gap-4 mt-4">
         
-          <div>
+        <form className="grid grid-cols-1 gap-4 mt-4">
+
+          <div className="w-full">
             <Label className="text-sm font-medium">Sub Division</Label>
             <Select>
-              <SelectTrigger className="mt-1 bg-white border border-zinc-300">
+              <SelectTrigger className="w-full mt-1 bg-white border border-zinc-300 focus:ring-2 focus:ring-zinc-400 rounded-md h-10">
                 <SelectValue placeholder="Select Sub Division" />
               </SelectTrigger>
               <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
@@ -55,10 +55,10 @@ export default function CenterDialog() {
             </Select>
           </div>
 
-          <div>
+          <div className="w-full">
             <Label className="text-sm font-medium">Block</Label>
             <Select>
-              <SelectTrigger className="mt-1 bg-white border border-zinc-300">
+              <SelectTrigger className="w-full mt-1 bg-white border border-zinc-300 focus:ring-2 focus:ring-zinc-400 rounded-md h-10">
                 <SelectValue placeholder="Select Block" />
               </SelectTrigger>
               <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
@@ -69,19 +69,19 @@ export default function CenterDialog() {
             </Select>
           </div>
 
-          <div>
+      
+          <div className="w-full">
             <Label className="text-sm font-medium">Center Name</Label>
             <Input
               type="text"
               placeholder="Enter Center Name"
-              className="mt-1 bg-white border border-zinc-300"
+              className="w-full h-10 mt-1 bg-white border border-zinc-300 focus:ring-2 focus:ring-zinc-400 rounded-md"
             />
           </div>
         </form>
 
-        
         <div className="flex justify-end mt-6">
-          <Button className="bg-zinc-800 text-white hover:bg-zinc-700 px-6">
+          <Button className="bg-zinc-800 text-white hover:bg-zinc-700 px-6 rounded-lg transition">
             Save Center
           </Button>
         </div>

@@ -7,7 +7,9 @@ import {
 } from "@/components/ui/dialog";
 
 import { Label } from "@/components/ui/label";
+
 import { Input } from "@/components/ui/input";
+
 import { Button } from "@/components/ui/button";
 
 import {
@@ -21,27 +23,28 @@ import {
 export default function StudentDialog() {
   return (
     <Dialog>
+  
       <DialogTrigger asChild>
-        <Button className="bg-zinc-800 text-white hover:bg-zinc-700 shadow-md px-4">
+        <Button className="bg-zinc-800 text-white hover:bg-zinc-700 shadow-md px-4 rounded-lg transition">
           Add Student
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-2xl bg-zinc-100 text-zinc-900 rounded-xl shadow-xl p-6">
-        
+
+      <DialogContent className="max-w-2xl w-full bg-zinc-100 text-zinc-900 rounded-xl shadow-xl p-6">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-zinc-800">
             Add Student Details
           </DialogTitle>
         </DialogHeader>
 
-     
+
         <form className="grid grid-cols-2 gap-4 mt-4">
-          
-          <div>
+
+          <div className="w-full">
             <Label className="text-sm font-medium">Sub Division</Label>
             <Select>
-              <SelectTrigger className="mt-1 bg-white border border-zinc-300">
+              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md focus:ring-2 focus:ring-zinc-400">
                 <SelectValue placeholder="Select Sub Division" />
               </SelectTrigger>
               <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
@@ -52,10 +55,11 @@ export default function StudentDialog() {
             </Select>
           </div>
 
-          <div>
+     
+          <div className="w-full">
             <Label className="text-sm font-medium">Block</Label>
             <Select>
-              <SelectTrigger className="mt-1 bg-white border border-zinc-300">
+              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md focus:ring-2 focus:ring-zinc-400">
                 <SelectValue placeholder="Select Block" />
               </SelectTrigger>
               <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
@@ -66,10 +70,11 @@ export default function StudentDialog() {
             </Select>
           </div>
 
-          <div>
+         
+          <div className="w-full">
             <Label className="text-sm font-medium">Center</Label>
             <Select>
-              <SelectTrigger className="mt-1 bg-white border border-zinc-300">
+              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md focus:ring-2 focus:ring-zinc-400">
                 <SelectValue placeholder="Select Center" />
               </SelectTrigger>
               <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
@@ -80,46 +85,51 @@ export default function StudentDialog() {
             </Select>
           </div>
 
-          <div>
+
+          <div className="w-full">
             <Label className="text-sm font-medium">Student UUID</Label>
             <Input
               type="text"
               placeholder="Enter UUID"
-              className="mt-1 bg-white border border-zinc-300"
+              className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md focus:ring-2 focus:ring-zinc-400"
             />
           </div>
 
-          <div>
+
+          <div className="w-full">
             <Label className="text-sm font-medium">Student Name</Label>
             <Input
               type="text"
               placeholder="Enter Name"
-              className="mt-1 bg-white border border-zinc-300"
+              className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md focus:ring-2 focus:ring-zinc-400"
             />
           </div>
 
-          <div>
+ 
+          <div className="w-full">
             <Label className="text-sm font-medium">Mobile Number</Label>
             <Input
               type="text"
               placeholder="Enter Mobile Number"
-              className="mt-1 bg-white border border-zinc-300"
+              className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md focus:ring-2 focus:ring-zinc-400"
             />
           </div>
 
-          <div>
+    
+          <div className="w-full">
             <Label className="text-sm font-medium">Result</Label>
             <Input
               type="text"
               placeholder="Enter Result"
-              className="mt-1 bg-white border border-zinc-300"
+              className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md focus:ring-2 focus:ring-zinc-400"
             />
           </div>
 
-          <div>
+
+          <div className="w-full">
             <Label className="text-sm font-medium">Class Name</Label>
             <Select>
-              <SelectTrigger className="mt-1 bg-white border border-zinc-300">
+              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md focus:ring-2 focus:ring-zinc-400">
                 <SelectValue placeholder="Select Class" />
               </SelectTrigger>
               <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
@@ -129,10 +139,11 @@ export default function StudentDialog() {
             </Select>
           </div>
 
-          <div>
+
+          <div className="w-full">
             <Label className="text-sm font-medium">Medium</Label>
             <Select>
-              <SelectTrigger className="mt-1 bg-white border border-zinc-300">
+              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md focus:ring-2 focus:ring-zinc-400">
                 <SelectValue placeholder="Select Medium" />
               </SelectTrigger>
               <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
@@ -146,8 +157,9 @@ export default function StudentDialog() {
           </div>
         </form>
 
+
         <div className="flex justify-end mt-6">
-          <Button className="bg-zinc-800 text-white hover:bg-zinc-700 px-6">
+          <Button className="bg-zinc-800 text-white hover:bg-zinc-700 px-6 rounded-lg transition">
             Save Student
           </Button>
         </div>

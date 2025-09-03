@@ -32,20 +32,20 @@ export default function BlockDialog() {
 
     
       <DialogContent className="max-w-md bg-zinc-100 text-zinc-900 rounded-xl shadow-xl p-6">
-    
+       
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-zinc-800">
             Add Block Details
           </DialogTitle>
         </DialogHeader>
 
-       
+     
         <form className="grid grid-cols-1 gap-4 mt-4">
-      
+   
           <div>
             <Label className="text-sm font-medium">Sub Division</Label>
             <Select>
-              <SelectTrigger className="mt-1 bg-white border border-zinc-300">
+              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md">
                 <SelectValue placeholder="Select Sub Division" />
               </SelectTrigger>
               <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
@@ -56,18 +56,18 @@ export default function BlockDialog() {
             </Select>
           </div>
 
-     
+   
           <div>
             <Label className="text-sm font-medium">Block Name</Label>
             <Input
               type="text"
               placeholder="Enter Block Name"
-              className="mt-1 bg-white border border-zinc-300"
+              className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md"
             />
           </div>
         </form>
 
-       
+ 
         <div className="flex justify-end mt-6">
           <Button className="bg-zinc-800 text-white hover:bg-zinc-700 px-6">
             Save Block

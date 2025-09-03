@@ -60,7 +60,7 @@ export const columns: ColumnDef<Block>[] = [
             className="w-48 p-2 bg-white border border-zinc-200 shadow-lg rounded-md"
           >
             <div className="flex flex-col space-y-1">
-              {/* Edit Button */}
+           
               <Button
                 variant="ghost"
                 className="justify-start text-left text-sm hover:bg-zinc-100"
@@ -70,7 +70,6 @@ export const columns: ColumnDef<Block>[] = [
                 Edit
               </Button>
 
-              {/* Generate Admit Button */}
               <Button
                 variant="ghost"
                 className="justify-start text-left text-sm hover:bg-zinc-100"
@@ -80,7 +79,6 @@ export const columns: ColumnDef<Block>[] = [
                 Generate Admit
               </Button>
 
-              {/* Print Result Button */}
               <Button
                 variant="ghost"
                 className="justify-start text-left text-sm hover:bg-zinc-100"

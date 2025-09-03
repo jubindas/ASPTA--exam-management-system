@@ -1,12 +1,16 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
+
 import type { School } from "@/table-types/center-table-types";
+
 import { Button } from "@/components/ui/button";
+
 import {
   Popover,
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+
 import { MoreHorizontal, Edit, UserPlus } from "lucide-react";
 
 export const columns: ColumnDef<School>[] = [
