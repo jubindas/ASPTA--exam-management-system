@@ -1,11 +1,12 @@
-export type Student = {
-  si: number; 
-  studentId: string;
-  studentName: string;
+export interface Student {
+  id: number;
+  uuid: string;
+  name: string;
   mobile: string;
-  class: string;
+  studentClass: string;
   medium: string;
   subDivision: string;
   block: string;
-  schoolName: string;
-};
+  centerName: string;
+  result: string;
+}

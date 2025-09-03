@@ -1,5 +1,7 @@
 import { useState } from "react";
+
 import { useNavigate } from "react-router-dom";
+
 import { Mail, Lock } from "lucide-react";
 
 interface User {
@@ -23,7 +25,7 @@ export default function Login() {
     if (user) {
       localStorage.setItem("currentUser", JSON.stringify(user));
       if (user.role === "admin") navigate("/");
-      else if (user.role === "subdiv") navigate("/subdiv-dashboard");
+      else if (user.role === "subdiv") navigate("/subdivision");
     } else {
       alert("Invalid email or password");
     }

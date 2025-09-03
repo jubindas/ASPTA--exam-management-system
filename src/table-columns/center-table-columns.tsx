@@ -1,7 +1,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 
-import type { School } from "@/table-types/center-table-types";
+import type {Center} from "@/table-types/center-table-types"
 
 import { Button } from "@/components/ui/button";
 
@@ -13,7 +13,7 @@ import {
 
 import { MoreHorizontal, Edit, UserPlus } from "lucide-react";
 
-export const columns: ColumnDef<School>[] = [
+export const columns: ColumnDef<Center>[] = [
   {
     accessorKey: "id",
     header: "ID",
@@ -22,11 +22,11 @@ export const columns: ColumnDef<School>[] = [
     ),
   },
   {
-    accessorKey: "name",
+    accessorKey: "centerName",
     header: "School Name",
     cell: ({ row }) => (
       <span className="text-sm font-medium text-zinc-900">
-        {row.getValue("name")}
+        {row.getValue("centerName")}
       </span>
     ),
   },
@@ -70,7 +70,7 @@ export const columns: ColumnDef<School>[] = [
               <Button
                 variant="ghost"
                 className="justify-start text-left text-sm hover:bg-zinc-100"
-                onClick={() => alert(`Editing ${school.name}`)}
+                onClick={() => alert(`Editing ${school.centerName}`)}
               >
                 <Edit className="h-4 w-4 mr-2 text-zinc-700" />
                 Edit
@@ -78,7 +78,7 @@ export const columns: ColumnDef<School>[] = [
               <Button
                 variant="ghost"
                 className="justify-start text-left text-sm hover:bg-zinc-100"
-                onClick={() => alert(`Adding Student to ${school.name}`)}
+                onClick={() => alert(`Adding Student to ${school.centerName}`)}
               >
                 <UserPlus className="h-4 w-4 mr-2 text-zinc-700" />
                 Add Student

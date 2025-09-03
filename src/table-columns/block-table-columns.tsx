@@ -22,11 +22,11 @@ export const columns: ColumnDef<Block>[] = [
     ),
   },
   {
-    accessorKey: "name",
+    accessorKey: "blockName",
     header: "Name",
     cell: ({ row }) => (
       <span className="text-sm font-medium text-zinc-900">
-        {row.getValue("name")}
+        {row.getValue("blockName")}
       </span>
     ),
   },
@@ -64,7 +64,7 @@ export const columns: ColumnDef<Block>[] = [
               <Button
                 variant="ghost"
                 className="justify-start text-left text-sm hover:bg-zinc-100"
-                onClick={() => alert(`Editing ${block.name}`)}
+                onClick={() => alert(`Editing ${block.blockName}`)}
               >
                 <Edit className="h-4 w-4 mr-2 text-zinc-700" />
                 Edit
@@ -73,7 +73,7 @@ export const columns: ColumnDef<Block>[] = [
               <Button
                 variant="ghost"
                 className="justify-start text-left text-sm hover:bg-zinc-100"
-                onClick={() => alert(`Generating Admit for ${block.name}`)}
+                onClick={() => alert(`Generating Admit for ${block.blockName}`)}
               >
                 <FileBadge className="h-4 w-4 mr-2 text-zinc-700" />
                 Generate Admit
@@ -82,7 +82,7 @@ export const columns: ColumnDef<Block>[] = [
               <Button
                 variant="ghost"
                 className="justify-start text-left text-sm hover:bg-zinc-100"
-                onClick={() => alert(`Printing Result for ${block.name}`)}
+                onClick={() => alert(`Printing Result for ${block.blockName}`)}
               >
                 <Printer className="h-4 w-4 mr-2 text-zinc-700" />
                 Print Result

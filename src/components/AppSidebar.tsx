@@ -26,21 +26,23 @@ export function AppSidebar() {
   const location = useLocation();
   const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
   
-  const getMenuItems = () => {
-    if (currentUser?.role === "admin") {
-      return [ ...adminItems , ...baseItems];
-    }
-    return baseItems;
-  };
+const getMenuItems = () => {
+  if (currentUser?.role === "admin") {
+    const [home, ...rest] = baseItems;
+    return [home, ...adminItems, ...rest];
+  }
+  return baseItems;
+};
+
 
   const menuItems = getMenuItems();
 
   return (
     <Sidebar className="bg-zinc-900 text-white w-64 shadow-lg">
       <SidebarContent className="py-6">
-        <div className="px-6 mb-8 flex items-center space-x-4">
+          <div className="px-6 mb-10 flex items-center space-x-4">
           <img
-            src="/avatar.png" 
+            src="https://www.nicepng.com/png/detail/263-2635963_admin-png.png" 
             alt="Avatar"
             className="h-12 w-12 rounded-full border-2 border-zinc-700"
           />
@@ -53,6 +55,7 @@ export function AppSidebar() {
           <SidebarGroupLabel className="text-2xl font-extrabold tracking-wide text-white px-6 mb-6">
             AAPTA
           </SidebarGroupLabel>
+         
           <SidebarGroupContent>
             <SidebarMenu className="space-y-3">
               {menuItems.map((item) => {
@@ -78,6 +81,7 @@ export function AppSidebar() {
               })}
             </SidebarMenu>
           </SidebarGroupContent>
+         
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>

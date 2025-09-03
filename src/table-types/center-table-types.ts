@@ -1,6 +1,6 @@
-export type School = {
-  id: string;
-  name: string;
-  block: string;
+export interface Center {
+  id: number;
   subDivision: string;
-};
+  block: string;
+  centerName: string;
+}

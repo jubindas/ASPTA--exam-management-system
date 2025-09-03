@@ -1,5 +1,5 @@
-export type Block = {
-  id: string;
-  name: string;
+export interface Block {
+  id: number;
   subDivision: string;
-};
+  blockName: string;
+}

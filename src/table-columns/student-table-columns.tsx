@@ -15,25 +15,25 @@ import { MoreHorizontal, Edit } from "lucide-react";
 
 export const columns: ColumnDef<Student>[] = [
   {
-    accessorKey: "si",
+    accessorKey: "id",
     header: "SI",
     cell: ({ row }) => (
-      <span className="text-sm text-zinc-800">{row.getValue("si")}</span>
+      <span className="text-sm text-zinc-800">{row.getValue("id")}</span>
     ),
   },
   {
-    accessorKey: "studentId",
-    header: "Student ID",
+    accessorKey: "uuid",
+    header: "Student UUID",
     cell: ({ row }) => (
-      <span className="text-sm text-zinc-800">{row.getValue("studentId")}</span>
+      <span className="text-sm text-zinc-800">{row.getValue("uuid")}</span>
     ),
   },
   {
-    accessorKey: "studentName",
+    accessorKey: "name",
     header: "Student Name",
     cell: ({ row }) => (
       <span className="text-sm font-medium text-zinc-900">
-        {row.getValue("studentName")}
+        {row.getValue("name")}
       </span>
     ),
   },
@@ -73,10 +73,10 @@ export const columns: ColumnDef<Student>[] = [
     ),
   },
   {
-    accessorKey: "schoolName",
+    accessorKey: "centerName",
     header: "School Name",
     cell: ({ row }) => (
-      <span className="text-sm text-zinc-700">{row.getValue("schoolName")}</span>
+      <span className="text-sm text-zinc-700">{row.getValue("centerName")}</span>
     ),
   },
   {
@@ -102,7 +102,7 @@ export const columns: ColumnDef<Student>[] = [
             <Button
               variant="ghost"
               className="justify-start text-left text-sm hover:bg-zinc-100"
-              onClick={() => alert(`Editing student ${student.studentName}`)}
+              onClick={() => alert(`Editing student ${student.name}`)}
             >
               <Edit className="h-4 w-4 mr-2 text-zinc-700" />
               Edit
