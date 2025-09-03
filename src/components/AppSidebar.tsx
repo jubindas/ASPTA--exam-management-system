@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+
 import {
   Sidebar,
   SidebarContent,
@@ -9,6 +10,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+
 import { Home, MapPin, Building2, User, Users } from "lucide-react";
 
 const baseItems = [

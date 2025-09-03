@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
+
 import { DataTable } from "@/components/data-table";
+
 import { columns } from "@/table-columns/student-table-columns";
+
 import StudentDialog from "@/components/StudentDialog";
 
 interface Student {

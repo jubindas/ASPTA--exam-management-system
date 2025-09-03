@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import {
   Dialog,
@@ -14,29 +14,51 @@ import { Input } from "@/components/ui/input";
 
 import { Button } from "@/components/ui/button";
 
+interface SubDivision {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+}
 
-export default function SubDivisionDialog() {
+interface SubDivisionDialogProps {
+  onSubDivisionsChange: (subDivisions: SubDivision[]) => void;
+}
+
+export default function SubDivisionDialog({
+  onSubDivisionsChange,
+}: SubDivisionDialogProps) {
   const [name, setName] = useState("");
+  const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
+
+  useEffect(() => {
+    const storedSubDivisions = JSON.parse(
+      localStorage.getItem("subDivisions") || "[]"
+    );
+    setSubDivisions(storedSubDivisions);
+  }, []);
 
   const handleSave = () => {
     if (!name) return alert("Please enter Sub Division Name");
 
     const email = `${name.replace(/\s+/g, "").toLowerCase()}@subdivision.com`;
-    const password = Math.random().toString(36).slice(-8); 
+    const password = Math.random().toString(36).slice(-8);
 
     const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
-
     const newUser = { email, password, role: "subdiv" };
-    localStorage.setItem(
-      "users",
-      JSON.stringify([...existingUsers, newUser])
-    );
+    localStorage.setItem("users", JSON.stringify([...existingUsers, newUser]));
 
-    const existingSubDivs = JSON.parse(localStorage.getItem("subDivisions") || "[]");
-    const newSubDivision = { id: Date.now(), name, email, password };
-    localStorage.setItem("subDivisions", JSON.stringify([...existingSubDivs, newSubDivision]));
+    const newSubDivision: SubDivision = {
+      id: Date.now(),
+      name,
+      email,
+      password,
+    };
+    const updatedSubDivisions = [...subDivisions, newSubDivision];
+    localStorage.setItem("subDivisions", JSON.stringify(updatedSubDivisions));
 
-    alert(`Sub Division Created!\nEmail: ${email}\nPassword: ${password}`);
+    if (onSubDivisionsChange) onSubDivisionsChange(updatedSubDivisions);
+
     setName("");
   };
 

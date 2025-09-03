@@ -1,5 +1,7 @@
 
 export interface SubDivision {
-  id: string;     
-  name: string;  
+  id: number;
+  name: string;
+  email: string;
+  password: string;
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+
 import {
   Dialog,
   DialogContent,
@@ -6,9 +7,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
 import { Label } from "@/components/ui/label";
+
 import { Input } from "@/components/ui/input";
+
 import { Button } from "@/components/ui/button";
+
 import {
   Select,
   SelectContent,
@@ -43,14 +48,14 @@ export default function BlockDialog({ onBlocksChange }: BlockDialogProps) {
     const newBlock = { id: Date.now(), subDivision, blockName };
     const updatedBlocks = [...blocks, newBlock];
 
-    // Update local state and localStorage
+    
     setBlocks(updatedBlocks);
     localStorage.setItem("blocks", JSON.stringify(updatedBlocks));
 
-    // Update parent table instantly
+    
     if (onBlocksChange) onBlocksChange(updatedBlocks);
 
-    // Reset fields
+    
     setSubDivision("");
     setBlockName("");
   };
