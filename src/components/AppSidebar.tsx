@@ -1,6 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-
 import {
   Sidebar,
   SidebarContent,
@@ -11,27 +9,30 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Home, MapPin, Building2, User } from "lucide-react";
 
 const items = [
   { title: "Home", url: "/home", icon: Home },
-  { title: "Block", url: "/block", icon: Inbox },
-  { title: "Center", url: "/center", icon: Calendar },
-  { title: "Search", url: "/search", icon: Search },
-  { title: "Settings", url: "/settings", icon: Settings },
+  { title: "Block", url: "/block", icon: MapPin },
+  { title: "Center", url: "/center", icon: Building2 },
+  { title: "Student", url: "/student", icon: User }
 ];
 
 export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar className="bg-zinc-900 text-white w-64 rounded-tr-2xl rounded-br-2xl shadow-lg">
-      <SidebarContent>
+    <Sidebar className="bg-zinc-900 text-white w-64 shadow-lg">
+      <SidebarContent className="py-6">
+     
         <SidebarGroup>
-          <SidebarGroupLabel className="text-lg font-bold tracking-wide text-white">
+          <SidebarGroupLabel className="text-2xl font-extrabold tracking-wide text-white px-6 mb-8">
             AAPTA
           </SidebarGroupLabel>
+
+       
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-3">
               {items.map((item) => {
                 const isActive = location.pathname === item.url;
                 return (
@@ -39,15 +40,15 @@ export function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <Link
                         to={item.url}
-                        className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors duration-200
+                        className={`flex items-center space-x-5 px-6 py-4 rounded-xl text-lg font-semibold transition-all duration-300
                           ${
                             isActive
-                              ? "bg-zinc-700 text-white shadow-sm"
-                              : "hover:bg-zinc-800 hover:text-zinc-100"
+                              ? "bg-zinc-700 text-white shadow-md scale-[1.02]"
+                              : "hover:bg-zinc-800 hover:text-white"
                           }`}
                       >
-                        <item.icon className="h-5 w-5" />
-                        <span className="text-sm">{item.title}</span>
+                        <item.icon className="h-7 w-7" />
+                        <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

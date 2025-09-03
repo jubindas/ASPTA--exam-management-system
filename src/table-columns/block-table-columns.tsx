@@ -1,15 +1,19 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
-import type { School } from "@/table-types/center-table-types";
+
+import type { Block } from "@/table-types/block-table-types";
+
 import { Button } from "@/components/ui/button";
+
 import {
   Popover,
-  PopoverTrigger,
   PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
-import { MoreHorizontal, Edit, UserPlus } from "lucide-react";
 
-export const columns: ColumnDef<School>[] = [
+import { MoreHorizontal, Edit, FileBadge, Printer } from "lucide-react";
+
+export const columns: ColumnDef<Block>[] = [
   {
     accessorKey: "id",
     header: "ID",
@@ -19,18 +23,11 @@ export const columns: ColumnDef<School>[] = [
   },
   {
     accessorKey: "name",
-    header: "School Name",
+    header: "Name",
     cell: ({ row }) => (
       <span className="text-sm font-medium text-zinc-900">
         {row.getValue("name")}
       </span>
-    ),
-  },
-  {
-    accessorKey: "block",
-    header: "Block",
-    cell: ({ row }) => (
-      <span className="text-sm text-zinc-700">{row.getValue("block")}</span>
     ),
   },
   {
@@ -46,7 +43,7 @@ export const columns: ColumnDef<School>[] = [
     id: "actions",
     header: "Action",
     cell: ({ row }) => {
-      const school = row.original;
+      const block = row.original;
       return (
         <Popover>
           <PopoverTrigger asChild>
@@ -63,21 +60,34 @@ export const columns: ColumnDef<School>[] = [
             className="w-48 p-2 bg-white border border-zinc-200 shadow-lg rounded-md"
           >
             <div className="flex flex-col space-y-1">
+              {/* Edit Button */}
               <Button
                 variant="ghost"
                 className="justify-start text-left text-sm hover:bg-zinc-100"
-                onClick={() => alert(`Editing ${school.name}`)}
+                onClick={() => alert(`Editing ${block.name}`)}
               >
                 <Edit className="h-4 w-4 mr-2 text-zinc-700" />
                 Edit
               </Button>
+
+              {/* Generate Admit Button */}
               <Button
                 variant="ghost"
                 className="justify-start text-left text-sm hover:bg-zinc-100"
-                onClick={() => alert(`Adding Student to ${school.name}`)}
+                onClick={() => alert(`Generating Admit for ${block.name}`)}
               >
-                <UserPlus className="h-4 w-4 mr-2 text-zinc-700" />
-                Add Student
+                <FileBadge className="h-4 w-4 mr-2 text-zinc-700" />
+                Generate Admit
+              </Button>
+
+              {/* Print Result Button */}
+              <Button
+                variant="ghost"
+                className="justify-start text-left text-sm hover:bg-zinc-100"
+                onClick={() => alert(`Printing Result for ${block.name}`)}
+              >
+                <Printer className="h-4 w-4 mr-2 text-zinc-700" />
+                Print Result
               </Button>
             </div>
           </PopoverContent>

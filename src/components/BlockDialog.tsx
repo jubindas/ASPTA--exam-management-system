@@ -20,27 +20,28 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export default function CenterDialog() {
+export default function BlockDialog() {
   return (
     <Dialog>
-    
+     
       <DialogTrigger asChild>
         <Button className="bg-zinc-800 text-white hover:bg-zinc-700 shadow-md px-4">
-          Add Center
+          Add Block
         </Button>
       </DialogTrigger>
 
-     
+    
       <DialogContent className="max-w-md bg-zinc-100 text-zinc-900 rounded-xl shadow-xl p-6">
+    
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-zinc-800">
-            Add Center Details
+            Add Block Details
           </DialogTitle>
         </DialogHeader>
 
-     
+       
         <form className="grid grid-cols-1 gap-4 mt-4">
-        
+      
           <div>
             <Label className="text-sm font-medium">Sub Division</Label>
             <Select>
@@ -55,34 +56,21 @@ export default function CenterDialog() {
             </Select>
           </div>
 
+     
           <div>
-            <Label className="text-sm font-medium">Block</Label>
-            <Select>
-              <SelectTrigger className="mt-1 bg-white border border-zinc-300">
-                <SelectValue placeholder="Select Block" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
-                <SelectItem value="block1">Block 1</SelectItem>
-                <SelectItem value="block2">Block 2</SelectItem>
-                <SelectItem value="block3">Block 3</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-sm font-medium">Center Name</Label>
+            <Label className="text-sm font-medium">Block Name</Label>
             <Input
               type="text"
-              placeholder="Enter Center Name"
+              placeholder="Enter Block Name"
               className="mt-1 bg-white border border-zinc-300"
             />
           </div>
         </form>
 
-        
+       
         <div className="flex justify-end mt-6">
           <Button className="bg-zinc-800 text-white hover:bg-zinc-700 px-6">
-            Save Center
+            Save Block
           </Button>
         </div>
       </DialogContent>

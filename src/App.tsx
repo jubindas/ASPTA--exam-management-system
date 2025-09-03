@@ -5,6 +5,7 @@ import RootLayout from "./components/RootLayout";
 import Block from "./pages/Block"
 
 import Center from "./pages/Center";
+import Student from "./pages/Student";
 
 const router = createBrowserRouter([
   {
@@ -14,6 +15,7 @@ const router = createBrowserRouter([
       { path: "home", element: <h1>hi, home</h1> },
       { path: "block", element: <Block /> },
       { path: "center", element: <Center /> },
+      { path: "student", element: <Student /> },
     ],
   },
 ]);

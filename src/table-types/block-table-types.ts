@@ -1,6 +1,5 @@
-export type School = {
+export type Block = {
   id: string;
   name: string;
-  block: string;
   subDivision: string;
 };
