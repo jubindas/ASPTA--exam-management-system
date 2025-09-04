@@ -14,12 +14,14 @@ import { saveTestCredentials } from "./login-local-storage/LoginData"
 
 import SubDivision from "./pages/SubDivision";
 
+import Home from "@/pages/Home"
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
     children: [
-      { path: "/", element: <h1>hi, home</h1> },
+      { path: "/", element: <Home /> },
       { path: "block", element: <Block /> },
       { path: "center", element: <Center /> },
       { path: "student", element: <Student /> },

@@ -44,7 +44,7 @@ const getMenuItems = () => {
       <SidebarContent className="py-6">
           <div className="px-6 mb-10 flex items-center space-x-4">
           <img
-            src="https://www.nicepng.com/png/detail/263-2635963_admin-png.png" 
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHavAqEKhY8MRX7NntKRnkGqFTk42uJT_TuA&s" 
             alt="Avatar"
             className="h-12 w-12 rounded-full border-2 border-zinc-700"
           />
