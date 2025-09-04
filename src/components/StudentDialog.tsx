@@ -9,9 +9,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { Label } from "@/components/ui/label";
-
 import { Input } from "@/components/ui/input";
-
 import { Button } from "@/components/ui/button";
 
 import {
@@ -32,7 +30,26 @@ interface Student {
   subDivision: string;
   block: string;
   centerName: string;
-  result: string;
+}
+
+interface SubDivision {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+}
+
+interface Block {
+  id: number;
+  subDivision: string;
+  blockName: string;
+}
+
+interface Center {
+  id: number;
+  subDivision: string;
+  block: string;
+  centerName: string;
 }
 
 interface StudentDialogProps {
@@ -48,16 +65,49 @@ export default function StudentDialog({ onStudentsChange }: StudentDialogProps) 
   const [subDivision, setSubDivision] = useState("");
   const [block, setBlock] = useState("");
   const [centerName, setCenterName] = useState("");
-  const [result, setResult] = useState("");
   const [students, setStudents] = useState<Student[]>([]);
+
+  const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
+  const [blocks, setBlocks] = useState<Block[]>([]);
+  const [centers, setCenters] = useState<Center[]>([]);
+
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userSubDivision, setUserSubDivision] = useState<string | null>(null);
 
   useEffect(() => {
     const storedStudents = JSON.parse(localStorage.getItem("students") || "[]");
     setStudents(storedStudents);
+
+    const storedSubDivisions = JSON.parse(
+      localStorage.getItem("subDivisions") || "[]"
+    );
+    setSubDivisions(storedSubDivisions);
+
+    const storedBlocks = JSON.parse(localStorage.getItem("blocks") || "[]");
+    setBlocks(storedBlocks);
+
+    const storedCenters = JSON.parse(localStorage.getItem("centers") || "[]");
+    setCenters(storedCenters);
+
+    const storedUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+    console.log("👤 Current User:", storedUser);
+
+    if (storedUser) {
+      setUserRole(storedUser.role);
+
+      if (storedUser.role === "subdiv") {
+        setUserSubDivision(storedUser.name);
+        setSubDivision(storedUser.name); 
+      }
+    }
   }, []);
 
   const handleSave = () => {
     if (!uuid || !name) return alert("Please enter Student ID and Name");
+
+    if (userRole === "subdiv" && userSubDivision !== subDivision) {
+      return alert("You can only add students under your assigned subdivision.");
+    }
 
     const newStudent: Student = {
       id: Date.now(),
@@ -69,28 +119,24 @@ export default function StudentDialog({ onStudentsChange }: StudentDialogProps) 
       subDivision,
       block,
       centerName,
-      result,
     };
 
     const updatedStudents = [...students, newStudent];
-
     setStudents(updatedStudents);
     localStorage.setItem("students", JSON.stringify(updatedStudents));
 
     if (onStudentsChange) onStudentsChange(updatedStudents);
 
-    
     setUuid("");
     setName("");
     setMobile("");
     setStudentClass("");
     setMedium("");
-    setSubDivision("");
+    if (userRole !== "subdiv") {
+      setSubDivision("");
+    }
     setBlock("");
     setCenterName("");
-    setResult("");
-
-    
   };
 
   return (
@@ -116,13 +162,94 @@ export default function StudentDialog({ onStudentsChange }: StudentDialogProps) 
           }}
         >
           <div>
+            <Label className="text-sm font-medium">Sub Division</Label>
+            {userRole === "subdiv" && userSubDivision ? (
+              <Input
+                type="text"
+                value={userSubDivision}
+                disabled
+                className="w-full h-10 mt-1 bg-zinc-200 border border-zinc-300 rounded-md cursor-not-allowed"
+              />
+            ) : (
+              <Select value={subDivision} onValueChange={setSubDivision}>
+                <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm">
+                  <SelectValue placeholder="Select Sub Division" />
+                </SelectTrigger>
+                <SelectContent>
+                  {subDivisions.length > 0 ? (
+                    subDivisions.map((sd) => (
+                      <SelectItem key={sd.id} value={sd.name}>
+                        {sd.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="p-2 text-sm text-zinc-500">
+                      No Sub Divisions found
+                    </div>
+                  )}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium">Block</Label>
+            <Select value={block} onValueChange={setBlock}>
+              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm">
+                <SelectValue placeholder="Select Block" />
+              </SelectTrigger>
+              <SelectContent>
+                {blocks.length > 0 ? (
+                  blocks
+                    .filter((b) => !subDivision || b.subDivision === subDivision)
+                    .map((b) => (
+                      <SelectItem key={b.id} value={b.blockName}>
+                        {b.blockName}
+                      </SelectItem>
+                    ))
+                ) : (
+                  <div className="p-2 text-sm text-zinc-500">No Blocks found</div>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium">School / Center</Label>
+            <Select value={centerName} onValueChange={setCenterName}>
+              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm">
+                <SelectValue placeholder="Select Center" />
+              </SelectTrigger>
+              <SelectContent>
+                {centers.length > 0 ? (
+                  centers
+                    .filter(
+                      (c) =>
+                        (!subDivision || c.subDivision === subDivision) &&
+                        (!block || c.block === block)
+                    )
+                    .map((center) => (
+                      <SelectItem key={center.id} value={center.centerName}>
+                        {center.centerName}
+                      </SelectItem>
+                    ))
+                ) : (
+                  <div className="p-2 text-sm text-zinc-500">
+                    No Centers found
+                  </div>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
             <Label className="text-sm font-medium">Student ID</Label>
             <Input
               type="text"
-              placeholder="Enter Student ID"
+              placeholder="Enter Student UUID"
               value={uuid}
               onChange={(e) => setUuid(e.target.value)}
-              className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md focus:ring-2 focus:ring-zinc-400"
+              className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md"
             />
           </div>
 
@@ -133,7 +260,7 @@ export default function StudentDialog({ onStudentsChange }: StudentDialogProps) 
               placeholder="Enter Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md focus:ring-2 focus:ring-zinc-400"
+              className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md"
             />
           </div>
 
@@ -144,7 +271,7 @@ export default function StudentDialog({ onStudentsChange }: StudentDialogProps) 
               placeholder="Enter Mobile"
               value={mobile}
               onChange={(e) => setMobile(e.target.value)}
-              className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md focus:ring-2 focus:ring-zinc-400"
+              className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md"
             />
           </div>
 
@@ -154,7 +281,7 @@ export default function StudentDialog({ onStudentsChange }: StudentDialogProps) 
               <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md">
                 <SelectValue placeholder="Select Class" />
               </SelectTrigger>
-              <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
+              <SelectContent>
                 <SelectItem value="IV">Class IV</SelectItem>
                 <SelectItem value="V">Class V</SelectItem>
               </SelectContent>
@@ -167,7 +294,7 @@ export default function StudentDialog({ onStudentsChange }: StudentDialogProps) 
               <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md">
                 <SelectValue placeholder="Select Medium" />
               </SelectTrigger>
-              <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
+              <SelectContent>
                 <SelectItem value="Assamese">Assamese</SelectItem>
                 <SelectItem value="Bengali">Bengali</SelectItem>
                 <SelectItem value="Boro">Boro</SelectItem>
@@ -175,59 +302,6 @@ export default function StudentDialog({ onStudentsChange }: StudentDialogProps) 
                 <SelectItem value="Hindi">Hindi</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-
-          <div>
-            <Label className="text-sm font-medium">Sub Division</Label>
-            <Select value={subDivision} onValueChange={setSubDivision}>
-              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md">
-                <SelectValue placeholder="Select Sub Division" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
-                <SelectItem value="sub1">Sub Division 1</SelectItem>
-                <SelectItem value="sub2">Sub Division 2</SelectItem>
-                <SelectItem value="sub3">Sub Division 3</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-sm font-medium">Block</Label>
-            <Select value={block} onValueChange={setBlock}>
-              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md">
-                <SelectValue placeholder="Select Block" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
-                <SelectItem value="block1">Block 1</SelectItem>
-                <SelectItem value="block2">Block 2</SelectItem>
-                <SelectItem value="block3">Block 3</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-sm font-medium">Center Name</Label>
-            <Select value={centerName} onValueChange={setCenterName}>
-              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md">
-                <SelectValue placeholder="Select Center" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
-                <SelectItem value="Center 1">Center 1</SelectItem>
-                <SelectItem value="Center 2">Center 2</SelectItem>
-                <SelectItem value="Center 3">Center 3</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-sm font-medium">Result</Label>
-            <Input
-              type="text"
-              placeholder="Enter Result"
-              value={result}
-              onChange={(e) => setResult(e.target.value)}
-              className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md focus:ring-2 focus:ring-zinc-400"
-            />
           </div>
 
           <div className="flex justify-end mt-6 col-span-2">

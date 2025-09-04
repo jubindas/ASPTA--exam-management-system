@@ -16,7 +16,7 @@ interface Student {
   subDivision: string;
   block: string;
   centerName: string;
-  result: string;
+
 }
 
 export default function Student() {

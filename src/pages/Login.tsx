@@ -18,14 +18,15 @@ export default function Login() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    
     const users: User[] = JSON.parse(localStorage.getItem("users") || "[]");
-    const user = users.find(u => u.email === email && u.password === password);
+    const user = users.find(
+      (u) => u.email === email && u.password === password
+    );
 
     if (user) {
       localStorage.setItem("currentUser", JSON.stringify(user));
       if (user.role === "admin") navigate("/");
-      else if (user.role === "subdiv") navigate("/subdivision");
+      else if (user.role === "subdiv") navigate("/");
     } else {
       alert("Invalid email or password");
     }
@@ -53,7 +54,10 @@ export default function Login() {
                 className="w-full border border-zinc-300 rounded-md py-2 px-3 pl-10 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500"
                 required
               />
-              <Mail className="absolute left-3 top-2.5 text-zinc-400" size={16} />
+              <Mail
+                className="absolute left-3 top-2.5 text-zinc-400"
+                size={16}
+              />
             </div>
           </div>
 
@@ -71,7 +75,10 @@ export default function Login() {
                 className="w-full border border-zinc-300 rounded-md py-2 px-3 pl-10 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500"
                 required
               />
-              <Lock className="absolute left-3 top-2.5 text-zinc-400" size={16} />
+              <Lock
+                className="absolute left-3 top-2.5 text-zinc-400"
+                size={16}
+              />
             </div>
           </div>
 

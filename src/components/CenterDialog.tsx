@@ -29,6 +29,19 @@ interface Center {
   centerName: string;
 }
 
+interface SubDivision {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+}
+
+interface Block {
+  id: number;
+  subDivision: string;
+  blockName: string;
+}
+
 interface CenterDialogProps {
   onCentersChange: (centers: Center[]) => void;
 }
@@ -39,14 +52,44 @@ export default function CenterDialog({ onCentersChange }: CenterDialogProps) {
   const [centerName, setCenterName] = useState("");
   const [centers, setCenters] = useState<Center[]>([]);
 
+  const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
+  const [blocks, setBlocks] = useState<Block[]>([]);
+
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userSubDivision, setUserSubDivision] = useState<string | null>(null);
+
   useEffect(() => {
     const storedCenters = JSON.parse(localStorage.getItem("centers") || "[]");
     setCenters(storedCenters);
+
+    const storedSubDivisions = JSON.parse(
+      localStorage.getItem("subDivisions") || "[]"
+    );
+    setSubDivisions(storedSubDivisions);
+
+    const storedBlocks = JSON.parse(localStorage.getItem("blocks") || "[]");
+    setBlocks(storedBlocks);
+
+    const storedUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+    console.log("👤 Current User:", storedUser);
+
+    if (storedUser) {
+      setUserRole(storedUser.role);
+
+      if (storedUser.role === "subdiv") {
+        setUserSubDivision(storedUser.name);
+        setSubDivision(storedUser.name); 
+      }
+    }
   }, []);
 
   const handleSave = () => {
     if (!subDivision || !block || !centerName)
       return alert("Please fill all fields");
+
+    if (userRole === "subdiv" && userSubDivision !== subDivision) {
+      return alert("You can only add centers under your assigned subdivision.");
+    }
 
     const newCenter = { id: Date.now(), subDivision, block, centerName };
     const updatedCenters = [...centers, newCenter];
@@ -56,18 +99,18 @@ export default function CenterDialog({ onCentersChange }: CenterDialogProps) {
 
     if (onCentersChange) onCentersChange(updatedCenters);
 
-    
-    setSubDivision("");
+    if (userRole !== "subdiv") {
+      setSubDivision("");
+    }
     setBlock("");
     setCenterName("");
-
   };
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button className="bg-zinc-800 text-white hover:bg-zinc-700 shadow-md px-4 rounded-lg transition">
-          Add Center
+          Add School
         </Button>
       </DialogTrigger>
 
@@ -85,30 +128,60 @@ export default function CenterDialog({ onCentersChange }: CenterDialogProps) {
             handleSave();
           }}
         >
+          {/* Sub Division */}
           <div className="w-full">
             <Label className="text-sm font-medium">Sub Division</Label>
-            <Select value={subDivision} onValueChange={setSubDivision}>
-              <SelectTrigger className="w-full mt-1 bg-white border border-zinc-300 focus:ring-2 focus:ring-zinc-400 rounded-md h-10">
-                <SelectValue placeholder="Select Sub Division" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
-                <SelectItem value="sub1">Sub Division 1</SelectItem>
-                <SelectItem value="sub2">Sub Division 2</SelectItem>
-                <SelectItem value="sub3">Sub Division 3</SelectItem>
-              </SelectContent>
-            </Select>
+            {userRole === "subdiv" && userSubDivision ? (
+              <Input
+                type="text"
+                value={userSubDivision}
+                disabled
+                className="w-full h-10 mt-1 bg-zinc-200 border border-zinc-300 rounded-md cursor-not-allowed"
+              />
+            ) : (
+              <Select value={subDivision} onValueChange={setSubDivision}>
+                <SelectTrigger className="w-full mt-1 bg-white border border-zinc-300 focus:ring-2 focus:ring-zinc-400 rounded-md h-10">
+                  <SelectValue placeholder="Select Sub Division" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
+                  {subDivisions.length > 0 ? (
+                    subDivisions.map((sd) => (
+                      <SelectItem key={sd.id} value={sd.name}>
+                        {sd.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="p-2 text-sm text-zinc-500">
+                      No Sub Divisions found
+                    </div>
+                  )}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
-          <div className="w-full">
+            <div>
             <Label className="text-sm font-medium">Block</Label>
             <Select value={block} onValueChange={setBlock}>
-              <SelectTrigger className="w-full mt-1 bg-white border border-zinc-300 focus:ring-2 focus:ring-zinc-400 rounded-md h-10">
+              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400">
                 <SelectValue placeholder="Select Block" />
               </SelectTrigger>
-              <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
-                <SelectItem value="block1">Block 1</SelectItem>
-                <SelectItem value="block2">Block 2</SelectItem>
-                <SelectItem value="block3">Block 3</SelectItem>
+              <SelectContent className="bg-white border border-zinc-200 rounded-md shadow-lg">
+                {blocks.length > 0 ? (
+                  blocks.map((b) => (
+                    <SelectItem
+                      key={b.id}
+                      value={b.blockName}
+                      className="cursor-pointer hover:bg-zinc-100 px-3 py-2 rounded-md"
+                    >
+                      {b.blockName}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="p-2 text-sm text-zinc-500">
+                    No Blocks found
+                  </div>
+                )}
               </SelectContent>
             </Select>
           </div>

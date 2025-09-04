@@ -28,6 +28,13 @@ interface Block {
   blockName: string;
 }
 
+interface SubDivision {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+}
+
 interface BlockDialogProps {
   onBlocksChange: (blocks: Block[]) => void;
 }
@@ -36,27 +43,54 @@ export default function BlockDialog({ onBlocksChange }: BlockDialogProps) {
   const [subDivision, setSubDivision] = useState("");
   const [blockName, setBlockName] = useState("");
   const [blocks, setBlocks] = useState<Block[]>([]);
+  const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userSubDivision, setUserSubDivision] = useState<string | null>(null);
 
   useEffect(() => {
     const storedBlocks = JSON.parse(localStorage.getItem("blocks") || "[]");
     setBlocks(storedBlocks);
+
+    const storedSubDivisions = JSON.parse(
+      localStorage.getItem("subDivisions") || "[]"
+    );
+    setSubDivisions(storedSubDivisions);
+
+    const storedUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+
+    console.log("📦 Blocks from storage:", storedBlocks);
+    console.log("🏫 SubDivisions from storage:", storedSubDivisions);
+    console.log("👤 Current User from storage:", storedUser);
+
+    if (storedUser) {
+      setUserRole(storedUser.role);
+
+      if (storedUser.role === "subdiv") {
+        setUserSubDivision(storedUser.name);
+        setSubDivision(storedUser.name); 
+      }
+    }
   }, []);
 
   const handleSave = () => {
-    if (!subDivision || !blockName) return alert("Please fill all fields");
+    if (!subDivision || !blockName)
+      return alert("Please fill all fields correctly");
+
+    if (userRole === "subdiv" && userSubDivision !== subDivision) {
+      return alert("You can only add blocks under your assigned subdivision.");
+    }
 
     const newBlock = { id: Date.now(), subDivision, blockName };
     const updatedBlocks = [...blocks, newBlock];
 
-    
     setBlocks(updatedBlocks);
     localStorage.setItem("blocks", JSON.stringify(updatedBlocks));
 
-    
     if (onBlocksChange) onBlocksChange(updatedBlocks);
 
-    
-    setSubDivision("");
+    if (userRole !== "subdiv") {
+      setSubDivision("");
+    }
     setBlockName("");
   };
 
@@ -84,16 +118,36 @@ export default function BlockDialog({ onBlocksChange }: BlockDialogProps) {
         >
           <div>
             <Label className="text-sm font-medium">Sub Division</Label>
-            <Select value={subDivision} onValueChange={(val) => setSubDivision(val)}>
-              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md">
-                <SelectValue placeholder="Select Sub Division" />
-              </SelectTrigger>
-              <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
-                <SelectItem value="sub1">Sub Division 1</SelectItem>
-                <SelectItem value="sub2">Sub Division 2</SelectItem>
-                <SelectItem value="sub3">Sub Division 3</SelectItem>
-              </SelectContent>
-            </Select>
+            {userRole === "subdiv" && userSubDivision ? (
+              <Input
+                type="text"
+                value={userSubDivision}
+                disabled
+                className="w-full h-10 mt-1 bg-zinc-200 border border-zinc-300 rounded-md cursor-not-allowed"
+              />
+            ) : (
+              <Select
+                value={subDivision}
+                onValueChange={(val) => setSubDivision(val)}
+              >
+                <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md">
+                  <SelectValue placeholder="Select Sub Division" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
+                  {subDivisions.length > 0 ? (
+                    subDivisions.map((sd) => (
+                      <SelectItem key={sd.id} value={sd.name}>
+                        {sd.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="p-2 text-sm text-zinc-500">
+                      No Sub Divisions found
+                    </div>
+                  )}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div>

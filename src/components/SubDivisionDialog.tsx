@@ -9,9 +9,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { Label } from "@/components/ui/label";
-
 import { Input } from "@/components/ui/input";
-
 import { Button } from "@/components/ui/button";
 
 interface SubDivision {
@@ -44,22 +42,39 @@ export default function SubDivisionDialog({
     const email = `${name.replace(/\s+/g, "").toLowerCase()}@subdivision.com`;
     const password = Math.random().toString(36).slice(-8);
 
-    const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
-    const newUser = { email, password, role: "subdiv" };
-    localStorage.setItem("users", JSON.stringify([...existingUsers, newUser]));
+    const nextId =
+      subDivisions.length > 0
+        ? subDivisions[subDivisions.length - 1].id + 1
+        : 1;
 
     const newSubDivision: SubDivision = {
-      id: Date.now(),
+      id: nextId,
       name,
       email,
       password,
     };
+
+
     const updatedSubDivisions = [...subDivisions, newSubDivision];
     localStorage.setItem("subDivisions", JSON.stringify(updatedSubDivisions));
+    setSubDivisions(updatedSubDivisions);
+
+    const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
+    const newUser = {
+      name,
+      email,
+      password,
+      role: "subdiv",
+    };
+    const updatedUsers = [...existingUsers, newUser];
+    localStorage.setItem("users", JSON.stringify(updatedUsers));
 
     if (onSubDivisionsChange) onSubDivisionsChange(updatedSubDivisions);
 
     setName("");
+    alert(
+      `Subdivision created!\n\nLogin credentials:\nEmail: ${email}\nPassword: ${password}`
+    );
   };
 
   return (
