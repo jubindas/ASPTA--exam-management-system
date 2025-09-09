@@ -33,6 +33,15 @@ const getMenuItems = () => {
     const [home, ...rest] = baseItems;
     return [home, ...adminItems, ...rest];
   }
+
+  if (currentUser?.role === "subdiv") {
+    return baseItems;
+  }
+
+  if (currentUser?.role === "block") {
+    return baseItems.filter((item) => item.title !== "Block");
+  }
+
   return baseItems;
 };
 

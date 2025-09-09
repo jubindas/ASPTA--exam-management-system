@@ -1,13 +1,11 @@
 import { useState } from "react";
-
 import { useNavigate } from "react-router-dom";
-
 import { Mail, Lock } from "lucide-react";
 
 interface User {
   email: string;
   password: string;
-  role: "admin" | "subdiv";
+  role: "admin" | "subdiv" | "block"; 
 }
 
 export default function Login() {
@@ -25,8 +23,10 @@ export default function Login() {
 
     if (user) {
       localStorage.setItem("currentUser", JSON.stringify(user));
+
       if (user.role === "admin") navigate("/");
       else if (user.role === "subdiv") navigate("/");
+      else if (user.role === "block") navigate("/");
     } else {
       alert("Invalid email or password");
     }
@@ -40,6 +40,7 @@ export default function Login() {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+        
           <div>
             <label className="block text-zinc-700 mb-1" htmlFor="email">
               Email
@@ -61,6 +62,7 @@ export default function Login() {
             </div>
           </div>
 
+      
           <div>
             <label className="block text-zinc-700 mb-1" htmlFor="password">
               Password
@@ -81,6 +83,7 @@ export default function Login() {
               />
             </div>
           </div>
+
 
           <button
             type="submit"

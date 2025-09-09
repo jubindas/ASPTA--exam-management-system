@@ -1,19 +1,16 @@
-
 import type { ColumnDef } from "@tanstack/react-table";
-
 import type { Block } from "@/table-types/block-table-types";
-
 import { Button } from "@/components/ui/button";
-
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-
 import { MoreHorizontal, Edit, FileBadge, Printer } from "lucide-react";
 
-export const columns: ColumnDef<Block>[] = [
+export const columns = (
+  navigate: (path: string, options?: any) => void
+): ColumnDef<Block, unknown>[] => [
   {
     accessorKey: "id",
     header: "ID",
@@ -40,10 +37,25 @@ export const columns: ColumnDef<Block>[] = [
     ),
   },
   {
+    accessorKey: "email",
+    header: "Email",
+    cell: ({ row }) => (
+      <span className="text-sm text-zinc-700">{row.getValue("email")}</span>
+    ),
+  },
+  {
+    accessorKey: "password",
+    header: "Password",
+    cell: ({ row }) => (
+      <span className="text-sm text-zinc-700">{row.getValue("password")}</span>
+    ),
+  },
+  {
     id: "actions",
     header: "Action",
     cell: ({ row }) => {
       const block = row.original;
+
       return (
         <Popover>
           <PopoverTrigger asChild>
@@ -60,7 +72,6 @@ export const columns: ColumnDef<Block>[] = [
             className="w-48 p-2 bg-white border border-zinc-200 shadow-lg rounded-md"
           >
             <div className="flex flex-col space-y-1">
-           
               <Button
                 variant="ghost"
                 className="justify-start text-left text-sm hover:bg-zinc-100"
@@ -73,7 +84,9 @@ export const columns: ColumnDef<Block>[] = [
               <Button
                 variant="ghost"
                 className="justify-start text-left text-sm hover:bg-zinc-100"
-                onClick={() => alert(`Generating Admit for ${block.blockName}`)}
+                onClick={() =>
+                  navigate("/generate-admit", { state: { block } })
+                }
               >
                 <FileBadge className="h-4 w-4 mr-2 text-zinc-700" />
                 Generate Admit

@@ -9,10 +9,10 @@ import {
 } from "@/components/ui/dialog";
 
 import { Label } from "@/components/ui/label";
-
 import { Input } from "@/components/ui/input";
-
 import { Button } from "@/components/ui/button";
+
+import type { User } from "@/login-local-storage/LoginData";
 
 import {
   Select,
@@ -26,6 +26,9 @@ interface Block {
   id: number;
   subDivision: string;
   blockName: string;
+  role: string;
+  email: string;
+  password: string;
 }
 
 interface SubDivision {
@@ -40,58 +43,87 @@ interface BlockDialogProps {
 }
 
 export default function BlockDialog({ onBlocksChange }: BlockDialogProps) {
-  const [subDivision, setSubDivision] = useState("");
   const [blockName, setBlockName] = useState("");
+  const [subDivision, setSubDivision] = useState(""); // stores subdivision name
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [userSubDivision, setUserSubDivision] = useState<string | null>(null);
 
   useEffect(() => {
     const storedBlocks = JSON.parse(localStorage.getItem("blocks") || "[]");
-    setBlocks(storedBlocks);
-
     const storedSubDivisions = JSON.parse(
       localStorage.getItem("subDivisions") || "[]"
     );
+    setBlocks(storedBlocks);
     setSubDivisions(storedSubDivisions);
 
     const storedUser = JSON.parse(localStorage.getItem("currentUser") || "null");
-
-    console.log("📦 Blocks from storage:", storedBlocks);
-    console.log("🏫 SubDivisions from storage:", storedSubDivisions);
-    console.log("👤 Current User from storage:", storedUser);
+    console.log("👤 Current User:", storedUser);
 
     if (storedUser) {
       setUserRole(storedUser.role);
 
+      // If user is subdivision → lock dropdown to their subdivision
       if (storedUser.role === "subdiv") {
-        setUserSubDivision(storedUser.name);
-        setSubDivision(storedUser.name); 
+        setSubDivision(storedUser.name);
       }
     }
   }, []);
 
   const handleSave = () => {
-    if (!subDivision || !blockName)
-      return alert("Please fill all fields correctly");
-
-    if (userRole === "subdiv" && userSubDivision !== subDivision) {
-      return alert("You can only add blocks under your assigned subdivision.");
+    if (!blockName || !subDivision) {
+      return alert("Please fill all fields");
     }
 
-    const newBlock = { id: Date.now(), subDivision, blockName };
-    const updatedBlocks = [...blocks, newBlock];
+    function generateRandomPassword(length: number = 8): string {
+      const chars =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!";
+      return Array.from({ length }, () =>
+        chars[Math.floor(Math.random() * chars.length)]
+      ).join("");
+    }
 
-    setBlocks(updatedBlocks);
+    const nextId = blocks.length > 0 ? blocks[blocks.length - 1].id + 1 : 1;
+    const randomPassword = generateRandomPassword(10);
+    const generatedEmail = `${blockName
+      .toLowerCase()
+      .replace(/\s+/g, "")}@abc.com`;
+
+    const newBlock: Block = {
+      id: nextId,
+      subDivision,
+      blockName,
+      role: "block",
+      email: generatedEmail,
+      password: randomPassword,
+    };
+
+    const updatedBlocks = [...blocks, newBlock];
     localStorage.setItem("blocks", JSON.stringify(updatedBlocks));
+    setBlocks(updatedBlocks);
+
+    const existingUsers: User[] = JSON.parse(
+      localStorage.getItem("users") || "[]"
+    );
+
+    const newUser: User = {
+      name: blockName,
+      email: generatedEmail,
+      password: randomPassword,
+      role: "block",
+    };
+
+    const updatedUsers = [...existingUsers, newUser];
+    localStorage.setItem("users", JSON.stringify(updatedUsers));
 
     if (onBlocksChange) onBlocksChange(updatedBlocks);
 
-    if (userRole !== "subdiv") {
-      setSubDivision("");
-    }
     setBlockName("");
+    if (userRole !== "subdiv") setSubDivision("");
+
+    alert(
+      `✅ Block "${blockName}" created under Sub Division: ${subDivision}\n\nLogin Credentials:\nEmail: ${newUser.email}\nPassword: ${newUser.password}`
+    );
   };
 
   return (
@@ -102,10 +134,10 @@ export default function BlockDialog({ onBlocksChange }: BlockDialogProps) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-md bg-zinc-100 text-zinc-900 rounded-xl shadow-xl p-6">
+      <DialogContent className="max-w-lg w-full bg-zinc-100 text-zinc-900 rounded-xl shadow-xl p-6">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-zinc-800">
-            Add Block Details
+            Add Block
           </DialogTitle>
         </DialogHeader>
 
@@ -116,51 +148,46 @@ export default function BlockDialog({ onBlocksChange }: BlockDialogProps) {
             handleSave();
           }}
         >
-          <div>
+          {/* Sub Division Select */}
+          <div className="w-full">
             <Label className="text-sm font-medium">Sub Division</Label>
-            {userRole === "subdiv" && userSubDivision ? (
-              <Input
-                type="text"
-                value={userSubDivision}
-                disabled
-                className="w-full h-10 mt-1 bg-zinc-200 border border-zinc-300 rounded-md cursor-not-allowed"
-              />
-            ) : (
-              <Select
-                value={subDivision}
-                onValueChange={(val) => setSubDivision(val)}
-              >
-                <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md">
-                  <SelectValue placeholder="Select Sub Division" />
-                </SelectTrigger>
-                <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
-                  {subDivisions.length > 0 ? (
-                    subDivisions.map((sd) => (
-                      <SelectItem key={sd.id} value={sd.name}>
-                        {sd.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <div className="p-2 text-sm text-zinc-500">
-                      No Sub Divisions found
-                    </div>
-                  )}
-                </SelectContent>
-              </Select>
-            )}
+            <Select
+              value={subDivision}
+              onValueChange={(val) => setSubDivision(val)}
+              disabled={userRole === "subdiv"} // lock if subdivision user
+            >
+              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md disabled:opacity-70 disabled:cursor-not-allowed">
+                <SelectValue placeholder="Select Sub Division" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
+                {subDivisions.length > 0 ? (
+                  subDivisions.map((sd) => (
+                    <SelectItem key={sd.id} value={sd.name}>
+                      {sd.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="p-2 text-sm text-zinc-500">
+                    No Sub Divisions found
+                  </div>
+                )}
+              </SelectContent>
+            </Select>
           </div>
 
-          <div>
+          {/* Block Name */}
+          <div className="w-full">
             <Label className="text-sm font-medium">Block Name</Label>
             <Input
               type="text"
               placeholder="Enter Block Name"
               value={blockName}
               onChange={(e) => setBlockName(e.target.value)}
-              className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md"
+              className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md focus:ring-2 focus:ring-zinc-400"
             />
           </div>
 
+          {/* Save Button */}
           <div className="flex justify-end mt-6">
             <Button
               type="submit"

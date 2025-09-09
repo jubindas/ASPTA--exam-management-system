@@ -9,7 +9,9 @@ import {
 } from "@/components/ui/dialog";
 
 import { Label } from "@/components/ui/label";
+
 import { Input } from "@/components/ui/input";
+
 import { Button } from "@/components/ui/button";
 
 import {
@@ -56,7 +58,9 @@ interface StudentDialogProps {
   onStudentsChange: (students: Student[]) => void;
 }
 
-export default function StudentDialog({ onStudentsChange }: StudentDialogProps) {
+export default function StudentDialog({
+  onStudentsChange,
+}: StudentDialogProps) {
   const [uuid, setUuid] = useState("");
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
@@ -89,7 +93,9 @@ export default function StudentDialog({ onStudentsChange }: StudentDialogProps) 
     const storedCenters = JSON.parse(localStorage.getItem("centers") || "[]");
     setCenters(storedCenters);
 
-    const storedUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+    const storedUser = JSON.parse(
+      localStorage.getItem("currentUser") || "null"
+    );
     console.log("👤 Current User:", storedUser);
 
     if (storedUser) {
@@ -97,21 +103,44 @@ export default function StudentDialog({ onStudentsChange }: StudentDialogProps) 
 
       if (storedUser.role === "subdiv") {
         setUserSubDivision(storedUser.name);
-        setSubDivision(storedUser.name); 
+        setSubDivision(storedUser.name);
+      }
+
+      if (storedUser.role === "block") {
+        const foundBlock = storedBlocks.find(
+          (b: Block) => b.blockName === storedUser.name
+        );
+
+        if (foundBlock) {
+          setBlock(foundBlock.blockName);
+          setSubDivision(foundBlock.subDivision);
+        }
       }
     }
   }, []);
 
   const handleSave = () => {
-    if (!uuid || !name) return alert("Please enter Student ID and Name");
+    if (!name) return alert("Please enter Student Name");
 
     if (userRole === "subdiv" && userSubDivision !== subDivision) {
-      return alert("You can only add students under your assigned subdivision.");
+      return alert(
+        "You can only add students under your assigned subdivision."
+      );
+    }
+
+    let studentUuid = uuid;
+    if (!studentUuid) {
+      const existingStudentsInBlock = students.filter(
+        (s) => s.subDivision === subDivision 
+      );
+     const serial = (existingStudentsInBlock.length + 1).toString().padStart(4, "0"); 
+      const subDivShort = subDivision.slice(0, 3).toUpperCase();
+      studentUuid = `PRAGYAN-${subDivShort}-${serial}`;
     }
 
     const newStudent: Student = {
       id: Date.now(),
-      uuid,
+      uuid: studentUuid,
       name,
       mobile,
       studentClass,
@@ -163,7 +192,8 @@ export default function StudentDialog({ onStudentsChange }: StudentDialogProps) 
         >
           <div>
             <Label className="text-sm font-medium">Sub Division</Label>
-            {userRole === "subdiv" && userSubDivision ? (
+            {(userRole === "subdiv" && userSubDivision) ||
+            (userRole === "block" && userSubDivision) ? (
               <Input
                 type="text"
                 value={userSubDivision}
@@ -175,7 +205,7 @@ export default function StudentDialog({ onStudentsChange }: StudentDialogProps) 
                 <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm">
                   <SelectValue placeholder="Select Sub Division" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white border border-zinc-200 rounded-md shadow-lg">
                   {subDivisions.length > 0 ? (
                     subDivisions.map((sd) => (
                       <SelectItem key={sd.id} value={sd.name}>
@@ -195,20 +225,24 @@ export default function StudentDialog({ onStudentsChange }: StudentDialogProps) 
           <div>
             <Label className="text-sm font-medium">Block</Label>
             <Select value={block} onValueChange={setBlock}>
-              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm">
+              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400">
                 <SelectValue placeholder="Select Block" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border border-zinc-200 rounded-md shadow-lg">
                 {blocks.length > 0 ? (
-                  blocks
-                    .filter((b) => !subDivision || b.subDivision === subDivision)
-                    .map((b) => (
-                      <SelectItem key={b.id} value={b.blockName}>
-                        {b.blockName}
-                      </SelectItem>
-                    ))
+                  blocks.map((b) => (
+                    <SelectItem
+                      key={b.id}
+                      value={b.blockName}
+                      className="cursor-pointer hover:bg-zinc-100 px-3 py-2 rounded-md"
+                    >
+                      {b.blockName}
+                    </SelectItem>
+                  ))
                 ) : (
-                  <div className="p-2 text-sm text-zinc-500">No Blocks found</div>
+                  <div className="p-2 text-sm text-zinc-500">
+                    No Blocks found
+                  </div>
                 )}
               </SelectContent>
             </Select>
@@ -217,22 +251,20 @@ export default function StudentDialog({ onStudentsChange }: StudentDialogProps) 
           <div>
             <Label className="text-sm font-medium">School / Center</Label>
             <Select value={centerName} onValueChange={setCenterName}>
-              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm">
+              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400">
                 <SelectValue placeholder="Select Center" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border  border-zinc-200 rounded-md shadow-lg">
                 {centers.length > 0 ? (
-                  centers
-                    .filter(
-                      (c) =>
-                        (!subDivision || c.subDivision === subDivision) &&
-                        (!block || c.block === block)
-                    )
-                    .map((center) => (
-                      <SelectItem key={center.id} value={center.centerName}>
-                        {center.centerName}
-                      </SelectItem>
-                    ))
+                  centers.map((center) => (
+                    <SelectItem
+                      key={center.id}
+                      value={center.centerName}
+                      className="cursor-pointer hover:bg-zinc-100 px-3 py-2 rounded-md"
+                    >
+                      {center.centerName}
+                    </SelectItem>
+                  ))
                 ) : (
                   <div className="p-2 text-sm text-zinc-500">
                     No Centers found
@@ -281,7 +313,7 @@ export default function StudentDialog({ onStudentsChange }: StudentDialogProps) 
               <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md">
                 <SelectValue placeholder="Select Class" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border border-zinc-200 rounded-md shadow-lg">
                 <SelectItem value="IV">Class IV</SelectItem>
                 <SelectItem value="V">Class V</SelectItem>
               </SelectContent>
@@ -294,7 +326,7 @@ export default function StudentDialog({ onStudentsChange }: StudentDialogProps) 
               <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md">
                 <SelectValue placeholder="Select Medium" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border border-zinc-200 rounded-md shadow-lg">
                 <SelectItem value="Assamese">Assamese</SelectItem>
                 <SelectItem value="Bengali">Bengali</SelectItem>
                 <SelectItem value="Boro">Boro</SelectItem>

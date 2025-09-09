@@ -56,7 +56,6 @@ export default function CenterDialog({ onCentersChange }: CenterDialogProps) {
   const [blocks, setBlocks] = useState<Block[]>([]);
 
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [userSubDivision, setUserSubDivision] = useState<string | null>(null);
 
   useEffect(() => {
     const storedCenters = JSON.parse(localStorage.getItem("centers") || "[]");
@@ -77,8 +76,18 @@ export default function CenterDialog({ onCentersChange }: CenterDialogProps) {
       setUserRole(storedUser.role);
 
       if (storedUser.role === "subdiv") {
-        setUserSubDivision(storedUser.name);
-        setSubDivision(storedUser.name); 
+        setSubDivision(storedUser.name);
+      }
+
+      if (storedUser.role === "block") {
+     
+        const foundBlock = storedBlocks.find(
+          (b: Block) => b.blockName === storedUser.name
+        );
+        if (foundBlock) {
+          setBlock(foundBlock.blockName);
+          setSubDivision(foundBlock.subDivision);
+        }
       }
     }
   }, []);
@@ -86,10 +95,6 @@ export default function CenterDialog({ onCentersChange }: CenterDialogProps) {
   const handleSave = () => {
     if (!subDivision || !block || !centerName)
       return alert("Please fill all fields");
-
-    if (userRole === "subdiv" && userSubDivision !== subDivision) {
-      return alert("You can only add centers under your assigned subdivision.");
-    }
 
     const newCenter = { id: Date.now(), subDivision, block, centerName };
     const updatedCenters = [...centers, newCenter];
@@ -99,10 +104,8 @@ export default function CenterDialog({ onCentersChange }: CenterDialogProps) {
 
     if (onCentersChange) onCentersChange(updatedCenters);
 
-    if (userRole !== "subdiv") {
-      setSubDivision("");
-    }
-    setBlock("");
+    if (userRole !== "subdiv") setSubDivision("");
+    if (userRole !== "block") setBlock("");
     setCenterName("");
   };
 
@@ -117,7 +120,7 @@ export default function CenterDialog({ onCentersChange }: CenterDialogProps) {
       <DialogContent className="max-w-lg w-full bg-zinc-100 text-zinc-900 rounded-xl shadow-lg p-6">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-zinc-800">
-            Add Center Details
+            Add School Details
           </DialogTitle>
         </DialogHeader>
 
@@ -128,42 +131,42 @@ export default function CenterDialog({ onCentersChange }: CenterDialogProps) {
             handleSave();
           }}
         >
-          {/* Sub Division */}
+       
           <div className="w-full">
             <Label className="text-sm font-medium">Sub Division</Label>
-            {userRole === "subdiv" && userSubDivision ? (
-              <Input
-                type="text"
-                value={userSubDivision}
-                disabled
-                className="w-full h-10 mt-1 bg-zinc-200 border border-zinc-300 rounded-md cursor-not-allowed"
-              />
-            ) : (
-              <Select value={subDivision} onValueChange={setSubDivision}>
-                <SelectTrigger className="w-full mt-1 bg-white border border-zinc-300 focus:ring-2 focus:ring-zinc-400 rounded-md h-10">
-                  <SelectValue placeholder="Select Sub Division" />
-                </SelectTrigger>
-                <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
-                  {subDivisions.length > 0 ? (
-                    subDivisions.map((sd) => (
-                      <SelectItem key={sd.id} value={sd.name}>
-                        {sd.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <div className="p-2 text-sm text-zinc-500">
-                      No Sub Divisions found
-                    </div>
-                  )}
-                </SelectContent>
-              </Select>
-            )}
+            <Select
+              value={subDivision}
+              onValueChange={setSubDivision}
+              disabled={userRole === "subdiv" || userRole === "block"}
+            >
+              <SelectTrigger className="w-full mt-1 bg-white border border-zinc-300 focus:ring-2 focus:ring-zinc-400 rounded-md h-10 disabled:opacity-70 disabled:cursor-not-allowed">
+                <SelectValue placeholder="Select Sub Division" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
+                {subDivisions.length > 0 ? (
+                  subDivisions.map((sd) => (
+                    <SelectItem key={sd.id} value={sd.name}>
+                      {sd.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="p-2 text-sm text-zinc-500">
+                    No Sub Divisions found
+                  </div>
+                )}
+              </SelectContent>
+            </Select>
           </div>
 
-            <div>
+  
+          <div>
             <Label className="text-sm font-medium">Block</Label>
-            <Select value={block} onValueChange={setBlock}>
-              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400">
+            <Select
+              value={block}
+              onValueChange={setBlock}
+              disabled={userRole === "block"}
+            >
+              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400 disabled:opacity-70 disabled:cursor-not-allowed">
                 <SelectValue placeholder="Select Block" />
               </SelectTrigger>
               <SelectContent className="bg-white border border-zinc-200 rounded-md shadow-lg">
@@ -178,14 +181,13 @@ export default function CenterDialog({ onCentersChange }: CenterDialogProps) {
                     </SelectItem>
                   ))
                 ) : (
-                  <div className="p-2 text-sm text-zinc-500">
-                    No Blocks found
-                  </div>
+                  <div className="p-2 text-sm text-zinc-500">No Blocks found</div>
                 )}
               </SelectContent>
             </Select>
           </div>
 
+        
           <div className="w-full">
             <Label className="text-sm font-medium">Center Name</Label>
             <Input
@@ -197,6 +199,7 @@ export default function CenterDialog({ onCentersChange }: CenterDialogProps) {
             />
           </div>
 
+   
           <div className="flex justify-end mt-6">
             <Button
               type="submit"

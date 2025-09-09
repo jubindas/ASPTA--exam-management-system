@@ -2,7 +2,7 @@ export interface User {
   name: string;
   email: string;
   password: string;
-  role: "admin" | "subdiv";
+  role: "admin" | "subdiv" | "block";
 }
 
 export function saveTestCredentials() {
@@ -25,7 +25,6 @@ export function saveTestCredentials() {
     localStorage.getItem("users") || "[]"
   );
 
-  // Avoid duplicate emails
   const mergedUsers = [
     ...existingUsers.filter(
       (eu) => !users.some((u) => u.email === eu.email)
