@@ -131,9 +131,11 @@ export default function StudentDialog({
     let studentUuid = uuid;
     if (!studentUuid) {
       const existingStudentsInBlock = students.filter(
-        (s) => s.subDivision === subDivision 
+        (s) => s.subDivision === subDivision
       );
-     const serial = (existingStudentsInBlock.length + 1).toString().padStart(4, "0"); 
+      const serial = (existingStudentsInBlock.length + 1)
+        .toString()
+        .padStart(4, "0");
       const subDivShort = subDivision.slice(0, 3).toUpperCase();
       studentUuid = `PRAGYAN-${subDivShort}-${serial}`;
     }
@@ -272,17 +274,6 @@ export default function StudentDialog({
                 )}
               </SelectContent>
             </Select>
-          </div>
-
-          <div>
-            <Label className="text-sm font-medium">Student ID</Label>
-            <Input
-              type="text"
-              placeholder="Enter Student UUID"
-              value={uuid}
-              onChange={(e) => setUuid(e.target.value)}
-              className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md"
-            />
           </div>
 
           <div>
