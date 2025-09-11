@@ -22,37 +22,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface Student {
-  id: number;
-  uuid: string;
-  name: string;
-  mobile: string;
-  studentClass: string;
-  medium: string;
-  subDivision: string;
-  block: string;
-  centerName: string;
-}
+import type { Student } from "@/table-types/student-table-types";
 
-interface SubDivision {
-  id: number;
-  name: string;
-  email: string;
-  password: string;
-}
+import type { SubDivision } from "@/table-types/sub-division-types";
 
-interface Block {
-  id: number;
-  subDivision: string;
-  blockName: string;
-}
+import type { Block } from "@/table-types/block-table-types";
 
-interface Center {
-  id: number;
-  subDivision: string;
-  block: string;
-  centerName: string;
-}
+import type { Center } from "@/table-types/center-table-types";
 
 interface StudentDialogProps {
   onStudentsChange: (students: Student[]) => void;
@@ -70,6 +46,7 @@ export default function StudentDialog({
   const [block, setBlock] = useState("");
   const [centerName, setCenterName] = useState("");
   const [students, setStudents] = useState<Student[]>([]);
+  const [guardianName, setGuardianName] = useState(""); // ✅
 
   const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
   const [blocks, setBlocks] = useState<Block[]>([]);
@@ -144,6 +121,7 @@ export default function StudentDialog({
       id: Date.now(),
       uuid: studentUuid,
       name,
+      guardianName,
       mobile,
       studentClass,
       medium,
@@ -168,6 +146,7 @@ export default function StudentDialog({
     }
     setBlock("");
     setCenterName("");
+    setGuardianName("");
   };
 
   return (
@@ -283,6 +262,17 @@ export default function StudentDialog({
               placeholder="Enter Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md"
+            />
+          </div>
+
+          <div>
+            <Label className="text-sm font-medium">Guardian Name</Label>
+            <Input
+              type="text"
+              placeholder="Enter Guardian Name"
+              value={guardianName}
+              onChange={(e) => setGuardianName(e.target.value)}
               className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md"
             />
           </div>

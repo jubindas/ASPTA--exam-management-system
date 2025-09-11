@@ -1,4 +1,4 @@
-// table-types/block-table-types.ts
+
 export interface Block {
   id: number;
   subDivision: string;

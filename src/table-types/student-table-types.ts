@@ -8,4 +8,5 @@ export interface Student {
   subDivision: string;
   block: string;
   centerName: string;
+  guardianName: string;
 }
