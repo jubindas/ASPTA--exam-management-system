@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-
 import CenterDialog from "@/components/CenterDialog";
-
 import { DataTable } from "@/components/data-table";
-
 import { columns } from "@/table-columns/center-table-columns";
 
 interface Center {
@@ -17,6 +14,7 @@ export default function Center() {
   const [centers, setCenters] = useState<Center[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [currentUserName, setCurrentUserName] = useState<string | null>(null);
+  const [editingCenter, setEditingCenter] = useState<Center | null>(null);
 
   useEffect(() => {
     const storedCenters = JSON.parse(localStorage.getItem("centers") || "[]");
@@ -44,7 +42,11 @@ export default function Center() {
         <h1 className="text-2xl font-semibold text-zinc-800 tracking-tight">
           Center List
         </h1>
-        <CenterDialog onCentersChange={handleCentersChange} />
+        <CenterDialog
+          onCentersChange={handleCentersChange}
+          editingCenter={editingCenter}
+          onClose={() => setEditingCenter(null)}
+        />
       </div>
 
       <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
@@ -72,9 +74,9 @@ export default function Center() {
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <DataTable
-          columns={columns}
-          data={filteredCenters} 
-          enablePagination={true}
+          columns={columns(setEditingCenter)}
+          data={filteredCenters}
+          enablePagination
         />
       </div>
     </div>

@@ -1,26 +1,9 @@
 import { useState, useEffect } from "react";
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-
 import { Input } from "@/components/ui/input";
-
 import { Button } from "@/components/ui/button";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Center {
   id: number;
@@ -29,183 +12,131 @@ interface Center {
   centerName: string;
 }
 
-interface SubDivision {
-  id: number;
-  name: string;
-  email: string;
-  password: string;
-}
-
-interface Block {
-  id: number;
-  subDivision: string;
-  blockName: string;
-}
+interface SubDivision { id: number; name: string; }
+interface Block { id: number; subDivision: string; blockName: string; }
 
 interface CenterDialogProps {
   onCentersChange: (centers: Center[]) => void;
+  editingCenter?: Center | null;
+  onClose?: () => void;
 }
-
-export default function CenterDialog({ onCentersChange }: CenterDialogProps) {
+export default function CenterDialog({ onCentersChange, editingCenter, onClose }: CenterDialogProps) {
   const [subDivision, setSubDivision] = useState("");
   const [block, setBlock] = useState("");
   const [centerName, setCenterName] = useState("");
   const [centers, setCenters] = useState<Center[]>([]);
-
   const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
   const [blocks, setBlocks] = useState<Block[]>([]);
-
   const [userRole, setUserRole] = useState<string | null>(null);
+
+
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const storedCenters = JSON.parse(localStorage.getItem("centers") || "[]");
     setCenters(storedCenters);
 
-    const storedSubDivisions = JSON.parse(
-      localStorage.getItem("subDivisions") || "[]"
-    );
+    const storedSubDivisions = JSON.parse(localStorage.getItem("subDivisions") || "[]");
     setSubDivisions(storedSubDivisions);
 
     const storedBlocks = JSON.parse(localStorage.getItem("blocks") || "[]");
     setBlocks(storedBlocks);
 
     const storedUser = JSON.parse(localStorage.getItem("currentUser") || "null");
-    console.log("👤 Current User:", storedUser);
-
-    if (storedUser) {
-      setUserRole(storedUser.role);
-
-      if (storedUser.role === "subdiv") {
-        setSubDivision(storedUser.name);
-      }
-
-      if (storedUser.role === "block") {
-     
-        const foundBlock = storedBlocks.find(
-          (b: Block) => b.blockName === storedUser.name
-        );
-        if (foundBlock) {
-          setBlock(foundBlock.blockName);
-          setSubDivision(foundBlock.subDivision);
-        }
-      }
-    }
+    if (storedUser) setUserRole(storedUser.role);
   }, []);
 
+  useEffect(() => {
+    if (editingCenter) {
+      setOpen(true);
+      setSubDivision(editingCenter.subDivision);
+      setBlock(editingCenter.block);
+      setCenterName(editingCenter.centerName);
+    } else {
+      setOpen(false);
+      setSubDivision("");
+      setBlock("");
+      setCenterName("");
+    }
+  }, [editingCenter]);
+
   const handleSave = () => {
-    if (!subDivision || !block || !centerName)
-      return alert("Please fill all fields");
+    if (!subDivision || !block || !centerName) return alert("Please fill all fields");
 
-    const newCenter = { id: Date.now(), subDivision, block, centerName };
+    if (editingCenter) {
+      const updatedCenters = centers.map((c) =>
+        c.id === editingCenter.id ? { ...c, subDivision, block, centerName } : c
+      );
+      setCenters(updatedCenters);
+      localStorage.setItem("centers", JSON.stringify(updatedCenters));
+      onCentersChange(updatedCenters);
+      setOpen(false);
+      onClose?.();
+      return;
+    }
+
+    const newCenter: Center = { id: Date.now(), subDivision, block, centerName };
     const updatedCenters = [...centers, newCenter];
-
     setCenters(updatedCenters);
     localStorage.setItem("centers", JSON.stringify(updatedCenters));
-
-    if (onCentersChange) onCentersChange(updatedCenters);
+    onCentersChange(updatedCenters);
 
     if (userRole !== "subdiv") setSubDivision("");
     if (userRole !== "block") setBlock("");
     setCenterName("");
+    setOpen(false);
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className="bg-zinc-800 text-white hover:bg-zinc-700 shadow-md px-4 rounded-lg transition">
-          Add School
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={(val) => { setOpen(val); if (!val) onClose?.(); }}>
+      {!editingCenter && (
+        <DialogTrigger asChild>
+          <Button className="bg-zinc-800 text-white hover:bg-zinc-700 shadow-md px-4 rounded-lg transition">
+            Add School
+          </Button>
+        </DialogTrigger>
+      )}
 
       <DialogContent className="max-w-lg w-full bg-zinc-100 text-zinc-900 rounded-xl shadow-lg p-6">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-zinc-800">
-            Add School Details
+            {editingCenter ? "Edit Center" : "Add School Details"}
           </DialogTitle>
         </DialogHeader>
 
-        <form
-          className="grid grid-cols-1 gap-4 mt-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSave();
-          }}
-        >
-       
+        <form className="grid grid-cols-1 gap-4 mt-4" onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
           <div className="w-full">
             <Label className="text-sm font-medium">Sub Division</Label>
-            <Select
-              value={subDivision}
-              onValueChange={setSubDivision}
-              disabled={userRole === "subdiv" || userRole === "block"}
-            >
+            <Select value={subDivision} onValueChange={setSubDivision} disabled={userRole === "subdiv" || userRole === "block"}>
               <SelectTrigger className="w-full mt-1 bg-white border border-zinc-300 focus:ring-2 focus:ring-zinc-400 rounded-md h-10 disabled:opacity-70 disabled:cursor-not-allowed">
                 <SelectValue placeholder="Select Sub Division" />
               </SelectTrigger>
-              <SelectContent className="bg-white border border-zinc-200 shadow-md rounded-md">
-                {subDivisions.length > 0 ? (
-                  subDivisions.map((sd) => (
-                    <SelectItem key={sd.id} value={sd.name}>
-                      {sd.name}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <div className="p-2 text-sm text-zinc-500">
-                    No Sub Divisions found
-                  </div>
-                )}
+              <SelectContent className="bg-white">
+                {subDivisions.map((sd) => <SelectItem key={sd.id} value={sd.name}>{sd.name}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
 
-  
           <div>
             <Label className="text-sm font-medium">Block</Label>
-            <Select
-              value={block}
-              onValueChange={setBlock}
-              disabled={userRole === "block"}
-            >
-              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400 disabled:opacity-70 disabled:cursor-not-allowed">
+            <Select value={block} onValueChange={setBlock} disabled={userRole === "block"}>
+              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md">
                 <SelectValue placeholder="Select Block" />
               </SelectTrigger>
-              <SelectContent className="bg-white border border-zinc-200 rounded-md shadow-lg">
-                {blocks.length > 0 ? (
-                  blocks.map((b) => (
-                    <SelectItem
-                      key={b.id}
-                      value={b.blockName}
-                      className="cursor-pointer hover:bg-zinc-100 px-3 py-2 rounded-md"
-                    >
-                      {b.blockName}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <div className="p-2 text-sm text-zinc-500">No Blocks found</div>
-                )}
+              <SelectContent className="bg-white">
+                {blocks.map((b) => <SelectItem key={b.id} value={b.blockName}>{b.blockName}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
 
-        
           <div className="w-full">
             <Label className="text-sm font-medium">Center Name</Label>
-            <Input
-              type="text"
-              placeholder="Enter Center Name"
-              value={centerName}
-              onChange={(e) => setCenterName(e.target.value)}
-              className="w-full h-10 mt-1 bg-white border border-zinc-300 focus:ring-2 focus:ring-zinc-400 rounded-md"
-            />
+            <Input type="text" placeholder="Enter Center Name" value={centerName} onChange={(e) => setCenterName(e.target.value)} className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md" />
           </div>
 
-   
           <div className="flex justify-end mt-6">
-            <Button
-              type="submit"
-              className="bg-zinc-800 text-white hover:bg-zinc-700 px-6 rounded-lg transition"
-            >
-              Save Center
+            <Button type="submit" className="bg-zinc-800 text-white hover:bg-zinc-700 px-6 rounded-lg transition">
+              {editingCenter ? "Update Center" : "Save Center"}
             </Button>
           </div>
         </form>
