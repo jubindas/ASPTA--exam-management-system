@@ -1,16 +1,8 @@
 import { useState, useEffect } from "react";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import {  Dialog,  DialogContent,  DialogHeader,  DialogTitle,  DialogTrigger,} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-
 import { Input } from "@/components/ui/input";
-
 import { Button } from "@/components/ui/button";
 
 interface SubDivision {
@@ -31,6 +23,7 @@ export default function SubDivisionDialog({
   editingSubDivision,
   onClose,
 }: SubDivisionDialogProps) {
+  const [open, setOpen] = useState(false); 
   const [name, setName] = useState("");
   const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
 
@@ -44,6 +37,7 @@ export default function SubDivisionDialog({
   useEffect(() => {
     if (editingSubDivision) {
       setName(editingSubDivision.name);
+      setOpen(true); 
     } else {
       setName("");
     }
@@ -60,6 +54,7 @@ export default function SubDivisionDialog({
       setSubDivisions(updatedSubDivisions);
       onSubDivisionsChange(updatedSubDivisions);
       alert("Subdivision updated!");
+      setOpen(false);
       onClose?.();
     } else {
       const email = `${name.replace(/\s+/g, "").toLowerCase()}@subdivision.com`;
@@ -83,28 +78,27 @@ export default function SubDivisionDialog({
 
       const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
       const newUser = { name, email, password, role: "subdiv" };
-      const updatedUsers = [...existingUsers, newUser];
-      localStorage.setItem("users", JSON.stringify(updatedUsers));
+      localStorage.setItem("users", JSON.stringify([...existingUsers, newUser]));
 
       onSubDivisionsChange(updatedSubDivisions);
 
       alert(
         `Subdivision created!\n\nLogin credentials:\nEmail: ${email}\nPassword: ${password}`
       );
+
+      setOpen(false); 
     }
 
     setName("");
   };
 
   return (
-    <Dialog open={!!editingSubDivision} onOpenChange={(open) => !open && onClose?.()}>
-      {!editingSubDivision && (
-        <DialogTrigger asChild>
-          <Button className="bg-zinc-800 text-white hover:bg-zinc-700 shadow-md px-4 rounded-lg transition">
-            Add Sub Division
-          </Button>
-        </DialogTrigger>
-      )}
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="bg-zinc-800 text-white hover:bg-zinc-700 shadow-md px-4 rounded-lg transition">
+          Add Sub Division
+        </Button>
+      </DialogTrigger>
 
       <DialogContent className="max-w-lg w-full bg-zinc-100 text-zinc-900 rounded-xl shadow-xl p-6">
         <DialogHeader>
