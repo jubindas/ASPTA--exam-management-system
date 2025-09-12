@@ -7,7 +7,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
 import { Label } from "@/components/ui/label";
 
 import { Input } from "@/components/ui/input";
@@ -23,10 +22,14 @@ interface SubDivision {
 
 interface SubDivisionDialogProps {
   onSubDivisionsChange: (subDivisions: SubDivision[]) => void;
+  editingSubDivision?: SubDivision | null;
+  onClose?: () => void;
 }
 
 export default function SubDivisionDialog({
   onSubDivisionsChange,
+  editingSubDivision,
+  onClose,
 }: SubDivisionDialogProps) {
   const [name, setName] = useState("");
   const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
@@ -38,59 +41,75 @@ export default function SubDivisionDialog({
     setSubDivisions(storedSubDivisions);
   }, []);
 
+  useEffect(() => {
+    if (editingSubDivision) {
+      setName(editingSubDivision.name);
+    } else {
+      setName("");
+    }
+  }, [editingSubDivision]);
+
   const handleSave = () => {
     if (!name) return alert("Please enter Sub Division Name");
 
-    const email = `${name.replace(/\s+/g, "").toLowerCase()}@subdivision.com`;
-    const password = Math.random().toString(36).slice(-8);
+    if (editingSubDivision) {
+      const updatedSubDivisions = subDivisions.map((sd) =>
+        sd.id === editingSubDivision.id ? { ...sd, name } : sd
+      );
+      localStorage.setItem("subDivisions", JSON.stringify(updatedSubDivisions));
+      setSubDivisions(updatedSubDivisions);
+      onSubDivisionsChange(updatedSubDivisions);
+      alert("Subdivision updated!");
+      onClose?.();
+    } else {
+      const email = `${name.replace(/\s+/g, "").toLowerCase()}@subdivision.com`;
+      const password = Math.random().toString(36).slice(-8);
 
-    const nextId =
-      subDivisions.length > 0
-        ? subDivisions[subDivisions.length - 1].id + 1
-        : 1;
+      const nextId =
+        subDivisions.length > 0
+          ? subDivisions[subDivisions.length - 1].id + 1
+          : 1;
 
-    const newSubDivision: SubDivision = {
-      id: nextId,
-      name,
-      email,
-      password,
-    };
+      const newSubDivision: SubDivision = {
+        id: nextId,
+        name,
+        email,
+        password,
+      };
 
+      const updatedSubDivisions = [...subDivisions, newSubDivision];
+      localStorage.setItem("subDivisions", JSON.stringify(updatedSubDivisions));
+      setSubDivisions(updatedSubDivisions);
 
-    const updatedSubDivisions = [...subDivisions, newSubDivision];
-    localStorage.setItem("subDivisions", JSON.stringify(updatedSubDivisions));
-    setSubDivisions(updatedSubDivisions);
+      const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
+      const newUser = { name, email, password, role: "subdiv" };
+      const updatedUsers = [...existingUsers, newUser];
+      localStorage.setItem("users", JSON.stringify(updatedUsers));
 
-    const existingUsers = JSON.parse(localStorage.getItem("users") || "[]");
-    const newUser = {
-      name,
-      email,
-      password,
-      role: "subdiv",
-    };
-    const updatedUsers = [...existingUsers, newUser];
-    localStorage.setItem("users", JSON.stringify(updatedUsers));
+      onSubDivisionsChange(updatedSubDivisions);
 
-    if (onSubDivisionsChange) onSubDivisionsChange(updatedSubDivisions);
+      alert(
+        `Subdivision created!\n\nLogin credentials:\nEmail: ${email}\nPassword: ${password}`
+      );
+    }
 
     setName("");
-    alert(
-      `Subdivision created!\n\nLogin credentials:\nEmail: ${email}\nPassword: ${password}`
-    );
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className="bg-zinc-800 text-white hover:bg-zinc-700 shadow-md px-4 rounded-lg transition">
-          Add Sub Division
-        </Button>
-      </DialogTrigger>
+    <Dialog open={!!editingSubDivision} onOpenChange={(open) => !open && onClose?.()}>
+      {!editingSubDivision && (
+        <DialogTrigger asChild>
+          <Button className="bg-zinc-800 text-white hover:bg-zinc-700 shadow-md px-4 rounded-lg transition">
+            Add Sub Division
+          </Button>
+        </DialogTrigger>
+      )}
 
       <DialogContent className="max-w-lg w-full bg-zinc-100 text-zinc-900 rounded-xl shadow-xl p-6">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-zinc-800">
-            Add Sub Division
+            {editingSubDivision ? "Edit Sub Division" : "Add Sub Division"}
           </DialogTitle>
         </DialogHeader>
 
@@ -117,7 +136,7 @@ export default function SubDivisionDialog({
               type="submit"
               className="bg-zinc-800 text-white hover:bg-zinc-700 px-6 rounded-lg transition"
             >
-              Save Sub Division
+              {editingSubDivision ? "Update" : "Save Sub Division"}
             </Button>
           </div>
         </form>

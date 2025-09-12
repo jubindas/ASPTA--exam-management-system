@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { MoreHorizontal, Edit } from "lucide-react";
 
-export const columns: ColumnDef<SubDivision>[] = [
+export const getColumns = (
+  onEdit: (subdivision: SubDivision) => void
+): ColumnDef<SubDivision>[] => [
   {
     accessorKey: "id",
     header: "SI",
@@ -58,8 +60,8 @@ export const columns: ColumnDef<SubDivision>[] = [
           >
             <Button
               variant="ghost"
-              className="justify-start text-left text-sm hover:bg-zinc-100"
-              onClick={() => alert(`Editing ${subdivision.name}`)}
+              className="justify-start text-left text-sm hover:bg-zinc-100 w-full"
+              onClick={() => onEdit(subdivision)}
             >
               <Edit className="h-4 w-4 mr-2 text-zinc-700" />
               Edit

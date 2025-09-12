@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-
 import { DataTable } from "@/components/data-table";
-
-import { columns } from "@/table-columns/sub-division-table-columns";
-
+import { getColumns } from "@/table-columns/sub-division-table-columns";
 import SubDivisionDialog from "@/components/SubDivisionDialog";
 
 interface SubDivision {
@@ -15,6 +12,7 @@ interface SubDivision {
 
 export default function SubDivision() {
   const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
+  const [editingSubDivision, setEditingSubDivision] = useState<SubDivision | null>(null);
 
   useEffect(() => {
     const storedSubDivisions = JSON.parse(localStorage.getItem("subDivisions") || "[]");
@@ -31,7 +29,11 @@ export default function SubDivision() {
         <h1 className="text-2xl font-semibold text-zinc-800 tracking-tight">
           Sub Division List
         </h1>
-        <SubDivisionDialog onSubDivisionsChange={handleSubDivisionsChange} />
+        <SubDivisionDialog
+          onSubDivisionsChange={handleSubDivisionsChange}
+          editingSubDivision={editingSubDivision}
+          onClose={() => setEditingSubDivision(null)}
+        />
       </div>
 
       <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
@@ -39,7 +41,9 @@ export default function SubDivision() {
           <span className="font-medium">Show</span>
           <select className="rounded-md px-3 py-2 bg-white border border-zinc-300 shadow-sm hover:border-zinc-400 transition-colors">
             {[10, 25, 50].map((size) => (
-              <option key={size} value={size}>{size}</option>
+              <option key={size} value={size}>
+                {size}
+              </option>
             ))}
           </select>
           <span className="font-medium">entries</span>
@@ -56,7 +60,11 @@ export default function SubDivision() {
       </div>
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <DataTable columns={columns} data={subDivisions} enablePagination={true} />
+        <DataTable
+          columns={getColumns((subdivision) => setEditingSubDivision(subdivision))}
+          data={subDivisions}
+          enablePagination={true}
+        />
       </div>
     </div>
   );
