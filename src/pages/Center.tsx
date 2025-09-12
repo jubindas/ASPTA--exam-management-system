@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 
 import CenterDialog from "@/components/CenterDialog";
-
 import { DataTable } from "@/components/data-table";
-
 import { columns } from "@/table-columns/center-table-columns";
 
 interface Center {
@@ -15,11 +13,25 @@ interface Center {
 
 export default function Center() {
   const [centers, setCenters] = useState<Center[]>([]);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [currentUserName, setCurrentUserName] = useState<string | null>(null);
 
   useEffect(() => {
     const storedCenters = JSON.parse(localStorage.getItem("centers") || "[]");
     setCenters(storedCenters);
+
+    const storedUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+    if (storedUser) {
+      setUserRole(storedUser.role);
+      setCurrentUserName(storedUser.name);
+    }
   }, []);
+
+  // Filter centers: if user is subdiv, show only centers under their subdivision
+  const filteredCenters = centers.filter(
+    (center) =>
+      userRole === "subdiv" ? center.subDivision === currentUserName : true
+  );
 
   const handleCentersChange = (updatedCenters: Center[]) => {
     setCenters(updatedCenters);
@@ -58,7 +70,11 @@ export default function Center() {
       </div>
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <DataTable columns={columns} data={centers} enablePagination={true} />
+        <DataTable
+          columns={columns}
+          data={filteredCenters} // ✅ use filtered centers
+          enablePagination={true}
+        />
       </div>
     </div>
   );

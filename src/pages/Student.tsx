@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { DataTable } from "@/components/data-table";
-
-import { columns } from "@/table-columns/student-table-columns";
-
+import { studentsColumns } from "@/table-columns/student-table-columns";
 import StudentDialog from "@/components/StudentDialog";
 
 interface Student {
@@ -16,16 +14,28 @@ interface Student {
   subDivision: string;
   block: string;
   centerName: string;
-
 }
 
 export default function Student() {
   const [students, setStudents] = useState<Student[]>([]);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [currentUserName, setCurrentUserName] = useState<string | null>(null);
 
   useEffect(() => {
     const storedStudents = JSON.parse(localStorage.getItem("students") || "[]");
     setStudents(storedStudents);
+
+    const storedUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+    if (storedUser) {
+      setUserRole(storedUser.role);
+      setCurrentUserName(storedUser.name);
+    }
   }, []);
+
+  const filteredStudents = students.filter(
+    (student) =>
+      userRole === "subdiv" ? student.subDivision === currentUserName : true
+  );
 
   const handleStudentsChange = (updatedStudents: Student[]) => {
     setStudents(updatedStudents);
@@ -64,7 +74,11 @@ export default function Student() {
       </div>
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <DataTable columns={columns} data={students} enablePagination={true} />
+        <DataTable
+          columns={studentsColumns}
+          data={filteredStudents} 
+          enablePagination={true}
+        />
       </div>
     </div>
   );

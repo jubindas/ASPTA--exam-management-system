@@ -4,68 +4,97 @@ import type { Student } from "@/table-types/student-table-types";
 import { Button } from "@/components/ui/button";
 import { Edit, PlusCircle } from "lucide-react";
 
-export const columns: ColumnDef<Student>[] = [
-  {
-    accessorKey: "id",
-    header: "SI",
-    cell: ({ row }) => (
-      <span className="text-xs w-6 text-zinc-800">{row.getValue("id")}</span>
-    ),
-  },
+export const studentsColumns: ColumnDef<Student>[] = [
+  // {
+  //   accessorKey: "id",
+  //   header: "ID",
+  //   cell: ({ row }) => (
+  //     <span className="text-sm w-2 font-medium">
+  //       {row.getValue("id")}
+  //     </span>
+  //   ),
+  // },
   {
     accessorKey: "uuid",
     header: "Student UUID",
     cell: ({ row }) => (
-      <span className="text-xs text-zinc-800">{row.getValue("uuid")}</span>
+      <span className="ext-sm w-2 font-medium">{row.getValue("uuid")}</span>
     ),
   },
   {
     accessorKey: "name",
-    header: "Student Name",
+    header: "Student",
     cell: ({ row }) => (
-      <span className="text-xs font-medium text-zinc-900">{row.getValue("name")}</span>
+      <span className="max-w-[70px] truncate font-medium text-zinc-900">
+        {row.getValue("name")}
+      </span>
     ),
   },
+  {
+    accessorKey: "guardianName",
+    header: "Guardian",
+    cell: ({ row }) => (
+      <span className="max-w-[70px] truncate text-zinc-700">
+        {row.getValue("guardianName")}
+      </span>
+    ),
+  },
+
   {
     accessorKey: "mobile",
     header: "Mobile",
     cell: ({ row }) => (
-      <span className="text-xs w-6 text-zinc-700">{row.getValue("mobile")}</span>
+      <span className="w-20 truncate text-zinc-700">
+        {row.getValue("mobile")}
+      </span>
     ),
   },
   {
     accessorKey: "studentClass",
     header: "Class",
     cell: ({ row }) => (
-      <span className="text-xs text-zinc-700">{row.getValue("studentClass")}</span>
+      <span className="w-16 truncate text-zinc-700">
+        {row.getValue("studentClass")}
+      </span>
     ),
   },
   {
     accessorKey: "medium",
     header: "Medium",
     cell: ({ row }) => (
-      <span className="text-xs text-zinc-700">{row.getValue("medium")}</span>
+      <span className="w-20 truncate text-zinc-700">
+        {row.getValue("medium")}
+      </span>
     ),
   },
   {
     accessorKey: "subDivision",
     header: "Sub Division",
     cell: ({ row }) => (
-      <span className="text-xs text-zinc-700">{row.getValue("subDivision")}</span>
+      <span className="w-24 truncate text-zinc-700">
+        {row.getValue("subDivision")}
+      </span>
     ),
   },
   {
     accessorKey: "block",
     header: "Block",
     cell: ({ row }) => (
-      <span className="text-xs text-zinc-700">{row.getValue("block")}</span>
+      <span className="w-24 truncate text-zinc-700">
+        {row.getValue("block")}
+      </span>
     ),
   },
   {
     accessorKey: "centerName",
     header: "School Name",
     cell: ({ row }) => (
-      <span className="text-xs text-zinc-700">{row.getValue("centerName")}</span>
+      <span
+        className="w-28 truncate text-zinc-700"
+        title={row.getValue("centerName")}
+      >
+        {row.getValue("centerName")}
+      </span>
     ),
   },
   {

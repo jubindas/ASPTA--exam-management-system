@@ -1,15 +1,11 @@
 import { useState, useEffect } from "react";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import {  Dialog,  DialogContent,  DialogHeader,  DialogTitle,  DialogTrigger } from "@/components/ui/dialog";
 
 import { Label } from "@/components/ui/label";
+
 import { Input } from "@/components/ui/input";
+
 import { Button } from "@/components/ui/button";
 
 import type { User } from "@/login-local-storage/LoginData";
@@ -44,7 +40,7 @@ interface BlockDialogProps {
 
 export default function BlockDialog({ onBlocksChange }: BlockDialogProps) {
   const [blockName, setBlockName] = useState("");
-  const [subDivision, setSubDivision] = useState(""); // stores subdivision name
+  const [subDivision, setSubDivision] = useState(""); 
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -58,12 +54,11 @@ export default function BlockDialog({ onBlocksChange }: BlockDialogProps) {
     setSubDivisions(storedSubDivisions);
 
     const storedUser = JSON.parse(localStorage.getItem("currentUser") || "null");
-    console.log("👤 Current User:", storedUser);
+    console.log(" Current User:", storedUser);
 
     if (storedUser) {
       setUserRole(storedUser.role);
 
-      // If user is subdivision → lock dropdown to their subdivision
       if (storedUser.role === "subdiv") {
         setSubDivision(storedUser.name);
       }
@@ -122,7 +117,7 @@ export default function BlockDialog({ onBlocksChange }: BlockDialogProps) {
     if (userRole !== "subdiv") setSubDivision("");
 
     alert(
-      `✅ Block "${blockName}" created under Sub Division: ${subDivision}\n\nLogin Credentials:\nEmail: ${newUser.email}\nPassword: ${newUser.password}`
+      ` Block "${blockName}" created under Sub Division: ${subDivision}\n\nLogin Credentials:\nEmail: ${newUser.email}\nPassword: ${newUser.password}`
     );
   };
 
@@ -148,13 +143,12 @@ export default function BlockDialog({ onBlocksChange }: BlockDialogProps) {
             handleSave();
           }}
         >
-          {/* Sub Division Select */}
           <div className="w-full">
             <Label className="text-sm font-medium">Sub Division</Label>
             <Select
               value={subDivision}
               onValueChange={(val) => setSubDivision(val)}
-              disabled={userRole === "subdiv"} // lock if subdivision user
+              disabled={userRole === "subdiv"} 
             >
               <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md disabled:opacity-70 disabled:cursor-not-allowed">
                 <SelectValue placeholder="Select Sub Division" />
@@ -175,7 +169,6 @@ export default function BlockDialog({ onBlocksChange }: BlockDialogProps) {
             </Select>
           </div>
 
-          {/* Block Name */}
           <div className="w-full">
             <Label className="text-sm font-medium">Block Name</Label>
             <Input
@@ -187,7 +180,6 @@ export default function BlockDialog({ onBlocksChange }: BlockDialogProps) {
             />
           </div>
 
-          {/* Save Button */}
           <div className="flex justify-end mt-6">
             <Button
               type="submit"

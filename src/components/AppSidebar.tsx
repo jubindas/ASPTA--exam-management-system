@@ -64,7 +64,7 @@ const getMenuItems = () => {
         </div>
         <SidebarGroup>
           <SidebarGroupLabel className="text-2xl font-extrabold tracking-wide text-white px-6 mb-6">
-            AAPTA
+            ASPTA
           </SidebarGroupLabel>
          
           <SidebarGroupContent>
