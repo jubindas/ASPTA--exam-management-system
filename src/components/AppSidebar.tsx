@@ -17,56 +17,61 @@ const baseItems = [
   { title: "Home", url: "/", icon: Home },
   { title: "Block", url: "/block", icon: MapPin },
   { title: "School", url: "/school", icon: Building2 },
-  { title: "Student", url: "/student", icon: User }
+  { title: "Student", url: "/student", icon: User },
 ];
 
 const adminItems = [
-  { title: "Sub Division", url: "/subdivision", icon: Users }
+  { title: "Sub Division", url: "/subdivision", icon: Users },
 ];
 
 export function AppSidebar() {
   const location = useLocation();
   const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
-  
-const getMenuItems = () => {
-  if (currentUser?.role === "admin") {
-    const [home, ...rest] = baseItems;
-    return [home, ...adminItems, ...rest];
-  }
 
-  if (currentUser?.role === "subdiv") {
+  const getMenuItems = () => {
+    if (currentUser?.role === "admin") {
+      const [home, ...rest] = baseItems;
+      return [home, ...adminItems, ...rest];
+    }
+
+    if (currentUser?.role === "subdiv") {
+      return baseItems;
+    }
+
+    if (currentUser?.role === "block") {
+      return baseItems.filter((item) => item.title !== "Block");
+    }
+
     return baseItems;
-  }
-
-  if (currentUser?.role === "block") {
-    return baseItems.filter((item) => item.title !== "Block");
-  }
-
-  return baseItems;
-};
-
+  };
 
   const menuItems = getMenuItems();
 
   return (
     <Sidebar className="bg-zinc-900 text-white w-64 shadow-lg">
       <SidebarContent className="py-6">
-          <div className="px-6 mb-10 flex items-center space-x-4">
+        <div className="px-6 mb-10 flex items-center space-x-4">
           <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHavAqEKhY8MRX7NntKRnkGqFTk42uJT_TuA&s" 
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHavAqEKhY8MRX7NntKRnkGqFTk42uJT_TuA&s"
             alt="Avatar"
             className="h-12 w-12 rounded-full border-2 border-zinc-700"
           />
           <div>
             <p className="text-sm text-zinc-400">Welcome,</p>
-            <h2 className="text-lg font-bold">{currentUser?.role === "admin" ? "Admin" : "Sub-Division"}</h2>
+            <h2 className="text-lg font-bold">
+              {currentUser?.role === "admin"
+                ? "Admin"
+                : currentUser?.role === "subdiv"
+                ? "Sub-Division"
+                : "Block"}
+            </h2>
           </div>
         </div>
         <SidebarGroup>
           <SidebarGroupLabel className="text-2xl font-extrabold tracking-wide text-white px-6 mb-6">
             ASPTA
           </SidebarGroupLabel>
-         
+
           <SidebarGroupContent>
             <SidebarMenu className="space-y-3">
               {menuItems.map((item) => {
@@ -92,7 +97,6 @@ const getMenuItems = () => {
               })}
             </SidebarMenu>
           </SidebarGroupContent>
-         
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>

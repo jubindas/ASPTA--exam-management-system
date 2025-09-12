@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
+
 import CenterDialog from "@/components/CenterDialog";
+
 import { DataTable } from "@/components/data-table";
+
 import { columns } from "@/table-columns/center-table-columns";
 
 interface Center {
@@ -26,6 +29,9 @@ export default function Center() {
       setCurrentUserName(storedUser.name);
     }
   }, []);
+
+
+  
 
   const filteredCenters = centers.filter(
     (center) =>

@@ -1,11 +1,21 @@
+import { useEffect, useState } from "react";
 import { SidebarTrigger } from "./ui/sidebar";
-
 import { User, LogOut } from "lucide-react";
 
 export default function Navbar() {
+  const [currentUserName, setCurrentUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedUser = JSON.parse(
+      localStorage.getItem("currentUser") || "null"
+    );
+    if (storedUser) {
+      setCurrentUserName(storedUser.name);
+    }
+  }, []);
+
   const handleLogout = () => {
     localStorage.removeItem("currentUser");
-
     window.location.href = "/login";
   };
 
@@ -16,8 +26,13 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-400 rounded-full flex items-center justify-center text-white font-semibold cursor-pointer hover:opacity-90">
-          <User className="h-5 w-5" />
+        <div className="flex items-center gap-3 px-3 py-1.5 bg-white border border-zinc-200 rounded-full shadow-sm hover:shadow-md transition">
+          <div className="w-9 h-9 bg-gradient-to-r from-purple-500 to-purple-400 rounded-full flex items-center justify-center text-white font-semibold">
+            <User className="h-4 w-4" />
+          </div>
+          <span className="text-zinc-800 font-medium capitalize tracking-wide">
+            {currentUserName ? currentUserName : "Guest"}
+          </span>
         </div>
 
         <button

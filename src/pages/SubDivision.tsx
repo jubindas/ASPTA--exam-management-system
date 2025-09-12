@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
+
 import { DataTable } from "@/components/data-table";
+
 import { getColumns } from "@/table-columns/sub-division-table-columns";
+
 import SubDivisionDialog from "@/components/SubDivisionDialog";
 
 interface SubDivision {
