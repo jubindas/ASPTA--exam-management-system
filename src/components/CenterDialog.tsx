@@ -1,12 +1,6 @@
 import { useState, useEffect } from "react";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import {  Dialog,  DialogContent,  DialogHeader,  DialogTitle,  DialogTrigger,} from "@/components/ui/dialog";
 
 import { Label } from "@/components/ui/label";
 
@@ -14,13 +8,7 @@ import { Input } from "@/components/ui/input";
 
 import { Button } from "@/components/ui/button";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import {  Select,  SelectContent,  SelectItem,  SelectTrigger,  SelectValue,} from "@/components/ui/select";
 
 import type { Center } from "@/table-types/center-table-types";
 
@@ -46,16 +34,28 @@ export default function CenterDialog({
   editingCenter,
   onClose,
 }: CenterDialogProps) {
+
   const [subDivision, setSubDivision] = useState("");
+
   const [block, setBlock] = useState("");
+
   const [centerName, setCenterName] = useState("");
+
   const [centers, setCenters] = useState<Center[]>([]);
+
   const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
+
   const [blocks, setBlocks] = useState<Block[]>([]);
+
   const [filteredBlocks, setFilteredBlocks] = useState<Block[]>([]);
+
   const [userRole, setUserRole] = useState<string | null>(null);
+
   const [open, setOpen] = useState(false);
+
   const [divisionForSubdiv, setSubDivisionForSubdiv] = useState("");
+
+
 
   useEffect(() => {
     const storedCenters = JSON.parse(localStorage.getItem("centers") || "[]");
@@ -82,6 +82,8 @@ export default function CenterDialog({
     }
   }, []);
 
+
+
   useEffect(() => {
     if (editingCenter) {
       setOpen(true);
@@ -95,6 +97,8 @@ export default function CenterDialog({
       setCenterName("");
     }
   }, [editingCenter]);
+
+
 
   useEffect(() => {
     const currentDivision =
@@ -112,6 +116,7 @@ export default function CenterDialog({
   }, [subDivision, divisionForSubdiv, blocks, block, userRole]);
 
 
+
   useEffect(() => {
   const storedUser = JSON.parse(localStorage.getItem("currentUser") || "null");
   if (storedUser) {
@@ -125,7 +130,6 @@ export default function CenterDialog({
     }
 
     if (storedUser.role === "block") {
-      // block users only have name (blockName) in localStorage
       const blockRecord = blocks.find((b) => b.blockName === storedUser.name);
       if (blockRecord) {
         setBlock(blockRecord.blockName);

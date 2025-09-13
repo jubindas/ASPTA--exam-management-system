@@ -26,8 +26,11 @@ export default function SubDivisionDialog({
   editingSubDivision,
   onClose,
 }: SubDivisionDialogProps) {
+
   const [open, setOpen] = useState(false); 
+
   const [name, setName] = useState("");
+  
   const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
 
   useEffect(() => {

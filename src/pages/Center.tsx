@@ -14,9 +14,13 @@ interface Center {
 }
 
 export default function Center() {
+
   const [centers, setCenters] = useState<Center[]>([]);
+
   const [userRole, setUserRole] = useState<string | null>(null);
+
   const [currentUserName, setCurrentUserName] = useState<string | null>(null);
+  
   const [editingCenter, setEditingCenter] = useState<Center | null>(null);
 
   useEffect(() => {

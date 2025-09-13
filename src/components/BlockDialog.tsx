@@ -1,12 +1,6 @@
 import { useState, useEffect } from "react";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import {  Dialog, DialogContent,  DialogHeader, DialogTitle,  DialogTrigger,} from "@/components/ui/dialog";
 
 import { Label } from "@/components/ui/label";
 
@@ -16,29 +10,12 @@ import { Button } from "@/components/ui/button";
 
 import type { User } from "@/login-local-storage/LoginData";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import {  Select,  SelectContent,  SelectItem, SelectTrigger,  SelectValue,} from "@/components/ui/select";
 
-interface Block {
-  id: number;
-  subDivision: string;
-  blockName: string;
-  role: string;
-  email: string;
-  password: string;
-}
+import type {Block} from "@/table-types/block-table-types"
 
-interface SubDivision {
-  id: number;
-  name: string;
-  email: string;
-  password: string;
-}
+import type { SubDivision } from "@/table-types/sub-division-types";
+
 
 interface BlockDialogProps {
   onBlocksChange: (blocks: Block[]) => void;
@@ -51,16 +28,26 @@ export default function BlockDialog({
   editingBlock,
   onClose,
 }: BlockDialogProps) {
+
   const [open, setOpen] = useState(false);
+
   const [blockName, setBlockName] = useState("");
+
   const [subDivision, setSubDivision] = useState("");
+
   const [blocks, setBlocks] = useState<Block[]>([]);
+
   const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
+
   const [userRole, setUserRole] = useState<string | null>(null);
+
+
 
   useEffect(() => {
     if (editingBlock) setOpen(true);
   }, [editingBlock]);
+
+
 
   useEffect(() => {
     const storedBlocks: Block[] = JSON.parse(
@@ -89,6 +76,8 @@ export default function BlockDialog({
     }
   }, [editingBlock]);
 
+
+
   const handleSave = () => {
     if (!blockName || !subDivision) return alert("Please fill all fields");
 
@@ -105,6 +94,8 @@ export default function BlockDialog({
       return;
     }
 
+
+
     const generateRandomPassword = (length = 8) => {
       const chars =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!";
@@ -113,6 +104,8 @@ export default function BlockDialog({
         () => chars[Math.floor(Math.random() * chars.length)]
       ).join("");
     };
+
+    
 
     const nextId = blocks.length > 0 ? blocks[blocks.length - 1].id + 1 : 1;
     const randomPassword = generateRandomPassword(10);

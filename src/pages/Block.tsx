@@ -11,10 +11,15 @@ import { useNavigate } from "react-router-dom";
 import type { Block } from "@/table-types/block-table-types";
 
 export default function Block() {
+
   const navigate = useNavigate();
+
   const [blocks, setBlocks] = useState<Block[]>([]);
+
   const [userRole, setUserRole] = useState<string | null>(null);
+
   const [currentUserName, setCurrentUserName] = useState<string | null>(null);
+  
   const [editingBlock, setEditingBlock] = useState<Block | null>(null);
 
   useEffect(() => {
