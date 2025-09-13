@@ -21,15 +21,18 @@ export default function Login() {
       (u) => u.email === email && u.password === password
     );
 
-    if (user) {
-      localStorage.setItem("currentUser", JSON.stringify(user));
+   if (user) {
+  const fullUser = { 
+    ...user,
+    subDivision: (user as any).subDivision || "",
+    blockName: (user as any).blockName || ""
+  };
+  localStorage.setItem("currentUser", JSON.stringify(fullUser));
+  navigate("/");  // all roles can go to the same page if you want
+} else {
+  alert("Invalid email or password");
+}
 
-      if (user.role === "admin") navigate("/");
-      else if (user.role === "subdiv") navigate("/");
-      else if (user.role === "block") navigate("/");
-    } else {
-      alert("Invalid email or password");
-    }
   };
 
   return (

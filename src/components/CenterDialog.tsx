@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 
-import {  Dialog,  DialogContent,  DialogHeader,  DialogTitle,  DialogTrigger,} from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 import { Label } from "@/components/ui/label";
 
@@ -8,10 +14,15 @@ import { Input } from "@/components/ui/input";
 
 import { Button } from "@/components/ui/button";
 
-import {  Select,  SelectContent,  SelectItem,  SelectTrigger,  SelectValue,} from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import type { Center } from "@/table-types/center-table-types";
-
 
 interface SubDivision {
   id: number;
@@ -20,7 +31,7 @@ interface SubDivision {
 
 interface Block {
   id: number;
-  subDivision: string; 
+  subDivision: string;
   blockName: string;
 }
 
@@ -35,24 +46,16 @@ export default function CenterDialog({
   editingCenter,
   onClose,
 }: CenterDialogProps) {
-  
   const [subDivision, setSubDivision] = useState("");
-
   const [block, setBlock] = useState("");
-
   const [centerName, setCenterName] = useState("");
-
   const [centers, setCenters] = useState<Center[]>([]);
-
   const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
-
   const [blocks, setBlocks] = useState<Block[]>([]);
-
   const [filteredBlocks, setFilteredBlocks] = useState<Block[]>([]);
-
   const [userRole, setUserRole] = useState<string | null>(null);
-
   const [open, setOpen] = useState(false);
+  const [divisionForSubdiv, setSubDivisionForSubdiv] = useState("");
 
   useEffect(() => {
     const storedCenters = JSON.parse(localStorage.getItem("centers") || "[]");
@@ -66,10 +69,18 @@ export default function CenterDialog({
     const storedBlocks = JSON.parse(localStorage.getItem("blocks") || "[]");
     setBlocks(storedBlocks);
 
-    const storedUser = JSON.parse(localStorage.getItem("currentUser") || "null");
-    if (storedUser) setUserRole(storedUser.role);
+    const storedUser = JSON.parse(
+      localStorage.getItem("currentUser") || "null"
+    );
+    if (storedUser) {
+      setUserRole(storedUser.role);
+      if (storedUser.role === "subdiv") {
+        console.log(storedUser.name);
+        setSubDivision(storedUser.name);
+        setSubDivisionForSubdiv(storedUser.name);
+      }
+    }
   }, []);
-
 
   useEffect(() => {
     if (editingCenter) {
@@ -85,22 +96,48 @@ export default function CenterDialog({
     }
   }, [editingCenter]);
 
-
   useEffect(() => {
-    if (subDivision) {
+    const currentDivision =
+      userRole === "subdiv" ? divisionForSubdiv : subDivision;
+    if (currentDivision) {
       const relatedBlocks = blocks.filter(
-        (b) => b.subDivision === subDivision
+        (b) => b.subDivision === currentDivision
       );
       setFilteredBlocks(relatedBlocks);
-      if (!relatedBlocks.some((b) => b.blockName === block)) {
-        setBlock("");
-      }
+      if (!relatedBlocks.some((b) => b.blockName === block)) setBlock("");
     } else {
       setFilteredBlocks([]);
       setBlock("");
     }
-  }, [subDivision, blocks, block]);
+  }, [subDivision, divisionForSubdiv, blocks, block, userRole]);
 
+
+  useEffect(() => {
+  const storedUser = JSON.parse(localStorage.getItem("currentUser") || "null");
+  if (storedUser) {
+    setUserRole(storedUser.role);
+    console.log("Loaded user:", storedUser);
+
+    if (storedUser.role === "subdiv") {
+      setSubDivision(storedUser.name);
+      setSubDivisionForSubdiv(storedUser.name);
+      console.log("Subdiv user set:", storedUser.name);
+    }
+
+    if (storedUser.role === "block") {
+      // block users only have name (blockName) in localStorage
+      const blockRecord = blocks.find((b) => b.blockName === storedUser.name);
+      if (blockRecord) {
+        setBlock(blockRecord.blockName);
+        setSubDivision(blockRecord.subDivision);
+        setSubDivisionForSubdiv(blockRecord.subDivision);
+        console.log("Block user set from blocks:", blockRecord);
+      } else {
+        console.warn("No block found for user:", storedUser.name);
+      }
+    }
+  }
+}, [blocks]);
 
 
   const handleSave = () => {
@@ -166,44 +203,53 @@ export default function CenterDialog({
             handleSave();
           }}
         >
-          <div className="w-full">
+          <div>
             <Label className="text-sm font-medium">Sub Division</Label>
-            <Select
-              value={subDivision}
-              onValueChange={setSubDivision}
-              disabled={userRole === "subdiv" || userRole === "block"}
-            >
-              <SelectTrigger className="w-full mt-1 bg-white border border-zinc-300 focus:ring-2 focus:ring-zinc-400 rounded-md h-10 disabled:opacity-70 disabled:cursor-not-allowed">
-                <SelectValue placeholder="Select Sub Division" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                {subDivisions.map((sd) => (
-                  <SelectItem key={sd.id} value={sd.name}>
-                    {sd.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {userRole === "subdiv" || userRole === "block" ? (
+              <Input
+                type="text"
+                value={divisionForSubdiv}
+                disabled
+                className="w-full h-10 mt-1 bg-zinc-200 border border-zinc-300 rounded-md cursor-not-allowed"
+              />
+            ) : (
+              <Select value={subDivision} onValueChange={setSubDivision}>
+                <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm">
+                  <SelectValue placeholder="Select Sub Division" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {subDivisions.map((sd) => (
+                    <SelectItem key={sd.id} value={sd.name}>
+                      {sd.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
-
           <div>
             <Label className="text-sm font-medium">Block</Label>
-            <Select
-              value={block}
-              onValueChange={setBlock}
-              disabled={userRole === "block"}
-            >
-              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md">
-                <SelectValue placeholder="Select Block" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                {filteredBlocks.map((b) => (
-                  <SelectItem key={b.id} value={b.blockName}>
-                    {b.blockName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {userRole === "block" ? (
+              <Input
+                type="text"
+                value={block}
+                disabled
+                className="w-full h-10 mt-1 bg-zinc-200 border border-zinc-300 rounded-md cursor-not-allowed"
+              />
+            ) : (
+              <Select value={block} onValueChange={setBlock}>
+                <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm">
+                  <SelectValue placeholder="Select Block" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {filteredBlocks.map((b) => (
+                    <SelectItem key={b.id} value={b.blockName}>
+                      {b.blockName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="w-full">

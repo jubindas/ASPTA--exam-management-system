@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 
-import {  Dialog,  DialogContent,  DialogHeader,  DialogTitle,  DialogTrigger,} from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 import { Label } from "@/components/ui/label";
 
@@ -57,12 +63,15 @@ export default function BlockDialog({
   }, [editingBlock]);
 
   useEffect(() => {
-    const storedBlocks: Block[] = JSON.parse(localStorage.getItem("blocks") || "[]");
+    const storedBlocks: Block[] = JSON.parse(
+      localStorage.getItem("blocks") || "[]"
+    );
     const storedSubDivisions: SubDivision[] = JSON.parse(
       localStorage.getItem("subDivisions") || "[]"
     );
-    const storedUser: User | null = JSON.parse(localStorage.getItem("currentUser") || "null");
-
+    const storedUser: User | null = JSON.parse(
+      localStorage.getItem("currentUser") || "null"
+    );
     setBlocks(storedBlocks);
     setSubDivisions(storedSubDivisions);
 
@@ -99,12 +108,17 @@ export default function BlockDialog({
     const generateRandomPassword = (length = 8) => {
       const chars =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!";
-      return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+      return Array.from(
+        { length },
+        () => chars[Math.floor(Math.random() * chars.length)]
+      ).join("");
     };
 
     const nextId = blocks.length > 0 ? blocks[blocks.length - 1].id + 1 : 1;
     const randomPassword = generateRandomPassword(10);
-    const generatedEmail = `${blockName.toLowerCase().replace(/\s+/g, "")}@abc.com`;
+    const generatedEmail = `${blockName
+      .toLowerCase()
+      .replace(/\s+/g, "")}@abc.com`;
 
     const newBlock: Block = {
       id: nextId,
@@ -119,10 +133,21 @@ export default function BlockDialog({
     localStorage.setItem("blocks", JSON.stringify(updatedBlocks));
     setBlocks(updatedBlocks);
 
-    const existingUsers: User[] = JSON.parse(localStorage.getItem("users") || "[]");
+    const existingUsers: User[] = JSON.parse(
+      localStorage.getItem("users") || "[]"
+    );
     localStorage.setItem(
       "users",
-      JSON.stringify([...existingUsers, { name: blockName, email: generatedEmail, password: randomPassword, role: "block" }])
+      JSON.stringify([
+        ...existingUsers,
+        {
+          name: blockName,
+          email: generatedEmail,
+          password: randomPassword,
+          role: "block",
+          subDivision: subDivision,
+        },
+      ])
     );
 
     onBlocksChange(updatedBlocks);
@@ -131,7 +156,8 @@ export default function BlockDialog({
     );
 
     setBlockName("");
-    if (userRole !== "subdiv" && subDivisions.length > 0) setSubDivision(subDivisions[0].name);
+    if (userRole !== "subdiv" && subDivisions.length > 0)
+      setSubDivision(subDivisions[0].name);
     setOpen(false);
   };
 
@@ -145,7 +171,10 @@ export default function BlockDialog({
     >
       {!editingBlock && (
         <DialogTrigger asChild>
-          <Button className="bg-zinc-900 text-white" onClick={() => setOpen(true)}>
+          <Button
+            className="bg-zinc-900 text-white"
+            onClick={() => setOpen(true)}
+          >
             Add Block
           </Button>
         </DialogTrigger>
@@ -167,18 +196,28 @@ export default function BlockDialog({
         >
           <div className="w-full">
             <Label className="text-sm font-medium">Sub Division</Label>
-            <Select value={subDivision} onValueChange={setSubDivision} disabled={userRole === "subdiv"}>
+            <Select
+              value={subDivision}
+              onValueChange={setSubDivision}
+              disabled={userRole === "subdiv"}
+            >
               <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md disabled:opacity-70">
-                <SelectValue>{subDivision || "Select Sub Division"}</SelectValue>
+                <SelectValue>
+                  {subDivision || "Select Sub Division"}
+                </SelectValue>
               </SelectTrigger>
-              <SelectContent>
-                {subDivisions.length > 0
-                  ? subDivisions.map((sd) => (
-                      <SelectItem key={sd.id} value={sd.name}>
-                        {sd.name}
-                      </SelectItem>
-                    ))
-                  : <div className="p-2 text-sm text-zinc-500">No Sub Divisions found</div>}
+              <SelectContent className="bg-white">
+                {subDivisions.length > 0 ? (
+                  subDivisions.map((sd) => (
+                    <SelectItem key={sd.id} value={sd.name}>
+                      {sd.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="p-2 text-sm text-zinc-500">
+                    No Sub Divisions found
+                  </div>
+                )}
               </SelectContent>
             </Select>
           </div>
