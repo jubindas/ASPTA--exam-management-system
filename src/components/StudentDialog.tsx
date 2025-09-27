@@ -19,11 +19,12 @@ import type { Block } from "@/table-types/block-table-types";
 import type { Center } from "@/table-types/center-table-types";
 
 interface StudentDialogProps {
-  editStudent?: Student;
+  editStudent?: Student | null;
   open: boolean;
   setOpen: (open: boolean) => void;
   onStudentsChange: (students: Student[]) => void;
 }
+
 
 export default function StudentDialog({
   editStudent,
