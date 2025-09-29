@@ -6,7 +6,10 @@ import { lazy, Suspense } from "react";
 import RootLayout from "./components/RootLayout";
 
 import { saveTestCredentials } from "./login-local-storage/LoginData";
+
 import GenerateAdmitPage from "./pages/GenerateAdmitPage";
+
+import Downloads from "./pages/Downloads";
 
 const Home = lazy(() => import("@/pages/Home"));
 const Block = lazy(() => import("./pages/Block"));
@@ -27,6 +30,7 @@ const router = createBrowserRouter([
       { path: "school", element: <Suspense fallback={<Loader />}><Center /></Suspense> },
       { path: "student", element: <Suspense fallback={<Loader />}><Student /></Suspense> },
       { path: "subdivision", element: <Suspense fallback={<Loader />}><SubDivision /></Suspense> },
+      { path: "download", element: <Suspense fallback={<Loader />}><Downloads /></Suspense> },
     ],
   },
   {

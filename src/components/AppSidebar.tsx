@@ -11,13 +11,14 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-import { Home, MapPin, Building2, User, Users } from "lucide-react";
+import { Home, MapPin, Building2, User, Users, Download  } from "lucide-react";
 
 const baseItems = [
   { title: "Home", url: "/", icon: Home },
   { title: "Block", url: "/block", icon: MapPin },
   { title: "School", url: "/school", icon: Building2 },
   { title: "Student", url: "/student", icon: User },
+  { title: "Download", url: "/download", icon: Download  },
 ];
 
 const adminItems = [
