@@ -16,11 +16,13 @@ import type { SubDivision } from "@/table-types/sub-division-types";
 
 import { useEffect, useState } from "react";
 
-import * as XLSX from "xlsx";
+import * as XLSX from "xlsx-js-style";
 
 import type { Block } from "@/table-types/block-table-types";
 
 import type { Center } from "@/table-types/center-table-types";
+
+
 
 export default function Downloads() {
   const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
@@ -45,60 +47,84 @@ export default function Downloads() {
 
   console.log("schools data is:", schools);
 
- const handleDownload = () => {
+const handleDownload = () => {
   const studentsData = JSON.parse(localStorage.getItem("students") || "[]");
 
-  console.log("the students data is:", studentsData);
+  console.log("Selected Values:", {
+    selectedSub,
+    selectedBlock,
+    selectedSchool,
+    selectedClass,
+  });
+
+  const filtered = studentsData.filter((s: any) => {
+    const matchSub =
+      !selectedSub || s.subDivision === selectedSub || s.subDivisionId === selectedSub;
+
+    const matchBlock =
+      !selectedBlock || s.block === selectedBlock || s.blockId === selectedBlock;
+
+    const matchSchool =
+      !selectedSchool || s.centerName === selectedSchool || s.centerId === selectedSchool;
+
+    const matchClass = !selectedClass || s.studentClass === selectedClass;
+
+    return matchSub && matchBlock && matchSchool && matchClass;
+  });
+
+  console.log("Filtered Students:", filtered);
+
+  if (filtered.length === 0) {
+    alert("No students found for this selection!");
+    return;
+  }
 
 
-   console.log("\n=== DEBUG START ===");
-    console.log("Students raw data:", studentsData.slice(0, 5)); 
+  const worksheet: any = {};
 
-    console.log("Selected Values:", {
-      selectedSub,
-      selectedBlock,
-      selectedSchool,
-      selectedClass,
-    });
+ 
+  XLSX.utils.sheet_add_aoa(
+    worksheet,
+    [[selectedSchool || "Center Name"]],
+    { origin: "A1" }
+  );
 
-    const filtered = studentsData.filter((s: any) => {
-      const matchSub =
-        !selectedSub ||
-        s.subDivision === selectedSub || 
-        s.subDivisionId === selectedSub; 
+ 
+  const keys = Object.keys(filtered[0] || {});
+  worksheet["!merges"] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: keys.length - 1 } }
+  ];
 
-      const matchBlock =
-        !selectedBlock ||
-        s.block === selectedBlock || 
-        s.blockId === selectedBlock;
+ 
+  if (worksheet["A1"]) {
+    worksheet["A1"].s = {
+      font: { bold: true, sz: 14, color: { rgb: "008000" } },
+      alignment: { horizontal: "center", vertical: "center" },
+    };
+  }
 
-      const matchSchool =
-        !selectedSchool ||
-        s.centerName === selectedSchool ||
-        s.centerId === selectedSchool;
+  XLSX.utils.sheet_add_json(worksheet, filtered, {
+    origin: "A3",
+    skipHeader: false,
+  });
 
-      const matchClass =
-        !selectedClass || s.studentClass === selectedClass;
-
-      return matchSub && matchBlock && matchSchool && matchClass;
-    });
-
-    console.log("Filtered Students:", filtered);
-    console.log("=== DEBUG END ===\n");
-
-    if (filtered.length === 0) {
-      alert("No students found for this selection!");
-      return;
+  keys.forEach((idx) => {
+    const cellRef = XLSX.utils.encode_cell({ r: 2, c: idx }); 
+    if (worksheet[cellRef]) {
+      worksheet[cellRef].s = {
+        font: { bold: true, color: { rgb: "008000" } },
+        alignment: { horizontal: "center" },
+      };
     }
-  const worksheet = XLSX.utils.json_to_sheet(filtered);
+  });
+
+  
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
 
   XLSX.writeFile(
     workbook,
-    `Students_${selectedSub || "all"}_${selectedBlock || "all"}_${
-      selectedSchool || "all"
-    }_${selectedClass || "all"}.xlsx`
+    `Students_${selectedSub || "all"}_${selectedBlock || "all"}_${selectedSchool || "all"}_${selectedClass || "all"}.xlsx`
   );
 };
 
