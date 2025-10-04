@@ -1,38 +1,37 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
-
-interface User {
-  email: string;
-  password: string;
-  role: "admin" | "subdiv" | "block"; 
-}
+import { useMutation } from "@tanstack/react-query";
+import { AdminLogin } from "@/service/adminApi";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const mutationLogin = useMutation({
+    mutationFn: (data: { email: string; password: string }) =>
+      AdminLogin(data.email, data.password),
+    onSuccess: (data) => {
+      console.log("Login successful:", data);
+
+      const { user, token } = data;
+
+      login(user, token);
+
+      navigate("/", { replace: true });
+    },
+    onError: (error) => {
+      console.error("Login failed:", error);
+      alert("Login failed. Please check your credentials.");
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const users: User[] = JSON.parse(localStorage.getItem("users") || "[]");
-    const user = users.find(
-      (u) => u.email === email && u.password === password
-    );
-
-   if (user) {
-  const fullUser = { 
-    ...user,
-    subDivision: (user as any).subDivision || "",
-    blockName: (user as any).blockName || ""
-  };
-  localStorage.setItem("currentUser", JSON.stringify(fullUser));
-  navigate("/");  // all roles can go to the same page if you want
-} else {
-  alert("Invalid email or password");
-}
-
+    mutationLogin.mutate({ email, password });
   };
 
   return (
@@ -43,7 +42,6 @@ export default function Login() {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-        
           <div>
             <label className="block text-zinc-700 mb-1" htmlFor="email">
               Email
@@ -65,7 +63,6 @@ export default function Login() {
             </div>
           </div>
 
-      
           <div>
             <label className="block text-zinc-700 mb-1" htmlFor="password">
               Password
@@ -87,12 +84,12 @@ export default function Login() {
             </div>
           </div>
 
-
           <button
             type="submit"
             className="w-full bg-zinc-800 text-white py-2 rounded-md hover:bg-zinc-900 transition-colors"
+            disabled={mutationLogin.isPending}
           >
-            Login
+            {mutationLogin.isPending ? "Logging in..." : "Login"}
           </button>
         </form>
       </div>

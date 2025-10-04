@@ -1,15 +1,13 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-
-
-import { lazy, Suspense } from "react";
-
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import React, { lazy, Suspense } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthProvider } from "@/provider/authContext"; // make sure AuthProvider exports useAuth
 import RootLayout from "./components/RootLayout";
-
 import { saveTestCredentials } from "./login-local-storage/LoginData";
-
 import GenerateAdmitPage from "./pages/GenerateAdmitPage";
-
 import Downloads from "./pages/Downloads";
+
+import { useAuth } from "./hooks/useAuth";
 
 const Home = lazy(() => import("@/pages/Home"));
 const Block = lazy(() => import("./pages/Block"));
@@ -20,10 +18,33 @@ const Login = lazy(() => import("./pages/Login"));
 
 const Loader = () => <div className="p-6 text-center">Loading...</div>;
 
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, token } = useAuth();
+
+  if (!user || !token) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+};
+
+
+const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, token } = useAuth();
+
+  if (user && token) {
+    return <Navigate to="/" replace />; 
+  }
+  return <>{children}</>;
+};
+
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <RootLayout />,
+    element: (
+      <ProtectedRoute>
+        <RootLayout />
+      </ProtectedRoute>
+    ),
     children: [
       { path: "/", element: <Suspense fallback={<Loader />}><Home /></Suspense> },
       { path: "block", element: <Suspense fallback={<Loader />}><Block /></Suspense> },
@@ -35,17 +56,34 @@ const router = createBrowserRouter([
   },
   {
     path: "login",
-    element: <Suspense fallback={<Loader />}><Login /></Suspense>,
+    element: (
+      <PublicRoute>
+        <Suspense fallback={<Loader />}><Login /></Suspense>
+      </PublicRoute>
+    ),
   },
-   {
+  {
     path: "generate-admit",
-    element: <Suspense fallback={<Loader />}><GenerateAdmitPage /></Suspense>,
+    element: (
+      <ProtectedRoute>
+        <Suspense fallback={<Loader />}><GenerateAdmitPage /></Suspense>
+      </ProtectedRoute>
+    ),
   },
 ]);
 
+const queryClient = new QueryClient();
+
 function App() {
   saveTestCredentials();
-  return <RouterProvider router={router} />;
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </QueryClientProvider>
+  );
 }
 
 export default App;
