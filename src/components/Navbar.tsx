@@ -1,22 +1,23 @@
 import { useEffect, useState } from "react";
 import { SidebarTrigger } from "./ui/sidebar";
 import { User, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Navbar() {
-  const [currentUserName, setCurrentUserName] = useState<string | null>(null);
+  const { user, logout } = useAuth();
+  const [currentUserName, setCurrentUserName] = useState<string>("Guest");
 
   useEffect(() => {
-    const storedUser = JSON.parse(
-      localStorage.getItem("currentUser") || "null"
-    );
-    if (storedUser) {
-      setCurrentUserName(storedUser.name);
+    if (user) {
+      console.log("Current user:", user);
+      setCurrentUserName(user.name || "User");
+    } else {
+      setCurrentUserName("Guest");
     }
-  }, []);
+  }, [user]);
 
   const handleLogout = () => {
-    localStorage.removeItem("currentUser");
-    window.location.href = "/login";
+    logout();
   };
 
   return (
@@ -27,21 +28,23 @@ export default function Navbar() {
 
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-3 px-3 py-1.5 bg-white border border-zinc-200 rounded-full shadow-sm hover:shadow-md transition">
-          <div className="w-9 h-9 bg-gradient-to-r from-purple-500 to-purple-400 rounded-full flex items-center justify-center text-white font-semibold">
-            <User className="h-4 w-4" />
+          <div className="w-10 h-9 bg-gradient-to-r from-purple-500 to-purple-400 rounded-full flex items-center justify-center text-white font-semibold">
+            <User className="h-4 w-7" />
           </div>
           <span className="text-zinc-800 font-medium capitalize tracking-wide">
-            {currentUserName ? currentUserName : "Guest"}
+            {currentUserName}
           </span>
         </div>
 
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-1 bg-zinc-500 hover:bg-zinc-600 text-white px-3 py-1 rounded-md transition"
-        >
-          <LogOut className="h-4 w-4" />
-          Logout
-        </button>
+        {user && (
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1 bg-zinc-500 hover:bg-zinc-600 text-white px-3 py-1 rounded-md transition"
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </button>
+        )}
       </div>
     </nav>
   );

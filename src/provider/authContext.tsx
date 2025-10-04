@@ -2,6 +2,7 @@ import { createContext, useState, useEffect, type ReactNode } from "react";
 
 
 export interface User {
+  name?: string;
   email: string;
   password?: string;
   role: "admin" | "subdiv" | "block";

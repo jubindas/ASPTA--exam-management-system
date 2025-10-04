@@ -4,6 +4,9 @@ import { DataTable } from "@/components/data-table";
 
 import { getColumns } from "@/table-columns/sub-division-table-columns";
 
+import { useQuery } from "@tanstack/react-query";
+import { fetchSubDivisions } from "@/service/subDivisionApi";
+
 import SubDivisionDialog from "@/components/SubDivisionDialog";
 
 interface SubDivision {
@@ -14,11 +17,21 @@ interface SubDivision {
 }
 
 export default function SubDivision() {
+  const { data } = useQuery({
+    queryKey: ["subDivisions"],
+    queryFn: fetchSubDivisions,
+  });
+
+  console.log("Fetched SubDivisions:", data);
+
   const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
-  const [editingSubDivision, setEditingSubDivision] = useState<SubDivision | null>(null);
+  const [editingSubDivision, setEditingSubDivision] =
+    useState<SubDivision | null>(null);
 
   useEffect(() => {
-    const storedSubDivisions = JSON.parse(localStorage.getItem("subDivisions") || "[]");
+    const storedSubDivisions = JSON.parse(
+      localStorage.getItem("subDivisions") || "[]"
+    );
     setSubDivisions(storedSubDivisions);
   }, []);
 
@@ -64,7 +77,9 @@ export default function SubDivision() {
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <DataTable
-          columns={getColumns((subdivision) => setEditingSubDivision(subdivision))}
+          columns={getColumns((subdivision) =>
+            setEditingSubDivision(subdivision)
+          )}
           data={subDivisions}
           enablePagination={true}
         />
