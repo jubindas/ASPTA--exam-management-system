@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
 
 import { DataTable } from "@/components/data-table";
 
 import { getColumns } from "@/table-columns/sub-division-table-columns";
 
 import { useQuery } from "@tanstack/react-query";
+
 import { fetchSubDivisions } from "@/service/subDivisionApi";
 
 import SubDivisionDialog from "@/components/SubDivisionDialog";
@@ -24,20 +24,6 @@ export default function SubDivision() {
 
   console.log("Fetched SubDivisions:", data);
 
-  const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
-  const [editingSubDivision, setEditingSubDivision] =
-    useState<SubDivision | null>(null);
-
-  useEffect(() => {
-    const storedSubDivisions = JSON.parse(
-      localStorage.getItem("subDivisions") || "[]"
-    );
-    setSubDivisions(storedSubDivisions);
-  }, []);
-
-  const handleSubDivisionsChange = (updatedSubDivisions: SubDivision[]) => {
-    setSubDivisions(updatedSubDivisions);
-  };
 
   return (
     <div className="p-6 bg-zinc-100 min-h-screen mt-8">
@@ -45,11 +31,7 @@ export default function SubDivision() {
         <h1 className="text-2xl font-semibold text-zinc-800 tracking-tight">
           Sub Division List
         </h1>
-        <SubDivisionDialog
-          onSubDivisionsChange={handleSubDivisionsChange}
-          editingSubDivision={editingSubDivision}
-          onClose={() => setEditingSubDivision(null)}
-        />
+        <SubDivisionDialog mode="create" />
       </div>
 
       <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
@@ -77,10 +59,8 @@ export default function SubDivision() {
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <DataTable
-          columns={getColumns((subdivision) =>
-            setEditingSubDivision(subdivision)
-          )}
-          data={subDivisions}
+          columns={getColumns()}
+          data={data || []}
           enablePagination={true}
         />
       </div>

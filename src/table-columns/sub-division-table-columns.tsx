@@ -1,13 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { SubDivision } from "@/table-types/sub-division-types";
+import SubDivisionTableDropdown from "@/table-dropdown/sub-division-table-dropdwon";
 
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { MoreHorizontal, Edit } from "lucide-react";
-
-export const getColumns = (
-  onEdit: (subdivision: SubDivision) => void
-): ColumnDef<SubDivision>[] => [
+export const getColumns = (): ColumnDef<SubDivision>[] => [
   {
     accessorKey: "id",
     header: "SI",
@@ -41,34 +36,11 @@ export const getColumns = (
   {
     id: "actions",
     header: "Action",
-    cell: ({ row }) => {
-      const subdivision = row.original;
-      return (
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-zinc-100 rounded-full"
-            >
-              <MoreHorizontal className="h-5 w-5 text-zinc-700" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            align="end"
-            className="w-36 p-2 bg-white border border-zinc-200 shadow-lg rounded-md"
-          >
-            <Button
-              variant="ghost"
-              className="justify-start text-left text-sm hover:bg-zinc-100 w-full"
-              onClick={() => onEdit(subdivision)}
-            >
-              <Edit className="h-4 w-4 mr-2 text-zinc-700" />
-              Edit
-            </Button>
-          </PopoverContent>
-        </Popover>
-      );
-    },
+    cell: ({ row }) => (
+      <SubDivisionTableDropdown
+        id={row.original.id}
+        rowData={{ name: row.original.name, id: row.original.id }}
+      />
+    ),
   },
 ];
