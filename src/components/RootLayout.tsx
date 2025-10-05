@@ -1,4 +1,5 @@
 import { SidebarProvider } from "@/components/ui/sidebar"
+import { Toaster } from "@/components/ui/sonner"
 
 import {AppSidebar} from "./AppSidebar"
 
@@ -11,6 +12,7 @@ export default function RootLayout() {
     <SidebarProvider>
       <AppSidebar />
       <main className="w-full bg-zinc-100">
+         <Toaster />
        <Navbar />
         <Outlet />
       </main>

@@ -9,20 +9,15 @@ import { fetchSubDivisions } from "@/service/subDivisionApi";
 
 import SubDivisionDialog from "@/components/SubDivisionDialog";
 
-interface SubDivision {
-  id: number;
-  name: string;
-  email: string;
-  password: string;
-}
+import type { SubDivision } from "@/table-types/sub-division-types";
+
+
 
 export default function SubDivision() {
   const { data } = useQuery({
     queryKey: ["subDivisions"],
     queryFn: fetchSubDivisions,
   });
-
-  console.log("Fetched SubDivisions:", data);
 
 
   return (

@@ -10,7 +10,12 @@ import { useNavigate } from "react-router-dom";
 
 import type { Block } from "@/table-types/block-table-types";
 
+
+
+
+
 export default function Block() {
+  
 
   const navigate = useNavigate();
 
