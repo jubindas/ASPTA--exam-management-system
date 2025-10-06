@@ -1,10 +1,15 @@
-import { useEffect, useState } from "react";
 
-import CenterDialog from "@/components/CenterDialog";
+
 
 import { DataTable } from "@/components/data-table";
 
 import { columns } from "@/table-columns/center-table-columns";
+
+import { getSchools } from "@/service/schoolApi";
+
+import { useQuery } from "@tanstack/react-query";
+
+import CenterDialog from "@/components/CenterDialog";
 
 interface Center {
   id: number;
@@ -14,37 +19,13 @@ interface Center {
 }
 
 export default function Center() {
+  const { data: schools} = useQuery({
+    queryKey: ["schools"],
+    queryFn: getSchools,
+  });
 
-  const [centers, setCenters] = useState<Center[]>([]);
-
-  const [userRole, setUserRole] = useState<string | null>(null);
-
-  const [currentUserName, setCurrentUserName] = useState<string | null>(null);
-  
-  const [editingCenter, setEditingCenter] = useState<Center | null>(null);
-
-  useEffect(() => {
-    const storedCenters = JSON.parse(localStorage.getItem("centers") || "[]");
-    setCenters(storedCenters);
-
-    const storedUser = JSON.parse(localStorage.getItem("currentUser") || "null");
-    if (storedUser) {
-      setUserRole(storedUser.role);
-      setCurrentUserName(storedUser.name);
-    }
-  }, []);
-
-
-  
-
-  const filteredCenters = centers.filter(
-    (center) =>
-      userRole === "subdiv" ? center.subDivision === currentUserName : true
-  );
-
-  const handleCentersChange = (updatedCenters: Center[]) => {
-    setCenters(updatedCenters);
-  };
+  console.log("the schools are ", schools)
+ 
 
   return (
     <div className="p-6 bg-zinc-100 min-h-screen mt-8">
@@ -52,11 +33,7 @@ export default function Center() {
         <h1 className="text-2xl font-semibold text-zinc-800 tracking-tight">
           Center List
         </h1>
-        <CenterDialog
-          onCentersChange={handleCentersChange}
-          editingCenter={editingCenter}
-          onClose={() => setEditingCenter(null)}
-        />
+      <CenterDialog />
       </div>
 
       <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
@@ -83,11 +60,7 @@ export default function Center() {
       </div>
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <DataTable
-          columns={columns(setEditingCenter)}
-          data={filteredCenters}
-          enablePagination
-        />
+        {schools && <DataTable columns={columns()} data={schools} enablePagination />}
       </div>
     </div>
   );

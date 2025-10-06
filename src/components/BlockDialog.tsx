@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+
 import {
   Dialog,
   DialogContent,
@@ -6,15 +7,27 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
 import { Label } from "@/components/ui/label";
+
 import { Input } from "@/components/ui/input";
+
 import { Button } from "@/components/ui/button";
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { toast } from "sonner";
+
 import { fetchSubDivisions } from "@/service/subDivisionApi";
+
 import { createBlock, updateBlock } from "@/service/blockApi";
+
 import type { SubDivision } from "@/table-types/sub-division-types";
+
+
+
 
 interface BlockDialogProps {
   mode: "create" | "edit";
@@ -31,7 +44,7 @@ interface BlockDialogProps {
 export default function BlockDialog({ mode, trigger, blockData }: BlockDialogProps) {
   const queryClient = useQueryClient();
 
-  // Fetch sub divisions
+  
   const { data: subDivisionData = [] } = useQuery({
     queryKey: ["subDivisions"],
     queryFn: fetchSubDivisions,
@@ -41,7 +54,7 @@ export default function BlockDialog({ mode, trigger, blockData }: BlockDialogPro
   const [blockName, setBlockName] = useState("");
   const [subDivision, setSubDivision] = useState("");
 
-  // Fill inputs when editing
+
   useEffect(() => {
     if (mode === "edit" && blockData) {
       setBlockName(blockData.name);
@@ -58,6 +71,7 @@ export default function BlockDialog({ mode, trigger, blockData }: BlockDialogPro
   };
 
   const mutation = useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: async (data: any) => {
       if (mode === "create") return await createBlock(data);
       if (mode === "edit" && blockData) return await updateBlock(blockData.id, data);

@@ -1,202 +1,109 @@
-import { useState, useEffect } from "react";
-
-import {  Dialog,  DialogContent,  DialogHeader,  DialogTitle,  DialogTrigger,} from "@/components/ui/dialog";
-
+import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-
 import { Input } from "@/components/ui/input";
-
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-import {  Select,  SelectContent,  SelectItem,  SelectTrigger,  SelectValue,} from "@/components/ui/select";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-import type { Center } from "@/table-types/center-table-types";
+import { fetchSubDivisions } from "@/service/subDivisionApi";
+import { getBlockList } from "@/service/blockApi";
+import { createSchools } from "@/service/schoolApi";
 
-interface SubDivision {
-  id: number;
-  name: string;
-}
+import type { SubDivision } from "@/table-types/sub-division-types";
+import type { Block } from "@/table-types/block-table-types";
+import { toast } from "sonner";
 
-interface Block {
-  id: number;
-  subDivision: string;
-  blockName: string;
-}
-
-interface CenterDialogProps {
-  onCentersChange: (centers: Center[]) => void;
-  editingCenter?: Center | null;
-  onClose?: () => void;
-}
-
-export default function CenterDialog({
-  onCentersChange,
-  editingCenter,
-  onClose,
-}: CenterDialogProps) {
-
-  const [subDivision, setSubDivision] = useState("");
-
-  const [block, setBlock] = useState("");
-
-  const [centerName, setCenterName] = useState("");
-
-  const [centers, setCenters] = useState<Center[]>([]);
-
-  const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
-
-  const [blocks, setBlocks] = useState<Block[]>([]);
-
+export default function CenterDialog() {
+  const [subDivisionId, setSubDivisionId] = useState<string>("");
+  const [blockId, setBlockId] = useState<string>("");
+  const [centerName, setCenterName] = useState<string>("");
   const [filteredBlocks, setFilteredBlocks] = useState<Block[]>([]);
 
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const [open, setOpen] = useState(false);
+  const { data: subDivisions = [] as SubDivision[] } = useQuery({
+    queryKey: ["subDivisions"],
+    queryFn: fetchSubDivisions,
+  });
 
-  const [divisionForSubdiv, setSubDivisionForSubdiv] = useState("");
-
-
-
-  useEffect(() => {
-    const storedCenters = JSON.parse(localStorage.getItem("centers") || "[]");
-    setCenters(storedCenters);
-
-    const storedSubDivisions = JSON.parse(
-      localStorage.getItem("subDivisions") || "[]"
-    );
-    setSubDivisions(storedSubDivisions);
-
-    const storedBlocks = JSON.parse(localStorage.getItem("blocks") || "[]");
-    setBlocks(storedBlocks);
-
-    const storedUser = JSON.parse(
-      localStorage.getItem("currentUser") || "null"
-    );
-    if (storedUser) {
-      setUserRole(storedUser.role);
-      if (storedUser.role === "subdiv") {
-        console.log(storedUser.name);
-        setSubDivision(storedUser.name);
-        setSubDivisionForSubdiv(storedUser.name);
-      }
-    }
-  }, []);
-
-
+  const { data: blockData = [] as Block[] } = useQuery({
+    queryKey: ["blocks"],
+    queryFn: getBlockList,
+  });
 
   useEffect(() => {
-    if (editingCenter) {
-      setOpen(true);
-      setSubDivision(editingCenter.subDivision);
-      setBlock(editingCenter.block);
-      setCenterName(editingCenter.centerName);
-    } else {
-      setOpen(false);
-      setSubDivision("");
-      setBlock("");
-      setCenterName("");
-    }
-  }, [editingCenter]);
-
-
-
-  useEffect(() => {
-    const currentDivision =
-      userRole === "subdiv" ? divisionForSubdiv : subDivision;
-    if (currentDivision) {
-      const relatedBlocks = blocks.filter(
-        (b) => b.subDivision === currentDivision
-      );
-      setFilteredBlocks(relatedBlocks);
-      if (!relatedBlocks.some((b) => b.blockName === block)) setBlock("");
-    } else {
+    if (!subDivisionId) {
       setFilteredBlocks([]);
-      setBlock("");
-    }
-  }, [subDivision, divisionForSubdiv, blocks, block, userRole]);
-
-
-
-  useEffect(() => {
-  const storedUser = JSON.parse(localStorage.getItem("currentUser") || "null");
-  if (storedUser) {
-    setUserRole(storedUser.role);
-    console.log("Loaded user:", storedUser);
-
-    if (storedUser.role === "subdiv") {
-      setSubDivision(storedUser.name);
-      setSubDivisionForSubdiv(storedUser.name);
-      console.log("Subdiv user set:", storedUser.name);
-    }
-
-    if (storedUser.role === "block") {
-      const blockRecord = blocks.find((b) => b.blockName === storedUser.name);
-      if (blockRecord) {
-        setBlock(blockRecord.blockName);
-        setSubDivision(blockRecord.subDivision);
-        setSubDivisionForSubdiv(blockRecord.subDivision);
-        console.log("Block user set from blocks:", blockRecord);
-      } else {
-        console.warn("No block found for user:", storedUser.name);
-      }
-    }
-  }
-}, [blocks]);
-
-
-  const handleSave = () => {
-    if (!subDivision || !block || !centerName)
-      return alert("Please fill all fields");
-
-    if (editingCenter) {
-      const updatedCenters = centers.map((c) =>
-        c.id === editingCenter.id ? { ...c, subDivision, block, centerName } : c
-      );
-      setCenters(updatedCenters);
-      localStorage.setItem("centers", JSON.stringify(updatedCenters));
-      onCentersChange(updatedCenters);
-      setOpen(false);
-      onClose?.();
+      setBlockId("");
       return;
     }
 
-    const newCenter: Center = {
-      id: Date.now(),
-      subDivision,
-      block,
-      centerName,
-    };
-    const updatedCenters = [...centers, newCenter];
-    setCenters(updatedCenters);
-    localStorage.setItem("centers", JSON.stringify(updatedCenters));
-    onCentersChange(updatedCenters);
+    const sid = Number(subDivisionId);
+    const filtered = (blockData ?? []).filter(
+      (b: Block) => b.subdivision?.id === sid
+    );
 
-    if (userRole !== "subdiv") setSubDivision("");
-    if (userRole !== "block") setBlock("");
-    setCenterName("");
-    setOpen(false);
+    setFilteredBlocks(filtered);
+    setBlockId("");
+  }, [subDivisionId, blockData]);
+
+  const createSchoolMutation = useMutation({
+    mutationFn: createSchools,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["schools"] });
+      toast("School created successfully!");
+      setCenterName("");
+      setBlockId("");
+      setSubDivisionId("");
+    },
+    onError: (error) => {
+      console.error("Error creating school:", error);
+      toast("Failed to create school");
+    },
+  });
+
+  const handleSave = () => {
+    if (!subDivisionId || !blockId || !centerName.trim()) {
+      console.warn("Please fill all fields before saving");
+      return;
+    }
+
+    const payload = {
+      center_name: centerName,
+      subdivision_id: Number(subDivisionId),
+      block_id: Number(blockId),
+    };
+
+    console.log("Sending payload:", payload);
+    createSchoolMutation.mutate(payload);
   };
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(val) => {
-        setOpen(val);
-        if (!val) onClose?.();
-      }}
-    >
-      {!editingCenter && (
-        <DialogTrigger asChild>
-          <Button className="bg-zinc-800 text-white hover:bg-zinc-700 shadow-md px-4 rounded-lg transition">
-            Add School
-          </Button>
-        </DialogTrigger>
-      )}
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="bg-zinc-800 text-white hover:bg-zinc-700 shadow-md px-4 rounded-lg transition">
+          Add Center
+        </Button>
+      </DialogTrigger>
 
       <DialogContent className="max-w-lg w-full bg-zinc-100 text-zinc-900 rounded-xl shadow-lg p-6">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-zinc-800">
-            {editingCenter ? "Edit Center" : "Add School Details"}
+            Add Center
           </DialogTitle>
         </DialogHeader>
 
@@ -209,54 +116,40 @@ export default function CenterDialog({
         >
           <div>
             <Label className="text-sm font-medium">Sub Division</Label>
-            {userRole === "subdiv" || userRole === "block" ? (
-              <Input
-                type="text"
-                value={divisionForSubdiv}
-                disabled
-                className="w-full h-10 mt-1 bg-zinc-200 border border-zinc-300 rounded-md cursor-not-allowed"
-              />
-            ) : (
-              <Select value={subDivision} onValueChange={setSubDivision}>
-                <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm">
-                  <SelectValue placeholder="Select Sub Division" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {subDivisions.map((sd) => (
-                    <SelectItem key={sd.id} value={sd.name}>
-                      {sd.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
-          <div>
-            <Label className="text-sm font-medium">Block</Label>
-            {userRole === "block" ? (
-              <Input
-                type="text"
-                value={block}
-                disabled
-                className="w-full h-10 mt-1 bg-zinc-200 border border-zinc-300 rounded-md cursor-not-allowed"
-              />
-            ) : (
-              <Select value={block} onValueChange={setBlock}>
-                <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm">
-                  <SelectValue placeholder="Select Block" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {filteredBlocks.map((b) => (
-                    <SelectItem key={b.id} value={b.blockName}>
-                      {b.blockName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+            <Select
+              value={subDivisionId}
+              onValueChange={(val) => setSubDivisionId(val)}
+            >
+              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm">
+                <SelectValue placeholder="Select Sub Division" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                {subDivisions.map((sd: SubDivision) => (
+                  <SelectItem key={sd.id} value={String(sd.id)}>
+                    {sd.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="w-full">
+          <div>
+            <Label className="text-sm font-medium">Block</Label>
+            <Select value={blockId} onValueChange={(val) => setBlockId(val)}>
+              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm">
+                <SelectValue placeholder="Select Block" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                {filteredBlocks.map((b) => (
+                  <SelectItem key={b.id} value={String(b.id)}>
+                    {b.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
             <Label className="text-sm font-medium">Center Name</Label>
             <Input
               type="text"
@@ -270,9 +163,10 @@ export default function CenterDialog({
           <div className="flex justify-end mt-6">
             <Button
               type="submit"
+              disabled={createSchoolMutation.isPending}
               className="bg-zinc-800 text-white hover:bg-zinc-700 px-6 rounded-lg transition"
             >
-              {editingCenter ? "Update Center" : "Save Center"}
+              {createSchoolMutation.isPending ? "Saving..." : "Save Center"}
             </Button>
           </div>
         </form>
