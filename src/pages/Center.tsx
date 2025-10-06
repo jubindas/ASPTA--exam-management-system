@@ -33,7 +33,7 @@ export default function Center() {
         <h1 className="text-2xl font-semibold text-zinc-800 tracking-tight">
           Center List
         </h1>
-      <CenterDialog />
+      <CenterDialog mode="create" />
       </div>
 
       <div className="flex flex-wrap justify-between items-center mb-6 gap-4">

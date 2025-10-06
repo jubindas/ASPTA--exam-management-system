@@ -1,15 +1,18 @@
 import type { ColumnDef } from "@tanstack/react-table";
+
 import type { Student } from "@/table-types/student-table-types";
+
 import { Button } from "@/components/ui/button";
+
 import { Edit, PlusCircle } from "lucide-react";
 
 export const studentsColumns = (
-  onEdit: (student: Student) => void
+  onEdit: (student: Student) => void = () => {}
 ): ColumnDef<Student>[] => [
   {
     accessorKey: "uuid",
     header: "Student UUID",
-    cell: ({ row }) => <span className="ext-sm w-2 font-medium">{row.getValue("uuid")}</span>,
+    cell: ({ row }) => <span className="text-sm font-medium">{row.getValue("uuid")}</span>,
   },
   {
     accessorKey: "name",

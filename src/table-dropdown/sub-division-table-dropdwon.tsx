@@ -19,6 +19,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteSubDivision } from "@/service/subDivisionApi";
 import { toast } from "sonner";
 import SubDivisionDialog from "@/components/SubDivisionDialog";
+import UpdatePasswordDialog from "@/components/UpdatePasswordDialog";
 
 export default function SubDivisionTableDropdown({
   id,
@@ -72,6 +73,18 @@ export default function SubDivisionTableDropdown({
                 >
                   <Edit className="h-4 w-4 mr-2 text-zinc-700" />
                   Edit
+                </Button>
+              }
+            />
+
+            <UpdatePasswordDialog
+              trigger={
+                <Button
+                  variant="ghost"
+                  className="justify-start text-left text-sm hover:bg-blue-100 text-blue-600 w-full mt-1"
+                >
+                  <Edit className="h-4 w-4 mr-2 text-blue-600" />
+                  Update Password
                 </Button>
               }
             />

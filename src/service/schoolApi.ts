@@ -30,3 +30,20 @@ export const deleteSchool = async (id: number) => {
     console.log(error);
   }
 };
+
+export const updateSchool = async (
+  id: number,
+  schoolData: {
+    center_name: string;
+    subdivision_id: number;
+    block_id: number;
+  }
+) => {
+  try {
+    const response = await axiosInstance.put(`/schools/${id}`, schoolData);
+    return response.data;
+  } catch (error) {
+    console.error("Error updating school:", error);
+    throw error; // re-throw so callers can handle it
+  }
+};

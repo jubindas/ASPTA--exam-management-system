@@ -1,357 +1,277 @@
-import { useState, useEffect } from "react";
+"use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-
+import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-
 import { Input } from "@/components/ui/input";
-
 import { Button } from "@/components/ui/button";
-
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-import type { Student } from "@/table-types/student-table-types";
-
-import type { SubDivision } from "@/table-types/sub-division-types";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchSubDivisions } from "@/service/subDivisionApi";
+import { getBlockList } from "@/service/blockApi";
+import { getSchools } from "@/service/schoolApi";
+import { createStudent } from "@/service/studentsApi";
 import type { Block } from "@/table-types/block-table-types";
-
 import type { Center } from "@/table-types/center-table-types";
+import type { SubDivision } from "@/table-types/sub-division-types";
+import { toast } from "sonner";
 
 interface StudentDialogProps {
-  editStudent?: Student | null;
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  onStudentsChange: (students: Student[]) => void;
+  trigger?: React.ReactNode;
 }
 
-
-export default function StudentDialog({
-  editStudent,
-  open,
-  setOpen,
-  onStudentsChange,
-}: StudentDialogProps) {
-
-  const [uuid, setUuid] = useState("");
+export default function StudentDialog({ trigger }: StudentDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [subDivisionId, setSubDivisionId] = useState<string>("");
+  const [blockId, setBlockId] = useState<string>("");
+  const [schoolId, setSchoolId] = useState<string>("");
 
   const [name, setName] = useState("");
-
+  const [guardianName, setGuardianName] = useState("");
   const [mobile, setMobile] = useState("");
-
   const [studentClass, setStudentClass] = useState("");
-
   const [medium, setMedium] = useState("");
 
-  const [subDivision, setSubDivision] = useState("");
+  const queryClient = useQueryClient();
 
-  const [block, setBlock] = useState("");
+  const { data: subDivisions = [] } = useQuery({
+    queryKey: ["subDivisions"],
+    queryFn: fetchSubDivisions,
+  });
 
-  const [centerName, setCenterName] = useState("");
+  const { data: blocks = [] } = useQuery({
+    queryKey: ["blocks"],
+    queryFn: getBlockList,
+  });
 
-  const [guardianName, setGuardianName] = useState("");
-
-  const [students, setStudents] = useState<Student[]>([]);
-
-  const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
-
-  const [blocks, setBlocks] = useState<Block[]>([]);
-
-  const [centers, setCenters] = useState<Center[]>([]);
+  const { data: centers = [] } = useQuery({
+    queryKey: ["schools"],
+    queryFn: getSchools,
+  });
 
   const [filteredBlocks, setFilteredBlocks] = useState<Block[]>([]);
-
   const [filteredCenters, setFilteredCenters] = useState<Center[]>([]);
 
-  const [userRole, setUserRole] = useState<string | null>(null);
-
-  const [userSubDivision, setUserSubDivision] = useState<string | null>(null);
-
-  const norm = (v: unknown) => (v === null || v === undefined ? "" : String(v).trim().toLowerCase());
-
-
-
   useEffect(() => {
-    const storedStudents = JSON.parse(localStorage.getItem("students") || "[]");
-    const storedSubDivisions = JSON.parse(localStorage.getItem("subDivisions") || "[]");
-    const storedBlocks = JSON.parse(localStorage.getItem("blocks") || "[]");
-    const storedCenters = JSON.parse(localStorage.getItem("centers") || "[]");
-    const storedUser = JSON.parse(localStorage.getItem("currentUser") || "null");
-
- 
-    setStudents(storedStudents);
-    setSubDivisions(storedSubDivisions);
-    setBlocks(storedBlocks);
-    setCenters(storedCenters);
-
-    if (storedUser) {
-      setUserRole(storedUser.role);
-
-      if (storedUser.role === "subdiv") {
-        setUserSubDivision(storedUser.name);
-        setSubDivision(storedUser.name);
-      }
-
-      if (storedUser.role === "block") {
-        const foundBlock = (storedBlocks || []).find((b: Block) => norm(b.blockName) === norm(storedUser.name));
-        if (foundBlock) {
-          setBlock(foundBlock.blockName);
-          setSubDivision(foundBlock.subDivision);
-        } else {
-          setBlock(storedUser.name);
-        }
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (editStudent) {
-      setUuid(editStudent.uuid);
-      setName(editStudent.name);
-      setMobile(editStudent.mobile);
-      setStudentClass(editStudent.studentClass);
-      setMedium(editStudent.medium);
-      setSubDivision(editStudent.subDivision);
-      setBlock(editStudent.block);
-      setCenterName(editStudent.centerName);
-      setGuardianName(editStudent.guardianName);
-    } 
-    else {
-  setUuid("");
-  setName("");
-  setMobile("");
-  setStudentClass("");
-  setMedium("");
-
-  if (userRole === "admin") {
-    setSubDivision("");
-  }
-
-  if (userRole === "admin" || userRole === "subdiv") {
-    setBlock("");
-  }
-
-  setCenterName("");
-  setGuardianName("");
-}
-  }, [editStudent, userRole]);
-
-  useEffect(() => {
-    const sdNorm = norm(subDivision);
-    const relatedBlocks = (blocks || []).filter((b) => norm(b.subDivision) === sdNorm);
-
-    setFilteredBlocks(relatedBlocks);
-
-    if (userRole === "subdiv") {
-      const alreadyMatches = relatedBlocks.some((b) => norm(b.blockName) === norm(block));
-      if (!alreadyMatches) {
-        if (relatedBlocks.length > 0) {
-          setBlock(relatedBlocks[0].blockName);
-        } else {
-          if (block !== "") {
-            setBlock("");
-          }
-        }
-      }
-    } else if (userRole === "block") {
-      console.log("[StudentDialog] userRole=block -> keep block as is");
+    if (subDivisionId) {
+      const fb = blocks.filter(
+        (b: Block) => String(b.subdivision?.id) === subDivisionId
+      );
+      setFilteredBlocks(fb);
+      setBlockId("");
+      setSchoolId("");
+      setFilteredCenters([]);
     } else {
-      const belongs = relatedBlocks.some((b) => norm(b.blockName) === norm(block));
-      if (!belongs && block !== "") {
-        console.log("[StudentDialog] admin - clearing block because not in selected subdivision");
-        setBlock("");
-      }
+      setFilteredBlocks([]);
+      setBlockId("");
+      setSchoolId("");
+      setFilteredCenters([]);
     }
-
-    setFilteredCenters([]);
-    if (userRole !== "block") {
-      setCenterName("");
-    }
-  }, [subDivision, blocks, userRole, block]);
+  }, [subDivisionId, blocks]);
 
   useEffect(() => {
-    const bNorm = norm(block);
-    const relatedCenters = (centers || []).filter((c) => norm(c.block) === bNorm);
-
-    setFilteredCenters(relatedCenters);
-
-    if (userRole === "block") {
-      const centerMatches = relatedCenters.some((c) => norm(c.centerName) === norm(centerName));
-      if (!centerMatches) {
-        if (relatedCenters.length > 0) {
-          setCenterName(relatedCenters[0].centerName);
-        } else {
-          if (centerName !== "") {
-            setCenterName("");
-          }
-        }
-      }
+    if (blockId) {
+      const fc = centers.filter((c: Center) => String(c.block?.id) === blockId);
+      setFilteredCenters(fc);
+      setSchoolId("");
     } else {
-      const belongs = relatedCenters.some((c) => norm(c.centerName) === norm(centerName));
-      if (!belongs && centerName !== "") {
-        setCenterName("");
-      }
+      setFilteredCenters([]);
+      setSchoolId("");
     }
-  }, [block, centers, userRole, centerName]);
+  }, [blockId, centers]);
 
-  useEffect(() => {
-    if (subDivision) {
-      const relatedBlocks = (blocks || []).filter((b) => norm(b.subDivision) === norm(subDivision));
-      setFilteredBlocks(relatedBlocks);
-    }
-  }, [blocks, subDivision]);
+  const mutation = useMutation({
+    mutationFn: createStudent,
+    onSuccess: (data) => {
+      console.log("Student created successfully:", data);
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+      toast("Student created successfully!");
+      setOpen(false);
+      resetForm();
+    },
+    onError: (error) => {
+      console.error("Error creating student:", error);
+      toast("Failed to create!");
+    },
+  });
 
   const handleSave = () => {
-
-    if (!name) return alert("Please enter Student Name");
-    if (userRole === "subdiv" && userSubDivision !== subDivision) {
-      return alert("You can only add students under your assigned subdivision.");
-    }
-
-    let studentUuid = uuid;
-    if (!studentUuid) {
-      const existingStudentsInBlock = students.filter((s) => s.subDivision === subDivision);
-      const serial = (existingStudentsInBlock.length + 1).toString().padStart(4, "0");
-      const subDivShort = (subDivision || "").slice(0, 3).toUpperCase();
-      studentUuid = `PRAGYAN-${subDivShort}-${serial}`;
-    }
-
-    const newStudent: Student = {
-      id: editStudent ? editStudent.id : Date.now(),
-      uuid: studentUuid,
-      name,
-      guardianName,
-      mobile,
-      studentClass,
-      medium,
-      subDivision,
-      block,
-      centerName,
+    const payload = {
+      student_name: name,
+      guardian_name: guardianName,
+      phone: mobile,
+      class: studentClass,
+      medium: medium,
+      subdivision_id: subDivisionId ? Number(subDivisionId) : 0,
+      block_id: blockId ? Number(blockId) : 0,
+      school_id: schoolId ? Number(schoolId) : 0,
     };
+    console.log("Payload:", payload);
 
-    const updatedStudents = editStudent ? students.map((s) => (s.id === editStudent.id ? newStudent : s)) : [...students, newStudent];
+    mutation.mutate(payload);
+  };
 
-    setStudents(updatedStudents);
-    localStorage.setItem("students", JSON.stringify(updatedStudents));
-    onStudentsChange(updatedStudents);
-
-    setUuid("");
+  const resetForm = () => {
+    setSubDivisionId("");
+    setBlockId("");
+    setSchoolId("");
     setName("");
+    setGuardianName("");
     setMobile("");
     setStudentClass("");
     setMedium("");
-    if (userRole !== "subdiv") setSubDivision("");
-    if (userRole !== "block") setBlock("");
-    setCenterName("");
-    setGuardianName("");
-    setOpen(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-3xl w-full bg-zinc-100 text-zinc-900 rounded-xl shadow-xl p-6">
+      <DialogTrigger asChild>
+        {trigger ? (
+          trigger
+        ) : (
+          <Button className="bg-zinc-800 text-white hover:bg-zinc-700">
+            Add Student
+          </Button>
+        )}
+      </DialogTrigger>
+
+      <DialogContent className="max-w-3xl w-full bg-white text-zinc-900 rounded-xl p-6">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-zinc-800">{editStudent ? "Edit Student" : "Add Student"}</DialogTitle>
+          <DialogTitle>Add Student</DialogTitle>
         </DialogHeader>
 
         <form
-          className="grid grid-cols-2 gap-4 mt-4"
+          className="grid grid-cols-2 gap-6 mt-4"
           onSubmit={(e) => {
             e.preventDefault();
             handleSave();
           }}
         >
-          <div>
-            <Label className="text-sm font-medium">Sub Division</Label>
-            {userRole === "subdiv" || userRole === "block" ? (
-              <Input type="text" value={subDivision} disabled className="w-full h-10 mt-1 bg-zinc-200 border border-zinc-300 rounded-md cursor-not-allowed" />
-            ) : (
-              <Select value={subDivision} onValueChange={setSubDivision}>
-                <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm">
-                  <SelectValue placeholder="Select Sub Division" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {subDivisions.map((sd) => (
-                    <SelectItem key={sd.id} value={sd.name}>
-                      {sd.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
-
-          <div>
-            <Label className="text-sm font-medium">Block</Label>
-            {userRole === "block" ? (
-              <Input type="text" value={block} disabled className="w-full h-10 mt-1 bg-zinc-200 border border-zinc-300 rounded-md cursor-not-allowed" />
-            ) : (
-              <Select value={block} onValueChange={setBlock}>
-                <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm">
-                  <SelectValue placeholder="Select Block" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {filteredBlocks.map((b) => (
-                    <SelectItem key={b.id} value={b.blockName}>
-                      {b.blockName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
-
-          <div>
-            <Label className="text-sm font-medium">School / Center</Label>
-            <Select value={centerName} onValueChange={setCenterName}>
-              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md shadow-sm">
-                <SelectValue placeholder="Select Center" />
+          {/* Sub Division */}
+          <div className="flex flex-col">
+            <Label>Sub Division</Label>
+            <Select value={subDivisionId} onValueChange={setSubDivisionId}>
+              <SelectTrigger className="w-full mt-2">
+                <SelectValue placeholder="Select Sub Division" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                {filteredCenters.map((c) => (
-                  <SelectItem key={c.id} value={c.centerName}>
-                    {c.centerName}
+                {subDivisions.map((sd: SubDivision) => (
+                  <SelectItem key={sd.id} value={String(sd.id)}>
+                    {sd.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          <div>
-            <Label className="text-sm font-medium">Student Name</Label>
-            <Input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter Name" className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md" />
+          {/* Block */}
+          <div className="flex flex-col">
+            <Label>Block</Label>
+            <Select value={blockId} onValueChange={setBlockId}>
+              <SelectTrigger className="w-full mt-2">
+                <SelectValue placeholder="Select Block" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                {filteredBlocks.length > 0 ? (
+                  filteredBlocks.map((b) => (
+                    <SelectItem key={b.id} value={String(b.id)}>
+                      {b.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="p-2 text-sm text-zinc-500">No blocks</div>
+                )}
+              </SelectContent>
+            </Select>
           </div>
 
-          <div>
-            <Label className="text-sm font-medium">Guardian Name</Label>
-            <Input type="text" value={guardianName} onChange={(e) => setGuardianName(e.target.value)} placeholder="Enter Guardian Name" className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md" />
+          {/* School */}
+          <div className="flex flex-col">
+            <Label>School Name</Label>
+            <Select value={schoolId} onValueChange={setSchoolId}>
+              <SelectTrigger className="w-full mt-2">
+                <SelectValue placeholder="Select School" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                {filteredCenters.length > 0 ? (
+                  filteredCenters.map((c) => (
+                    <SelectItem key={c.id} value={String(c.id)}>
+                      {c.center_name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="p-2 text-sm text-zinc-500">No schools</div>
+                )}
+              </SelectContent>
+            </Select>
           </div>
 
-          <div>
-            <Label className="text-sm font-medium">Mobile</Label>
-            <Input type="text" value={mobile} onChange={(e) => setMobile(e.target.value)} placeholder="Enter Mobile" className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md" />
+          {/* Student Name */}
+          <div className="flex flex-col">
+            <Label>Student Name</Label>
+            <Input
+              className="mt-2"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter Name"
+            />
           </div>
 
-          <div>
-            <Label className="text-sm font-medium">Class</Label>
+          {/* Guardian Name */}
+          <div className="flex flex-col">
+            <Label>Guardian Name</Label>
+            <Input
+              className="mt-2"
+              value={guardianName}
+              onChange={(e) => setGuardianName(e.target.value)}
+              placeholder="Enter Guardian Name"
+            />
+          </div>
+
+          {/* Mobile */}
+          <div className="flex flex-col">
+            <Label>Mobile</Label>
+            <Input
+              className="mt-2"
+              value={mobile}
+              onChange={(e) => setMobile(e.target.value)}
+              placeholder="Enter Mobile"
+            />
+          </div>
+
+          {/* Class */}
+          <div className="flex flex-col">
+            <Label>Class</Label>
             <Select value={studentClass} onValueChange={setStudentClass}>
-              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md">
+              <SelectTrigger className="w-full mt-2">
                 <SelectValue placeholder="Select Class" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 <SelectItem value="IV">Class IV</SelectItem>
                 <SelectItem value="V">Class V</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <div>
-            <Label className="text-sm font-medium">Medium</Label>
+          {/* Medium */}
+          <div className="flex flex-col">
+            <Label>Medium</Label>
             <Select value={medium} onValueChange={setMedium}>
-              <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md">
+              <SelectTrigger className="w-full mt-2">
                 <SelectValue placeholder="Select Medium" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 {["Assamese", "Bengali", "Boro", "Garo", "Hindi"].map((m) => (
                   <SelectItem key={m} value={m}>
                     {m}
@@ -362,8 +282,12 @@ export default function StudentDialog({
           </div>
 
           <div className="flex justify-end mt-6 col-span-2">
-            <Button type="submit" className="bg-zinc-800 text-white hover:bg-zinc-700 px-6 rounded-lg transition">
-              Save Student
+            <Button
+              type="submit"
+              className="bg-zinc-800 text-white hover:bg-zinc-700"
+              disabled={mutation.isPending}
+            >
+              {mutation.isPending ? "Saving..." : "Save Student"}
             </Button>
           </div>
         </form>

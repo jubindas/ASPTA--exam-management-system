@@ -1,5 +1,7 @@
 import { axiosInstance } from "@/lib/axios";
 
+
+
 export const fetchSubDivisions = async () => {
   try {
     const response = await axiosInstance.get("/subdivisions");
@@ -43,5 +45,34 @@ export const deleteSubDivision = async (id: number) => {
   } catch (error) {
     console.error("Error deleting subdivision:", error);
     throw error;
+  }
+};
+
+
+// ✅ Export interface
+export interface UpdatePasswordData {
+  old_password: string;
+  new_password: string;
+}
+
+// ✅ Export function
+export const updateSubdivisionPassword = async (
+  data: UpdatePasswordData,
+  token: string
+) => {
+  try {
+    const response = await axiosInstance.post(
+      "/subdivisions/change-password",
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error("Failed to update subdivision password:", error);
+    throw error?.response?.data || error;
   }
 };

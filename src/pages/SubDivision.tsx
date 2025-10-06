@@ -19,6 +19,7 @@ export default function SubDivision() {
     queryFn: fetchSubDivisions,
   });
 
+  console.log("the sub division",data )
 
   return (
     <div className="p-6 bg-zinc-100 min-h-screen mt-8">
