@@ -1,5 +1,4 @@
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,36 +6,32 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
 import { Label } from "@/components/ui/label";
-
 import { Input } from "@/components/ui/input";
-
 import { Button } from "@/components/ui/button";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
+import { toast } from "sonner";
 import { fetchSubDivisions } from "@/service/subDivisionApi";
-
-import { createBlock } from "@/service/blockApi";
+import { createBlock, updateBlock } from "@/service/blockApi";
 import type { SubDivision } from "@/table-types/sub-division-types";
 
 interface BlockDialogProps {
-  mode: string;
+  mode: "create" | "edit";
+  trigger?: React.ReactNode;
+  blockData?: {
+    id: number;
+    name: string;
+    email: string;
+    password: string;
+    subdivision: { id: number; name: string };
+  };
 }
 
-export default function BlockDialog({ mode }: BlockDialogProps) {
-  console.log(mode);
+export default function BlockDialog({ mode, trigger, blockData }: BlockDialogProps) {
   const queryClient = useQueryClient();
 
+  // Fetch sub divisions
   const { data: subDivisionData = [] } = useQuery({
     queryKey: ["subDivisions"],
     queryFn: fetchSubDivisions,
@@ -46,138 +41,119 @@ export default function BlockDialog({ mode }: BlockDialogProps) {
   const [blockName, setBlockName] = useState("");
   const [subDivision, setSubDivision] = useState("");
 
+  // Fill inputs when editing
+  useEffect(() => {
+    if (mode === "edit" && blockData) {
+      setBlockName(blockData.name);
+      setSubDivision(blockData.subdivision.name);
+    } else {
+      setBlockName("");
+      setSubDivision("");
+    }
+  }, [mode, blockData]);
+
   const generateRandomPassword = (length = 10) => {
-    const chars =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!";
-    return Array.from(
-      { length },
-      () => chars[Math.floor(Math.random() * chars.length)]
-    ).join("");
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!";
+    return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
   };
 
   const mutation = useMutation({
-    mutationFn: createBlock,
-    onSuccess: (data) => {
+    mutationFn: async (data: any) => {
+      if (mode === "create") return await createBlock(data);
+      if (mode === "edit" && blockData) return await updateBlock(blockData.id, data);
+      throw new Error("Invalid mode or missing block data");
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["blocks"] });
-      console.log(data);
-      alert("✅ Block created successfully!");
+      toast.success(`Block ${mode === "create" ? "created" : "updated"} successfully`);
       setOpen(false);
       setBlockName("");
       setSubDivision("");
     },
-    onError: (error) => {
-      console.error("Error creating block:", error);
-      alert("❌ Failed to create block. Check console for details.");
+    onError: (err) => {
+      console.error("Failed to save block:", err);
+      toast.error("Failed to save block");
     },
   });
 
   const handleSave = () => {
     if (!blockName || !subDivision) {
-      alert("Please enter Block name and select a Sub Division.");
+      toast.error("Please enter Block name and select a Sub Division.");
       return;
     }
 
-    const selectedSubDiv = subDivisionData.find(
-      (sd: SubDivision) => sd.name === subDivision
-    );
-
+    const selectedSubDiv = subDivisionData.find((sd: SubDivision) => sd.name === subDivision);
     if (!selectedSubDiv) {
-      alert("Invalid Sub Division selected.");
+      toast.error("Invalid Sub Division selected.");
       return;
     }
 
-    const generatedEmail = `${blockName
-      .toLowerCase()
-      .replace(/\s+/g, "")}@abc.com`;
-    const randomPassword = generateRandomPassword();
+    const generatedEmail = `${blockName.toLowerCase().replace(/\s+/g, "")}@abc.com`;
+    const randomPassword = mode === "create" ? generateRandomPassword() : blockData?.password;
 
-    const blockData = {
+    const payload = {
       name: blockName,
       email: generatedEmail,
       subdivision_id: selectedSubDiv.id,
       password: randomPassword,
     };
 
-    console.log("📦 Sending block data:", blockData);
+    mutation.mutate(payload);
 
-    mutation.mutate(blockData);
-
-    alert(
-      `Block: ${blockName}\nEmail: ${generatedEmail}\nPassword: ${randomPassword}`
-    );
+    if (mode === "create") {
+      toast.success(`Block created!\nEmail: ${generatedEmail}\nPassword: ${randomPassword}`);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          className="bg-zinc-900 text-white"
-          onClick={() => setOpen(true)}
-        >
-          Add Block
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger || <Button className="bg-zinc-800 text-white hover:bg-zinc-700">{mode === "create" ? "Add Block" : "Edit Block"}</Button>}</DialogTrigger>
 
-      <DialogContent className="max-w-lg w-full bg-zinc-100 text-zinc-900 rounded-xl shadow-xl p-6">
+      <DialogContent className="sm:max-w-[500px] bg-white text-zinc-900 border border-zinc-200 shadow-md rounded-xl p-6">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-zinc-800">
-            Add Block
-          </DialogTitle>
+          <DialogTitle>{mode === "create" ? "Add Block" : "Edit Block"}</DialogTitle>
         </DialogHeader>
 
-        <form
-          className="grid grid-cols-1 gap-4 mt-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSave();
-          }}
-        >
-          <div>
-            <Label className="text-sm font-medium">Sub Division</Label>
-            <Select
-              value={subDivision}
-              onValueChange={(val) => setSubDivision(val)}
-            >
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="subDivision" className="text-zinc-700">
+              Sub Division
+            </Label>
+            <Select value={subDivision} onValueChange={(val) => setSubDivision(val)}>
               <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md">
                 <SelectValue placeholder="Select Sub Division" />
               </SelectTrigger>
               <SelectContent className="bg-white">
                 {subDivisionData.length > 0 ? (
-                  subDivisionData.map((sd: SubDivision) => (
-                    <SelectItem key={sd.id} value={sd.name}>
-                      {sd.name}
-                    </SelectItem>
-                  ))
+                  subDivisionData.map((sd: SubDivision) => <SelectItem key={sd.id} value={sd.name}>{sd.name}</SelectItem>)
                 ) : (
-                  <div className="p-2 text-sm text-zinc-500">
-                    No Sub Divisions found
-                  </div>
+                  <div className="p-2 text-sm text-zinc-500">No Sub Divisions found</div>
                 )}
               </SelectContent>
             </Select>
           </div>
 
-          <div>
-            <Label className="text-sm font-medium">Block Name</Label>
+          <div className="grid gap-2">
+            <Label htmlFor="blockName" className="text-zinc-700">Block Name</Label>
             <Input
-              type="text"
+              id="blockName"
               placeholder="Enter Block Name"
               value={blockName}
               onChange={(e) => setBlockName(e.target.value)}
-              className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md"
+              className="bg-zinc-50 text-zinc-900 border border-zinc-300 placeholder:text-zinc-400"
             />
           </div>
+        </div>
 
-          <div className="flex justify-end mt-6">
-            <Button
-              type="submit"
-              disabled={mutation.isPending}
-              className="bg-zinc-800 text-white hover:bg-zinc-700 px-6 rounded-lg transition"
-            >
-              {mutation.isPending ? "Saving..." : "Save Block"}
-            </Button>
-          </div>
-        </form>
+        <div className="flex justify-end gap-2 mt-4">
+          <Button
+            className="bg-zinc-800 text-white hover:bg-zinc-700"
+            onClick={handleSave}
+            disabled={mutation.isPending}
+          >
+            {mutation.isPending ? (mode === "create" ? "Creating..." : "Updating...") : (mode === "create" ? "Save" : "Update")}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
