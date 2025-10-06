@@ -1,12 +1,9 @@
 import type { ColumnDef } from "@tanstack/react-table";
 
 import type { Center } from "@/table-types/center-table-types";
+import SchoolTableDropdown from "@/table-dropdown/school-table-dropdown";
 
-import { Button } from "@/components/ui/button";
 
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-
-import { MoreHorizontal, Edit, UserPlus } from "lucide-react";
 
 export const columns = (): ColumnDef<Center>[] => [
   {
@@ -43,41 +40,19 @@ export const columns = (): ColumnDef<Center>[] => [
       </span>
     ),
   },
-  {
-    id: "actions",
-    header: "Action",
-    cell: ({ row }) => {
-      const center = row.original;
-      return (
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className="hover:bg-zinc-100 rounded-full">
-              <MoreHorizontal className="h-5 w-5 text-zinc-700" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            align="end"
-            className="w-48 p-2 bg-white border border-zinc-200 shadow-lg rounded-md"
-          >
-            <div className="flex flex-col space-y-1">
-              <Button
-                variant="ghost"
-                className="justify-start text-left text-sm hover:bg-zinc-100"
-                onClick={() => console.log("edit", center)}
-              >
-                <Edit className="h-4 w-4 mr-2 text-zinc-700" /> Edit
-              </Button>
-              <Button
-                variant="ghost"
-                className="justify-start text-left text-sm hover:bg-zinc-100"
-                onClick={() => alert(`Adding Student to ${center.center_name}`)}
-              >
-                <UserPlus className="h-4 w-4 mr-2 text-zinc-700" /> Add Student
-              </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
-      );
-    },
+{
+  id: "actions",
+  header: "Action",
+  cell: ({ row }) => {
+    const school = {
+      id: row.original.id,
+      name: row.original.center_name,
+      block: row.original.block,
+      subdivision: row.original.subdivision,
+    };
+
+    return <SchoolTableDropdown school={school} />;
   },
+}
+
 ];

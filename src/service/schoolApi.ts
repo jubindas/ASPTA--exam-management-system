@@ -21,3 +21,12 @@ export const createSchools = async (schoolData: {
     console.log(error);
   }
 };
+
+export const deleteSchool = async (id: number) => {
+  try {
+    const response = await axiosInstance.delete(`/schools/${id}`);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};

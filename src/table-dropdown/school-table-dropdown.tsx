@@ -14,49 +14,42 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreHorizontal, Edit, Trash2, Printer, FileBadge } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, UserPlus } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteBlock } from "@/service/blockApi";
+import { deleteSchool } from "@/service/schoolApi";
 import { toast } from "sonner";
-import BlockDialog from "@/components/BlockDialog";
-import { useNavigate } from "react-router-dom";
 
-interface BlockTableDropdownProps {
-  block: {
+interface SchoolTableDropdownProps {
+  school: {
     id: number;
     name: string;
-    email: string;
-    password: string;
-    subdivision: { id: number; name: string }; 
+    block: { id: number; name: string };
+    subdivision: { id: number; name: string };
   };
 }
 
-
-export default function BlockTableDropdown({ block }: BlockTableDropdownProps) {
-  const navigate = useNavigate();
+export default function SchoolTableDropdown({
+  school,
+}: SchoolTableDropdownProps) {
   const queryClient = useQueryClient();
   const [openDialog, setOpenDialog] = useState(false);
 
   const deleteMutation = useMutation({
-    mutationFn: () => deleteBlock(block.id),
+    mutationFn: () => deleteSchool(school.id),
     onSuccess: () => {
-      console.log(`Block with ID ${block.id} deleted successfully`);
-      queryClient.invalidateQueries({ queryKey: ["blocks"] });
-      toast("Block deleted successfully");
+      console.log(`School with ID ${school.id} deleted successfully`);
+      queryClient.invalidateQueries({ queryKey: ["schools"] });
+      toast.success("School deleted successfully");
       setOpenDialog(false);
     },
     onError: (error) => {
-      console.error("Failed to delete block:", error);
-      toast.error("Failed to delete block");
+      console.error("Failed to delete school:", error);
+      toast.error("Failed to delete school");
     },
   });
 
-  const handleGenerateAdmit = () => {
-    navigate("/generate-admit", { state: { block } });
-  };
-
-  const handlePrint = () => {
-    alert(`Printing Result for ${block.name}`);
+  const handleAddStudent = () => {
+    alert(`Adding student to ${school.name}`);
   };
 
   return (
@@ -77,21 +70,27 @@ export default function BlockTableDropdown({ block }: BlockTableDropdownProps) {
           className="w-48 p-2 bg-white border border-zinc-200 shadow-lg rounded-md"
         >
           <div className="flex flex-col space-y-1">
+           
+            <Button
+              variant="ghost"
+              className="justify-start text-left text-sm hover:bg-zinc-100 w-full text-zinc-700"
+              onClick={() => console.log("Edit School", school)}
+            >
+              <Edit className="h-4 w-4 mr-2 text-zinc-700" />
+              Edit
+            </Button>
+
           
-            <BlockDialog
-              mode="edit"
-              blockData={block}
-              trigger={
-                <Button
-                  variant="ghost"
-                  className="justify-start text-left text-sm hover:bg-zinc-100 w-full text-zinc-700"
-                >
-                  <Edit className="h-4 w-4 mr-2 text-zinc-700" />
-                  Edit
-                </Button>
-              }
-            />
-        
+            <Button
+              variant="ghost"
+              className="justify-start text-left text-sm hover:bg-zinc-100 w-full text-zinc-700"
+              onClick={handleAddStudent}
+            >
+              <UserPlus className="h-4 w-4 mr-2 text-zinc-700" />
+              Add Student
+            </Button>
+
+         
             <Button
               variant="ghost"
               className="justify-start text-left text-sm hover:bg-red-100 text-red-600 w-full mt-1"
@@ -100,33 +99,16 @@ export default function BlockTableDropdown({ block }: BlockTableDropdownProps) {
               <Trash2 className="h-4 w-4 mr-2 text-red-600" />
               Delete
             </Button>
-            <Button
-              variant="ghost"
-              className="justify-start text-left text-sm hover:bg-zinc-100"
-              onClick={handleGenerateAdmit}
-            >
-              {" "}
-              <FileBadge className="h-4 w-4 mr-2 text-zinc-700" /> Generate
-              Admit{" "}
-            </Button>{" "}
-            <Button
-              variant="ghost"
-              className="justify-start text-left text-sm hover:bg-zinc-100"
-              onClick={handlePrint}
-            >
-              {" "}
-              <Printer className="h-4 w-4 mr-2 text-zinc-700" /> Print Result{" "}
-            </Button>
           </div>
         </PopoverContent>
       </Popover>
 
-  
+    
       <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
         <AlertDialogContent className="bg-white">
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Are you sure you want to delete this block?
+              Are you sure you want to delete this school?
             </AlertDialogTitle>
           </AlertDialogHeader>
           <AlertDialogFooter>
