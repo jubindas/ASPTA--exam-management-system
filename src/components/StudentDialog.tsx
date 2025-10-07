@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+
 import {
   Dialog,
   DialogContent,
@@ -6,9 +7,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
 import { Label } from "@/components/ui/label";
+
 import { Input } from "@/components/ui/input";
+
 import { Button } from "@/components/ui/button";
+
 import {
   Select,
   SelectContent,
@@ -16,17 +21,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { toast } from "sonner";
 
 import { fetchSubDivisions } from "@/service/subDivisionApi";
+
 import { getBlockList } from "@/service/blockApi";
+
 import { getSchools } from "@/service/schoolApi";
+
 import { createStudent, updateStudent } from "@/service/studentsApi";
+
 import { useAuth } from "@/hooks/useAuth";
 
 import type { SubDivision } from "@/table-types/sub-division-types";
+
 import type { Block } from "@/table-types/block-table-types";
+
 import type { Center } from "@/table-types/center-table-types";
 
 interface StudentData {
@@ -100,8 +113,6 @@ export default function StudentDialog({
     let initialSchoolId = "";
 
     if (mode === "edit" && studentData) {
-      console.log("Editing existing student:", studentData);
-
       if (
         typeof studentData.subdivision === "object" &&
         studentData.subdivision?.id
@@ -117,7 +128,6 @@ export default function StudentDialog({
         );
         if (foundSub) {
           initialSubDivisionId = String(foundSub.id);
-          console.log("Matched subdivision name → id:", foundSub);
         }
       }
 
@@ -131,7 +141,6 @@ export default function StudentDialog({
         );
         if (foundBlock) {
           initialBlockId = String(foundBlock.id);
-          console.log("Matched block name → id:", foundBlock);
         }
       }
 
@@ -145,7 +154,6 @@ export default function StudentDialog({
         );
         if (foundSchool) {
           initialSchoolId = String(foundSchool.id);
-          console.log("✅ Matched school name → id:", foundSchool);
         } else {
           console.warn("⚠️ No matching school for:", studentData.centerName);
         }
@@ -158,12 +166,6 @@ export default function StudentDialog({
         initialSubDivisionId = String(user.subdivision_id ?? "");
       }
     }
-
-    console.log("✅ Normalized IDs:", {
-      initialSubDivisionId,
-      initialBlockId,
-      initialSchoolId,
-    });
 
     setSubDivisionId(initialSubDivisionId);
     setBlockId(initialBlockId);
@@ -258,7 +260,6 @@ export default function StudentDialog({
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          {/* Sub Division */}
           <div className="flex flex-col">
             <Label className="text-sm font-medium mb-2">Sub Division</Label>
             {isSubDivisionDisabled ? (
@@ -283,7 +284,6 @@ export default function StudentDialog({
             )}
           </div>
 
-          {/* Block */}
           <div className="flex flex-col">
             <Label className="text-sm font-medium mb-2">Block</Label>
             {isBlockDisabled ? (
@@ -308,7 +308,6 @@ export default function StudentDialog({
             )}
           </div>
 
-          {/* School */}
           <div className="flex flex-col">
             <Label className="text-sm font-medium mb-2">School</Label>
             <Select value={schoolId} onValueChange={setSchoolId}>
@@ -325,7 +324,6 @@ export default function StudentDialog({
             </Select>
           </div>
 
-          {/* Student Name */}
           <div className="flex flex-col">
             <Label className="text-sm font-medium mb-2">Student Name</Label>
             <Input
@@ -336,7 +334,6 @@ export default function StudentDialog({
             />
           </div>
 
-          {/* Guardian Name */}
           <div className="flex flex-col">
             <Label className="text-sm font-medium mb-2">Guardian Name</Label>
             <Input
@@ -347,7 +344,6 @@ export default function StudentDialog({
             />
           </div>
 
-          {/* Mobile */}
           <div className="flex flex-col">
             <Label className="text-sm font-medium mb-2">Mobile</Label>
             <Input
@@ -358,7 +354,6 @@ export default function StudentDialog({
             />
           </div>
 
-          {/* Class */}
           <div className="flex flex-col">
             <Label className="text-sm font-medium mb-2">Class</Label>
             <Select value={studentClass} onValueChange={setStudentClass}>
@@ -375,7 +370,6 @@ export default function StudentDialog({
             </Select>
           </div>
 
-          {/* Medium */}
           <div className="flex flex-col">
             <Label className="text-sm font-medium mb-2">Medium</Label>
             <Select value={medium} onValueChange={setMedium}>

@@ -1,10 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +15,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteBlock } from "@/service/blockApi";
 import { toast } from "sonner";
 import BlockDialog from "@/components/BlockDialog";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 interface BlockTableDropdownProps {
@@ -27,20 +24,19 @@ interface BlockTableDropdownProps {
     name: string;
     email: string;
     password: string;
-    subdivision: { id: number; name: string }; 
+    subdivision: { id: number; name: string };
   };
 }
 
-
 export default function BlockTableDropdown({ block }: BlockTableDropdownProps) {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [openDialog, setOpenDialog] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const deleteMutation = useMutation({
     mutationFn: () => deleteBlock(block.id),
     onSuccess: () => {
-      console.log(`Block with ID ${block.id} deleted successfully`);
       queryClient.invalidateQueries({ queryKey: ["blocks"] });
       toast("Block deleted successfully");
       setOpenDialog(false);
@@ -51,23 +47,19 @@ export default function BlockTableDropdown({ block }: BlockTableDropdownProps) {
     },
   });
 
-  const handleGenerateAdmit = () => {
-    navigate("/generate-admit", { state: { block } });
-  };
-
   const handlePrint = () => {
     alert(`Printing Result for ${block.name}`);
+  };
+
+  const handleGenerateAdmit = () => {
+    navigate("/generate-admit", { state: { block } }); // pass block data via state
   };
 
   return (
     <>
       <Popover>
         <PopoverTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hover:bg-zinc-100 rounded-full"
-          >
+          <Button variant="ghost" size="icon" className="hover:bg-zinc-100 rounded-full">
             <MoreHorizontal className="h-5 w-5 text-zinc-700" />
           </Button>
         </PopoverTrigger>
@@ -77,7 +69,6 @@ export default function BlockTableDropdown({ block }: BlockTableDropdownProps) {
           className="w-48 p-2 bg-white border border-zinc-200 shadow-lg rounded-md"
         >
           <div className="flex flex-col space-y-1">
-          
             <BlockDialog
               mode="edit"
               blockData={block}
@@ -91,7 +82,7 @@ export default function BlockTableDropdown({ block }: BlockTableDropdownProps) {
                 </Button>
               }
             />
-        
+
             <Button
               variant="ghost"
               className="justify-start text-left text-sm hover:bg-red-100 text-red-600 w-full mt-1"
@@ -100,28 +91,30 @@ export default function BlockTableDropdown({ block }: BlockTableDropdownProps) {
               <Trash2 className="h-4 w-4 mr-2 text-red-600" />
               Delete
             </Button>
-            <Button
-              variant="ghost"
-              className="justify-start text-left text-sm hover:bg-zinc-100"
-              onClick={handleGenerateAdmit}
-            >
-              {" "}
-              <FileBadge className="h-4 w-4 mr-2 text-zinc-700" /> Generate
-              Admit{" "}
-            </Button>{" "}
+
+            {user?.user_type === "admin" && (
+              <Button
+                variant="ghost"
+                className="justify-start text-left text-sm hover:bg-zinc-100"
+                onClick={handleGenerateAdmit}
+              >
+                <FileBadge className="h-4 w-4 mr-2 text-zinc-700" />
+                Generate Admit
+              </Button>
+            )}
+
             <Button
               variant="ghost"
               className="justify-start text-left text-sm hover:bg-zinc-100"
               onClick={handlePrint}
             >
-              {" "}
-              <Printer className="h-4 w-4 mr-2 text-zinc-700" /> Print Result{" "}
+              <Printer className="h-4 w-4 mr-2 text-zinc-700" />
+              Print Result
             </Button>
           </div>
         </PopoverContent>
       </Popover>
 
-  
       <AlertDialog open={openDialog} onOpenChange={setOpenDialog}>
         <AlertDialogContent className="bg-white">
           <AlertDialogHeader>
