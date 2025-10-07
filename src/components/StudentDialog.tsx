@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -31,20 +29,23 @@ import type { SubDivision } from "@/table-types/sub-division-types";
 import type { Block } from "@/table-types/block-table-types";
 import type { Center } from "@/table-types/center-table-types";
 
+interface StudentData {
+  id: number;
+  name: string;
+  guardianName: string;
+  mobile: string;
+  studentClass: string;
+  medium: string;
+  subdivision?: { id: number; name: string } | string | null;
+  block?: { id: number; name: string } | string | null;
+  school?: { id: number; center_name: string } | null;
+  centerName?: string | null;
+}
+
 interface StudentDialogProps {
   mode?: "create" | "edit";
   trigger?: React.ReactNode;
-  studentData?: {
-    id: number;
-    name: string;
-    guardianName: string;
-    mobile: string;
-    studentClass: string;
-    medium: string;
-    subdivision?: { id: number; name: string } | null;
-    block?: { id: number; name: string } | string | null;
-    school?: { id: number; center_name: string } | null;
-  };
+  studentData?: StudentData;
 }
 
 export default function StudentDialog({
@@ -55,20 +56,17 @@ export default function StudentDialog({
   const queryClient = useQueryClient();
   const { user, loading } = useAuth();
 
-  const { data: subDivisions = [], isLoading: isLoadingSubDivisions } =
-    useQuery<SubDivision[]>({
-      queryKey: ["subDivisions"],
-      queryFn: fetchSubDivisions,
-    });
+  const { data: subDivisions = [] } = useQuery<SubDivision[]>({
+    queryKey: ["subDivisions"],
+    queryFn: fetchSubDivisions,
+  });
 
-  const { data: blocks = [], isLoading: isLoadingBlocks } = useQuery<Block[]>({
+  const { data: blocks = [] } = useQuery<Block[]>({
     queryKey: ["blocks"],
     queryFn: getBlockList,
   });
 
-  const { data: centers = [], isLoading: isLoadingCenters } = useQuery<
-    Center[]
-  >({
+  const { data: centers = [] } = useQuery<Center[]>({
     queryKey: ["schools"],
     queryFn: getSchools,
   });
@@ -79,7 +77,6 @@ export default function StudentDialog({
   const [schoolId, setSchoolId] = useState<string>("");
   const [filteredBlocks, setFilteredBlocks] = useState<Block[]>([]);
   const [filteredCenters, setFilteredCenters] = useState<Center[]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
 
   const [name, setName] = useState("");
   const [guardianName, setGuardianName] = useState("");
@@ -87,98 +84,108 @@ export default function StudentDialog({
   const [studentClass, setStudentClass] = useState("");
   const [medium, setMedium] = useState("");
 
-  // Initialize values based on mode or user type
   useEffect(() => {
-    if (loading || isLoadingBlocks || isLoadingSubDivisions || isLoadingCenters) {
-      setIsInitialized(false);
-      return;
-    }
+    if (!open || loading) return;
 
-    // Only initialize once when dialog opens
-    if (!open) {
-      setIsInitialized(false);
-      return;
-    }
+    console.log("Initializing student dialog...", { mode, studentData, user });
 
-    if (isInitialized) return;
+    setName(studentData?.name || "");
+    setGuardianName(studentData?.guardianName || "");
+    setMobile(studentData?.mobile || "");
+    setStudentClass(studentData?.studentClass || "");
+    setMedium(studentData?.medium || "");
+
+    let initialSubDivisionId = "";
+    let initialBlockId = "";
+    let initialSchoolId = "";
 
     if (mode === "edit" && studentData) {
-      // Edit mode: use student data
-      setName(studentData.name || "");
-      setGuardianName(studentData.guardianName || "");
-      setMobile(studentData.mobile || "");
-      setStudentClass(studentData.studentClass || "");
-      setMedium(studentData.medium || "");
+      console.log("Editing existing student:", studentData);
 
-      setSubDivisionId(studentData.subdivision?.id ? String(studentData.subdivision.id) : "");
-      setBlockId(studentData.block ? String(typeof studentData.block === "object" ? studentData.block.id : "") : "");
-      setSchoolId(studentData.school?.id ? String(studentData.school.id) : "");
-    } else if (user?.user_type === "subdivision") {
-      // Subdivision user: pre-select subdivision
-      setSubDivisionId(String(user.id));
-      setBlockId("");
-      setSchoolId("");
-      resetStudentFields();
-    } else if (user?.user_type === "block") {
-      // Block user: pre-select both block and subdivision
-      const userBlock = blocks.find((b) => b.id === user.id);
-      if (userBlock && userBlock.subdivision) {
-        setBlockId(String(userBlock.id));
-        setSubDivisionId(String(userBlock.subdivision.id));
+      if (
+        typeof studentData.subdivision === "object" &&
+        studentData.subdivision?.id
+      ) {
+        initialSubDivisionId = String(studentData.subdivision.id);
+      } else if (typeof studentData.subdivision === "string") {
+        const foundSub = subDivisions.find(
+          (sd) =>
+            sd.name.toLowerCase() ===
+            (typeof studentData.subdivision === "string"
+              ? studentData.subdivision.toLowerCase()
+              : studentData.subdivision?.name.toLowerCase())
+        );
+        if (foundSub) {
+          initialSubDivisionId = String(foundSub.id);
+          console.log("Matched subdivision name → id:", foundSub);
+        }
       }
-      setSchoolId("");
-      resetStudentFields();
+
+      if (typeof studentData.block === "object" && studentData.block?.id) {
+        initialBlockId = String(studentData.block.id);
+      } else if (typeof studentData.block === "string") {
+        const foundBlock = blocks.find(
+          (b) =>
+            typeof studentData.block === "string" &&
+            b.name.toLowerCase() === studentData.block.toLowerCase()
+        );
+        if (foundBlock) {
+          initialBlockId = String(foundBlock.id);
+          console.log("Matched block name → id:", foundBlock);
+        }
+      }
+
+      if (studentData.school?.id) {
+        initialSchoolId = String(studentData.school.id);
+      } else if (studentData.centerName) {
+        const foundSchool = centers.find(
+          (c) =>
+            c.center_name.toLowerCase().trim() ===
+            studentData.centerName!.toLowerCase().trim()
+        );
+        if (foundSchool) {
+          initialSchoolId = String(foundSchool.id);
+          console.log("✅ Matched school name → id:", foundSchool);
+        } else {
+          console.warn("⚠️ No matching school for:", studentData.centerName);
+        }
+      }
     } else {
-      // Admin user: clear all fields
-      setSubDivisionId("");
-      setBlockId("");
-      setSchoolId("");
-      resetStudentFields();
+      if (user?.user_type === "subdivision") {
+        initialSubDivisionId = String(user.subdivision_id ?? user.id);
+      } else if (user?.user_type === "block") {
+        initialBlockId = String(user.block_id ?? user.id);
+        initialSubDivisionId = String(user.subdivision_id ?? "");
+      }
     }
 
-    setIsInitialized(true);
-  }, [mode, studentData, user, loading, blocks, isLoadingBlocks, isLoadingSubDivisions, isLoadingCenters, open, isInitialized]);
+    console.log("✅ Normalized IDs:", {
+      initialSubDivisionId,
+      initialBlockId,
+      initialSchoolId,
+    });
 
-  // Reset initialization flag when dialog closes
+    setSubDivisionId(initialSubDivisionId);
+    setBlockId(initialBlockId);
+    setSchoolId(initialSchoolId);
+  }, [open, mode, studentData, user, loading, subDivisions, blocks, centers]);
+
   useEffect(() => {
-    if (!open) {
-      setIsInitialized(false);
-    }
-  }, [open]);
-
-  // Filter blocks when subdivision changes
-  useEffect(() => {
-    if (!subDivisionId) {
-      setFilteredBlocks([]);
-      return;
-    }
-    const sid = Number(subDivisionId);
-    const filtered = blocks.filter((b) => b.subdivision?.id === sid);
+    if (!subDivisionId) return;
+    const filtered = blocks.filter(
+      (b) => String(b.subdivision?.id) === subDivisionId
+    );
     setFilteredBlocks(filtered);
+  }, [subDivisionId, blocks]);
 
-    // Only clear blockId if it's not valid for the current subdivision
-    // and user is not a block user (block users should keep their pre-selected block)
-    if (user?.user_type !== "block" && !filtered.some((b) => String(b.id) === blockId)) {
-      setBlockId("");
-    }
-  }, [subDivisionId, blocks, blockId, user?.user_type]);
-
-  // Filter centers when block changes
   useEffect(() => {
-    if (!blockId) {
-      setFilteredCenters([]);
-      return;
-    }
-    const bid = Number(blockId);
-    const filtered = centers.filter((c) => c.block?.id === bid);
+    if (!blockId) return;
+    const filtered = centers.filter((c) => String(c.block?.id) === blockId);
     setFilteredCenters(filtered);
-
-    if (!filtered.some((c) => String(c.id) === schoolId)) {
-      setSchoolId("");
-    }
-  }, [blockId, centers, schoolId]);
+  }, [blockId, centers]);
 
   const mutation = useMutation({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mutationFn: (payload: any) =>
       mode === "create"
         ? createStudent(payload)
@@ -189,16 +196,23 @@ export default function StudentDialog({
         `Student ${mode === "create" ? "created" : "updated"} successfully!`
       );
       setOpen(false);
-      resetForm();
     },
-    onError: (error) => {
-      console.error("❌ Error:", error);
-      toast.error("Operation failed!");
+    onError: () => {
+      toast.error("Something went wrong!");
     },
   });
 
   const handleSave = () => {
-    if (!name || !guardianName || !mobile || !studentClass || !medium || !subDivisionId || !blockId || !schoolId) {
+    if (
+      !name ||
+      !guardianName ||
+      !mobile ||
+      !studentClass ||
+      !medium ||
+      !subDivisionId ||
+      !blockId ||
+      !schoolId
+    ) {
       toast.error("Please fill all fields!");
       return;
     }
@@ -208,7 +222,7 @@ export default function StudentDialog({
       guardian_name: guardianName,
       phone: mobile,
       class: studentClass,
-      medium: medium,
+      medium,
       subdivision_id: Number(subDivisionId),
       block_id: Number(blockId),
       school_id: Number(schoolId),
@@ -217,44 +231,14 @@ export default function StudentDialog({
     mutation.mutate(payload);
   };
 
-  const resetStudentFields = () => {
-    setName("");
-    setGuardianName("");
-    setMobile("");
-    setStudentClass("");
-    setMedium("");
-  };
-
-  const resetForm = () => {
-    resetStudentFields();
-    // Only reset location fields for admin users
-    if (user?.user_type === "admin") {
-      setSubDivisionId("");
-      setBlockId("");
-      setSchoolId("");
-      setFilteredBlocks([]);
-      setFilteredCenters([]);
-    } else {
-      // For subdivision/block users, only reset the school
-      setSchoolId("");
-    }
-  };
-
-  // Get display names for disabled fields
-  const getSubDivisionName = () => {
-    const subdivision = subDivisions.find((sd) => sd.id === Number(subDivisionId));
-    return subdivision?.name || "";
-  };
-
-  const getBlockName = () => {
-    const block = blocks.find((b) => b.id === Number(blockId));
-    return block?.name || "";
-  };
-
-  if (loading) return null;
-
-  const isSubDivisionDisabled = user?.user_type === "subdivision" || user?.user_type === "block";
+  const isSubDivisionDisabled =
+    user?.user_type === "subdivision" || user?.user_type === "block";
   const isBlockDisabled = user?.user_type === "block";
+
+  const getSubDivisionName = () =>
+    subDivisions.find((sd) => sd.id === Number(subDivisionId))?.name || "";
+  const getBlockName = () =>
+    blocks.find((b) => b.id === Number(blockId))?.name || "";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -266,29 +250,28 @@ export default function StudentDialog({
         )}
       </DialogTrigger>
 
-      <DialogContent className="max-w-3xl w-full bg-white text-zinc-900 rounded-xl p-6">
+      <DialogContent className="max-w-3xl bg-white text-zinc-900 rounded-xl p-6">
         <DialogHeader>
           <DialogTitle>
             {mode === "create" ? "Add Student" : "Edit Student"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-6 mt-4">
-          {/* Subdivision */}
+        <div className="grid grid-cols-2 gap-6 mt-6">
           <div className="flex flex-col">
-            <Label>Sub Division</Label>
+            <Label className="text-sm font-medium mb-1">Sub Division</Label>
             {isSubDivisionDisabled ? (
               <Input
                 value={getSubDivisionName()}
                 disabled
-                className="bg-zinc-100 text-zinc-700 border border-zinc-300 cursor-not-allowed mt-2"
+                className="input-style"
               />
             ) : (
               <Select value={subDivisionId} onValueChange={setSubDivisionId}>
-                <SelectTrigger className="w-full mt-2">
+                <SelectTrigger className="input-style">
                   <SelectValue placeholder="Select Sub Division" />
                 </SelectTrigger>
-                <SelectContent className="bg-white">
+                <SelectContent>
                   {subDivisions.map((sd) => (
                     <SelectItem key={sd.id} value={String(sd.id)}>
                       {sd.name}
@@ -299,109 +282,76 @@ export default function StudentDialog({
             )}
           </div>
 
-          {/* Block */}
           <div className="flex flex-col">
-            <Label>Block</Label>
+            <Label className="text-sm font-medium mb-1">Block</Label>
             {isBlockDisabled ? (
-              <Input
-                value={getBlockName()}
-                disabled
-                className="bg-zinc-100 text-zinc-700 border border-zinc-300 cursor-not-allowed mt-2"
-              />
+              <Input value={getBlockName()} disabled className="input-style" />
             ) : (
-              <Select
-                value={blockId}
-                onValueChange={setBlockId}
-                disabled={!subDivisionId}
-              >
-                <SelectTrigger className="w-full mt-2">
+              <Select value={blockId} onValueChange={setBlockId}>
+                <SelectTrigger className="input-style">
                   <SelectValue placeholder="Select Block" />
                 </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {filteredBlocks.length > 0 ? (
-                    filteredBlocks.map((b) => (
-                      <SelectItem key={b.id} value={String(b.id)}>
-                        {b.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <div className="p-2 text-sm text-zinc-500">
-                      {subDivisionId ? "No blocks available" : "Select a subdivision first"}
-                    </div>
-                  )}
+                <SelectContent>
+                  {filteredBlocks.map((b) => (
+                    <SelectItem key={b.id} value={String(b.id)}>
+                      {b.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             )}
           </div>
 
-          {/* School */}
           <div className="flex flex-col">
-            <Label>School Name</Label>
-            <Select
-              value={schoolId}
-              onValueChange={setSchoolId}
-              disabled={!blockId}
-            >
-              <SelectTrigger className="w-full mt-2">
+            <Label className="text-sm font-medium mb-1">School</Label>
+            <Select value={schoolId} onValueChange={setSchoolId}>
+              <SelectTrigger className="input-style">
                 <SelectValue placeholder="Select School" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                {filteredCenters.length > 0 ? (
-                  filteredCenters.map((c) => (
-                    <SelectItem key={c.id} value={String(c.id)}>
-                      {c.center_name}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <div className="p-2 text-sm text-zinc-500">
-                    {blockId ? "No schools available" : "Select a block first"}
-                  </div>
-                )}
+                {filteredCenters.map((c) => (
+                  <SelectItem key={c.id} value={String(c.id)}>
+                    {c.center_name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* Student Name */}
           <div className="flex flex-col">
-            <Label>Student Name</Label>
+            <Label className="text-sm font-medium mb-1">Student Name</Label>
             <Input
-              className="mt-2"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter Name"
+              className="input-style"
             />
           </div>
 
-          {/* Guardian Name */}
           <div className="flex flex-col">
-            <Label>Guardian Name</Label>
+            <Label className="text-sm font-medium mb-1">Guardian Name</Label>
             <Input
-              className="mt-2"
               value={guardianName}
               onChange={(e) => setGuardianName(e.target.value)}
-              placeholder="Enter Guardian Name"
+              className="input-style"
             />
           </div>
 
-          {/* Mobile */}
           <div className="flex flex-col">
-            <Label>Mobile</Label>
+            <Label className="text-sm font-medium mb-1">Mobile</Label>
             <Input
-              className="mt-2"
               value={mobile}
               onChange={(e) => setMobile(e.target.value)}
-              placeholder="Enter Mobile"
+              className="input-style"
             />
           </div>
 
-          {/* Class */}
           <div className="flex flex-col">
-            <Label>Class</Label>
+            <Label className="text-sm font-medium mb-1">Class</Label>
             <Select value={studentClass} onValueChange={setStudentClass}>
-              <SelectTrigger className="w-full mt-2">
+              <SelectTrigger className="input-style">
                 <SelectValue placeholder="Select Class" />
               </SelectTrigger>
-              <SelectContent className="bg-white">
+              <SelectContent>
                 {["IV", "V", "VI", "VII"].map((c) => (
                   <SelectItem key={c} value={c}>
                     Class {c}
@@ -411,14 +361,13 @@ export default function StudentDialog({
             </Select>
           </div>
 
-          {/* Medium */}
           <div className="flex flex-col">
-            <Label>Medium</Label>
+            <Label className="text-sm font-medium mb-1">Medium</Label>
             <Select value={medium} onValueChange={setMedium}>
-              <SelectTrigger className="w-full mt-2">
+              <SelectTrigger className="input-style">
                 <SelectValue placeholder="Select Medium" />
               </SelectTrigger>
-              <SelectContent className="bg-white">
+              <SelectContent>
                 {["Assamese", "Bengali", "Boro", "Garo", "Hindi"].map((m) => (
                   <SelectItem key={m} value={m}>
                     {m}
@@ -427,23 +376,15 @@ export default function StudentDialog({
               </SelectContent>
             </Select>
           </div>
+        </div>
 
-          <div className="flex justify-end mt-6 col-span-2">
-            <Button
-              type="button"
-              onClick={handleSave}
-              className="bg-zinc-800 text-white hover:bg-zinc-700"
-              disabled={mutation.isPending}
-            >
-              {mutation.isPending
-                ? mode === "create"
-                  ? "Saving..."
-                  : "Updating..."
-                : mode === "create"
-                ? "Save Student"
-                : "Update Student"}
-            </Button>
-          </div>
+        <div className="flex justify-end mt-8">
+          <Button
+            onClick={handleSave}
+            className="bg-zinc-800 text-white hover:bg-zinc-700 w-40 h-10"
+          >
+            {mode === "create" ? "Save Student" : "Update Student"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

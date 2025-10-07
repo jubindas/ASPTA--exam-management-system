@@ -10,6 +10,8 @@ import { useQuery } from "@tanstack/react-query";
 
 import { getStudents } from "@/service/studentsApi";
 
+import { useAuth } from "@/hooks/useAuth";
+
 export default function Student() {
   const { data: studentsData } = useQuery({
     queryKey: ["students"],
@@ -17,7 +19,27 @@ export default function Student() {
   });
 
   console.log("the students are", studentsData);
-  
+
+  const { user, loading } = useAuth();
+
+  const filteredStudents: Student[] = studentsData
+    ? studentsData.filter((s) => {
+        if (!user) return true;
+
+        if (user.user_type === "subdivision") {
+          return s.subDivision === user.name;
+        }
+
+        if (user.user_type === "block") {
+          return s.block === user.name;
+        }
+
+        return true;
+      })
+    : [];
+
+  if (loading) return null;
+
   return (
     <div className="p-6 bg-zinc-100 min-h-screen mt-8">
       <div className="flex flex-wrap justify-between items-center mb-6">
@@ -54,7 +76,7 @@ export default function Student() {
         {studentsData && (
           <DataTable
             columns={studentsColumns()}
-            data={studentsData}
+            data={filteredStudents}
             enablePagination={true}
           />
         )}

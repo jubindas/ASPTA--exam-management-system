@@ -1,33 +1,31 @@
-
 import { DataTable } from "@/components/data-table";
-
 import { columns } from "@/table-columns/block-table-columns";
-
 import BlockDialog from "@/components/BlockDialog";
-
 import type { Block } from "@/table-types/block-table-types";
-
 import { getBlockList } from "@/service/blockApi";
-
 import { useQuery } from "@tanstack/react-query";
-
-
-
-
-
-  
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Block() {
-
-
-
+  const { user, loading } = useAuth();
 
   const { data: blockData } = useQuery({
     queryKey: ["blocks"],
     queryFn: getBlockList,
   });
 
-  console.log(blockData);
+  const filteredBlockData = blockData?.filter((b: Block) => {
+    if (!user) return true;
+
+    if (user.user_type === "subdivision") {
+      return b.subdivision?.name === user.name;
+    }
+    return true;
+  });
+
+  console.log("the filterd data", filteredBlockData);
+
+  if (loading) return null;
 
   return (
     <div className="p-6 bg-zinc-100 mt-8">
@@ -62,11 +60,13 @@ export default function Block() {
       </div>
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        {blockData && <DataTable<Block, unknown>
-          columns={columns()}
-          data={blockData || []}
-          enablePagination
-        />}
+        {filteredBlockData && (
+          <DataTable<Block, unknown>
+            columns={columns()}
+            data={filteredBlockData}
+            enablePagination
+          />
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,3 @@
-
-
-
 import { DataTable } from "@/components/data-table";
 
 import { columns } from "@/table-columns/center-table-columns";
@@ -11,6 +8,8 @@ import { useQuery } from "@tanstack/react-query";
 
 import CenterDialog from "@/components/CenterDialog";
 
+import { useAuth } from "@/hooks/useAuth";
+
 interface Center {
   id: number;
   subDivision: string;
@@ -19,13 +18,32 @@ interface Center {
 }
 
 export default function Center() {
-  const { data: schools} = useQuery({
+  const { data: schools } = useQuery({
     queryKey: ["schools"],
     queryFn: getSchools,
   });
 
-  console.log("the schools are ", schools)
- 
+  console.log("the schools are ", schools);
+
+  const { user, loading } = useAuth();
+
+  const filteredSchools = schools?.filter(
+    (s: { subdivision: { name: string }; block: { name: string } }) => {
+      if (!user) return true;
+
+      if (user.user_type === "subdivision") {
+        return s.subdivision?.name === user.name;
+      }
+
+      if (user.user_type === "block") {
+        return s.block?.name === user.name;
+      }
+
+      return true;
+    }
+  );
+
+  if (loading) return null;
 
   return (
     <div className="p-6 bg-zinc-100 min-h-screen mt-8">
@@ -33,7 +51,7 @@ export default function Center() {
         <h1 className="text-2xl font-semibold text-zinc-800 tracking-tight">
           Center List
         </h1>
-      <CenterDialog mode="create" />
+        <CenterDialog mode="create" />
       </div>
 
       <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
@@ -60,7 +78,13 @@ export default function Center() {
       </div>
 
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        {schools && <DataTable columns={columns()} data={schools} enablePagination />}
+        {schools && (
+          <DataTable
+            columns={columns()}
+            data={filteredSchools}
+            enablePagination
+          />
+        )}
       </div>
     </div>
   );

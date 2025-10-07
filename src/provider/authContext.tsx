@@ -6,6 +6,8 @@ export interface User {
   email: string;
   user_type: "admin" | "subdivision" | "block";
   password?: string;
+   subdivision_id?: number; 
+  block_id?: number; 
 }
 
 export interface AuthContextType {

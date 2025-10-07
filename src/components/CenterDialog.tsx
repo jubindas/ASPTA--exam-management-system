@@ -214,7 +214,7 @@ export default function CenterDialog({
         </DialogHeader>
 
         <div className="grid gap-4 mt-4">
-          {/* Sub Division */}
+      
           <div className="grid gap-2">
             <Label>Sub Division</Label>
             {isSubDivisionDisabled ? (
@@ -239,7 +239,7 @@ export default function CenterDialog({
             )}
           </div>
 
-          {/* Block */}
+      
           <div className="grid gap-2">
             <Label>Block</Label>
             {isBlockDisabled ? (
@@ -274,13 +274,13 @@ export default function CenterDialog({
             )}
           </div>
 
-          {/* Center Name */}
           <div className="grid gap-2">
             <Label>Center Name</Label>
             <Input
               value={centerName}
               onChange={(e) => setCenterName(e.target.value)}
               placeholder="Enter Center Name"
+              
             />
           </div>
         </div>

@@ -49,13 +49,13 @@ export const deleteSubDivision = async (id: number) => {
 };
 
 
-// ✅ Export interface
+
 export interface UpdatePasswordData {
   old_password: string;
   new_password: string;
 }
 
-// ✅ Export function
+
 export const updateSubdivisionPassword = async (
   data: UpdatePasswordData,
   token: string
@@ -71,8 +71,8 @@ export const updateSubdivisionPassword = async (
       }
     );
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error("Failed to update subdivision password:", error);
-    throw error?.response?.data || error;
+ 
   }
 };
