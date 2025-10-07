@@ -244,34 +244,35 @@ export default function StudentDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button className="bg-zinc-800 text-white hover:bg-zinc-700">
+          <Button className="bg-zinc-800 text-white hover:bg-zinc-700 px-4 py-2 rounded-md">
             {mode === "create" ? "Add Student" : "Edit Student"}
           </Button>
         )}
       </DialogTrigger>
 
-      <DialogContent className="max-w-3xl bg-white text-zinc-900 rounded-xl p-6">
+      <DialogContent className="max-w-3xl bg-white text-zinc-900 rounded-xl p-8">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-xl font-semibold">
             {mode === "create" ? "Add Student" : "Edit Student"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-6 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          {/* Sub Division */}
           <div className="flex flex-col">
-            <Label className="text-sm font-medium mb-1">Sub Division</Label>
+            <Label className="text-sm font-medium mb-2">Sub Division</Label>
             {isSubDivisionDisabled ? (
               <Input
                 value={getSubDivisionName()}
                 disabled
-                className="input-style"
+                className="w-full bg-zinc-100 border border-zinc-300 rounded-md px-3 py-2 text-zinc-700 cursor-not-allowed"
               />
             ) : (
               <Select value={subDivisionId} onValueChange={setSubDivisionId}>
-                <SelectTrigger className="input-style">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select Sub Division" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white">
                   {subDivisions.map((sd) => (
                     <SelectItem key={sd.id} value={String(sd.id)}>
                       {sd.name}
@@ -282,16 +283,21 @@ export default function StudentDialog({
             )}
           </div>
 
+          {/* Block */}
           <div className="flex flex-col">
-            <Label className="text-sm font-medium mb-1">Block</Label>
+            <Label className="text-sm font-medium mb-2">Block</Label>
             {isBlockDisabled ? (
-              <Input value={getBlockName()} disabled className="input-style" />
+              <Input
+                value={getBlockName()}
+                disabled
+                className="w-full bg-zinc-100 border border-zinc-300 rounded-md px-3 py-2 text-zinc-700 cursor-not-allowed"
+              />
             ) : (
               <Select value={blockId} onValueChange={setBlockId}>
-                <SelectTrigger className="input-style">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select Block" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-white">
                   {filteredBlocks.map((b) => (
                     <SelectItem key={b.id} value={String(b.id)}>
                       {b.name}
@@ -302,10 +308,11 @@ export default function StudentDialog({
             )}
           </div>
 
+          {/* School */}
           <div className="flex flex-col">
-            <Label className="text-sm font-medium mb-1">School</Label>
+            <Label className="text-sm font-medium mb-2">School</Label>
             <Select value={schoolId} onValueChange={setSchoolId}>
-              <SelectTrigger className="input-style">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select School" />
               </SelectTrigger>
               <SelectContent className="bg-white">
@@ -318,40 +325,47 @@ export default function StudentDialog({
             </Select>
           </div>
 
+          {/* Student Name */}
           <div className="flex flex-col">
-            <Label className="text-sm font-medium mb-1">Student Name</Label>
+            <Label className="text-sm font-medium mb-2">Student Name</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="input-style"
+              placeholder="Enter Student Name"
+              className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-zinc-500 focus:outline-none"
             />
           </div>
 
+          {/* Guardian Name */}
           <div className="flex flex-col">
-            <Label className="text-sm font-medium mb-1">Guardian Name</Label>
+            <Label className="text-sm font-medium mb-2">Guardian Name</Label>
             <Input
               value={guardianName}
               onChange={(e) => setGuardianName(e.target.value)}
-              className="input-style"
+              placeholder="Enter Guardian Name"
+              className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-zinc-500 focus:outline-none"
             />
           </div>
 
+          {/* Mobile */}
           <div className="flex flex-col">
-            <Label className="text-sm font-medium mb-1">Mobile</Label>
+            <Label className="text-sm font-medium mb-2">Mobile</Label>
             <Input
               value={mobile}
               onChange={(e) => setMobile(e.target.value)}
-              className="input-style"
+              placeholder="Enter Mobile Number"
+              className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-zinc-500 focus:outline-none"
             />
           </div>
 
+          {/* Class */}
           <div className="flex flex-col">
-            <Label className="text-sm font-medium mb-1">Class</Label>
+            <Label className="text-sm font-medium mb-2">Class</Label>
             <Select value={studentClass} onValueChange={setStudentClass}>
-              <SelectTrigger className="input-style">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select Class" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 {["IV", "V", "VI", "VII"].map((c) => (
                   <SelectItem key={c} value={c}>
                     Class {c}
@@ -361,13 +375,14 @@ export default function StudentDialog({
             </Select>
           </div>
 
+          {/* Medium */}
           <div className="flex flex-col">
-            <Label className="text-sm font-medium mb-1">Medium</Label>
+            <Label className="text-sm font-medium mb-2">Medium</Label>
             <Select value={medium} onValueChange={setMedium}>
-              <SelectTrigger className="input-style">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select Medium" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 {["Assamese", "Bengali", "Boro", "Garo", "Hindi"].map((m) => (
                   <SelectItem key={m} value={m}>
                     {m}
@@ -381,7 +396,7 @@ export default function StudentDialog({
         <div className="flex justify-end mt-8">
           <Button
             onClick={handleSave}
-            className="bg-zinc-800 text-white hover:bg-zinc-700 w-40 h-10"
+            className="bg-zinc-800 text-white hover:bg-zinc-700 w-40 h-10 rounded-md"
           >
             {mode === "create" ? "Save Student" : "Update Student"}
           </Button>
