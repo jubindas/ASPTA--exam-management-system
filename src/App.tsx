@@ -1,9 +1,12 @@
-import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
 import React, { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/provider/authContext"; // make sure AuthProvider exports useAuth
 import RootLayout from "./components/RootLayout";
-import { saveTestCredentials } from "./login-local-storage/LoginData";
 import GenerateAdmitPage from "./pages/GenerateAdmitPage";
 import Downloads from "./pages/Downloads";
 
@@ -18,7 +21,9 @@ const Login = lazy(() => import("./pages/Login"));
 
 const Loader = () => <div className="p-6 text-center">Loading...</div>;
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { user, token } = useAuth();
 
   if (!user || !token) {
@@ -27,12 +32,11 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return <>{children}</>;
 };
 
-
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, token } = useAuth();
 
   if (user && token) {
-    return <Navigate to="/" replace />; 
+    return <Navigate to="/" replace />;
   }
   return <>{children}</>;
 };
@@ -46,19 +50,63 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      { path: "/", element: <Suspense fallback={<Loader />}><Home /></Suspense> },
-      { path: "block", element: <Suspense fallback={<Loader />}><Block /></Suspense> },
-      { path: "school", element: <Suspense fallback={<Loader />}><Center /></Suspense> },
-      { path: "student", element: <Suspense fallback={<Loader />}><Student /></Suspense> },
-      { path: "subdivision", element: <Suspense fallback={<Loader />}><SubDivision /></Suspense> },
-      { path: "download", element: <Suspense fallback={<Loader />}><Downloads /></Suspense> },
+      {
+        path: "/",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Home />
+          </Suspense>
+        ),
+      },
+      {
+        path: "block",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Block />
+          </Suspense>
+        ),
+      },
+      {
+        path: "school",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Center />
+          </Suspense>
+        ),
+      },
+      {
+        path: "student",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Student />
+          </Suspense>
+        ),
+      },
+      {
+        path: "subdivision",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <SubDivision />
+          </Suspense>
+        ),
+      },
+      {
+        path: "download",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <Downloads />
+          </Suspense>
+        ),
+      },
     ],
   },
   {
     path: "login",
     element: (
       <PublicRoute>
-        <Suspense fallback={<Loader />}><Login /></Suspense>
+        <Suspense fallback={<Loader />}>
+          <Login />
+        </Suspense>
       </PublicRoute>
     ),
   },
@@ -66,7 +114,9 @@ const router = createBrowserRouter([
     path: "generate-admit",
     element: (
       <ProtectedRoute>
-        <Suspense fallback={<Loader />}><GenerateAdmitPage /></Suspense>
+        <Suspense fallback={<Loader />}>
+          <GenerateAdmitPage />
+        </Suspense>
       </ProtectedRoute>
     ),
   },
@@ -75,8 +125,6 @@ const router = createBrowserRouter([
 const queryClient = new QueryClient();
 
 function App() {
-  saveTestCredentials();
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

@@ -20,18 +20,10 @@ import { deleteStudent } from "@/service/studentsApi";
 import { toast } from "sonner";
 import StudentDialog from "@/components/StudentDialog";
 
+import type { Student } from "@/table-types/student-table-types";
+
 interface StudentTableDropdownProps {
-  student: {
-    id: number;
-    name: string;
-    subDiv: string;
-    block: string;
-    school: string;
-    guardian: string;
-    mobile: string;
-    class: string;
-    medium: string;
-  };
+  student: Student;
 }
 
 export default function StudentTableDropdown({
@@ -77,7 +69,17 @@ export default function StudentTableDropdown({
           <div className="flex flex-col space-y-1">
             <StudentDialog
               mode="edit"
-              studentData={student}
+              studentData={{
+                id: student.id,
+                name: student.name,
+                guardianName: student.guardianName,
+                mobile: student.mobile,
+                studentClass: student.studentClass,
+                medium: student.medium,
+                subdivision: student.subDivision ?? "",
+                block: student.block ?? "",
+                centerName: student.centerName ?? "",
+              }}
               trigger={
                 <Button
                   variant="ghost"
@@ -89,7 +91,6 @@ export default function StudentTableDropdown({
               }
             />
 
-            {/* Delete Student */}
             <Button
               variant="ghost"
               className="justify-start text-left text-sm hover:bg-red-100 text-red-600 w-full mt-1"

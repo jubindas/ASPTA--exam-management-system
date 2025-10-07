@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -31,7 +33,11 @@ interface CenterDialogProps {
   schoolData?: {
     id: number;
     name: string;
-    block: { id: number; name: string };
+    block: {
+      id: number;
+      name: string;
+      subdivision: { id: number; name: string };
+    };
     subdivision: { id: number; name: string };
   };
 }
@@ -44,12 +50,12 @@ export default function CenterDialog({
   const queryClient = useQueryClient();
   const { user, loading } = useAuth();
 
-  const { data: subDivisions = [] } = useQuery<SubDivision[]>({
+  const { data: subDivisions = [], isLoading: isLoadingSubDivisions } = useQuery<SubDivision[]>({
     queryKey: ["subDivisions"],
     queryFn: fetchSubDivisions,
   });
 
-  const { data: blocks = [] } = useQuery<Block[]>({
+  const { data: blocks = [], isLoading: isLoadingBlocks } = useQuery<Block[]>({
     queryKey: ["blocks"],
     queryFn: getBlockList,
   });
@@ -59,26 +65,52 @@ export default function CenterDialog({
   const [blockId, setBlockId] = useState<string>("");
   const [centerName, setCenterName] = useState<string>("");
   const [filteredBlocks, setFilteredBlocks] = useState<Block[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
- 
+  // Initialize values based on mode or user type
   useEffect(() => {
-    if (!loading) {
-      if (mode === "edit" && schoolData) {
-        setSubDivisionId(String(schoolData.subdivision.id));
-        setBlockId(String(schoolData.block.id));
-        setCenterName(schoolData.name);
-      } else if (user?.user_type === "subdivision") {
-        setSubDivisionId(String(user.id)); 
-        setCenterName("");
-      } else {
-        setSubDivisionId("");
-        setBlockId("");
-        setCenterName("");
-      }
+    if (loading || isLoadingBlocks || isLoadingSubDivisions) {
+      setIsInitialized(false);
+      return;
     }
-  }, [mode, schoolData, user, loading]);
 
+    // Only initialize once when dialog opens
+    if (!open) {
+      setIsInitialized(false);
+      return;
+    }
 
+    if (isInitialized) return;
+
+    if (mode === "edit" && schoolData) {
+      // Edit mode: use school data
+      setSubDivisionId(String(schoolData.subdivision.id));
+      setBlockId(String(schoolData.block.id));
+      setCenterName(schoolData.name);
+    } else if (user?.user_type === "subdivision") {
+      // Subdivision user: pre-select subdivision
+      setSubDivisionId(String(user.id));
+      setBlockId("");
+      setCenterName("");
+    } else if (user?.user_type === "block") {
+      // Block user: pre-select both block and subdivision
+      const userBlock = blocks.find((b) => b.id === user.id);
+      if (userBlock && userBlock.subdivision) {
+        setBlockId(String(userBlock.id));
+        setSubDivisionId(String(userBlock.subdivision.id));
+      }
+      setCenterName("");
+    } else {
+      // Admin user: clear all fields
+      setSubDivisionId("");
+      setBlockId("");
+      setCenterName("");
+    }
+
+    setIsInitialized(true);
+  }, [mode, schoolData, user, loading, blocks, isLoadingBlocks, isLoadingSubDivisions, open, isInitialized]);
+
+  // Filter blocks based on subdivision
   useEffect(() => {
     if (!subDivisionId) {
       setFilteredBlocks([]);
@@ -88,11 +120,21 @@ export default function CenterDialog({
     const filtered = blocks.filter((b) => b.subdivision?.id === sid);
     setFilteredBlocks(filtered);
 
-    if (!filtered.some((b) => String(b.id) === blockId)) {
+    // Only clear blockId if it's not valid for the current subdivision
+    // and user is not a block user (block users should keep their pre-selected block)
+    if (user?.user_type !== "block" && !filtered.some((b) => String(b.id) === blockId)) {
       setBlockId("");
     }
-  }, [subDivisionId, blocks, blockId]);
+  }, [subDivisionId, blocks, blockId, user?.user_type]);
 
+  // Reset initialization flag when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setIsInitialized(false);
+    }
+  }, [open]);
+
+  // Mutation for creating/updating center
   const mutation = useMutation({
     mutationFn: async (data: {
       center_name: string;
@@ -110,9 +152,14 @@ export default function CenterDialog({
         `School ${mode === "create" ? "created" : "updated"} successfully`
       );
       setOpen(false);
-      setCenterName("");
-      setSubDivisionId("");
-      setBlockId("");
+      // Reset fields
+      if (user?.user_type === "admin") {
+        setCenterName("");
+        setSubDivisionId("");
+        setBlockId("");
+      } else {
+        setCenterName("");
+      }
     },
     onError: (error) => {
       console.error("Error saving school:", error);
@@ -133,7 +180,21 @@ export default function CenterDialog({
     });
   };
 
-  if (loading) return null; 
+  // Get display names for disabled fields
+  const getSubDivisionName = () => {
+    const subdivision = subDivisions.find((sd) => sd.id === Number(subDivisionId));
+    return subdivision?.name || "";
+  };
+
+  const getBlockName = () => {
+    const block = blocks.find((b) => b.id === Number(blockId));
+    return block?.name || "";
+  };
+
+  if (loading) return null;
+
+  const isSubDivisionDisabled = user?.user_type === "subdivision" || user?.user_type === "block";
+  const isBlockDisabled = user?.user_type === "block";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -153,14 +214,12 @@ export default function CenterDialog({
         </DialogHeader>
 
         <div className="grid gap-4 mt-4">
+          {/* Sub Division */}
           <div className="grid gap-2">
             <Label>Sub Division</Label>
-            {user?.user_type === "subdivision" ? (
+            {isSubDivisionDisabled ? (
               <Input
-                value={
-                  subDivisions.find((sd) => sd.id === Number(subDivisionId))
-                    ?.name || ""
-                }
+                value={getSubDivisionName()}
                 disabled
                 className="bg-zinc-100 text-zinc-700 border border-zinc-300 cursor-not-allowed"
               />
@@ -170,15 +229,44 @@ export default function CenterDialog({
                   <SelectValue placeholder="Select Sub Division" />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
-                  {subDivisions.length > 0 ? (
-                    subDivisions.map((sd) => (
-                      <SelectItem key={sd.id} value={String(sd.id)}>
-                        {sd.name}
+                  {subDivisions.map((sd) => (
+                    <SelectItem key={sd.id} value={String(sd.id)}>
+                      {sd.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+
+          {/* Block */}
+          <div className="grid gap-2">
+            <Label>Block</Label>
+            {isBlockDisabled ? (
+              <Input
+                value={getBlockName()}
+                disabled
+                className="bg-zinc-100 text-zinc-700 border border-zinc-300 cursor-not-allowed"
+              />
+            ) : (
+              <Select 
+                value={blockId} 
+                onValueChange={setBlockId}
+                disabled={!subDivisionId}
+              >
+                <SelectTrigger className="w-full mt-1">
+                  <SelectValue placeholder="Select Block" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {filteredBlocks.length > 0 ? (
+                    filteredBlocks.map((b) => (
+                      <SelectItem key={b.id} value={String(b.id)}>
+                        {b.name}
                       </SelectItem>
                     ))
                   ) : (
                     <div className="p-2 text-sm text-zinc-500">
-                      No Sub Divisions found
+                      No Blocks available
                     </div>
                   )}
                 </SelectContent>
@@ -186,29 +274,7 @@ export default function CenterDialog({
             )}
           </div>
 
-       
-          <div>
-            <Label>Block</Label>
-            <Select value={blockId} onValueChange={setBlockId}>
-              <SelectTrigger className="w-full mt-1">
-                <SelectValue placeholder="Select Block" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                {filteredBlocks.length > 0 ? (
-                  filteredBlocks.map((b) => (
-                    <SelectItem key={b.id} value={String(b.id)}>
-                      {b.name}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <div className="p-2 text-sm text-zinc-500">
-                    No Blocks available
-                  </div>
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-
+          {/* Center Name */}
           <div className="grid gap-2">
             <Label>Center Name</Label>
             <Input
