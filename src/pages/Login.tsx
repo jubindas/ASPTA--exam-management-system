@@ -16,15 +16,17 @@ export default function Login() {
     onSuccess: (data) => {
       console.log("Login successful:", data);
 
-      const { user, token } = data;
+      const { user, token, user_type } = data;
+      console.log(user_type);
 
       if (!user || !token) {
         console.error("⚠️ Missing user or token in response");
         alert("Unexpected response format. Please contact support.");
         return;
       }
+      const fullUser = { ...user, user_type };
 
-      login(user, token);
+      login(fullUser, token);
       navigate("/", { replace: true });
     },
     onError: (error) => {

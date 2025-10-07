@@ -175,7 +175,7 @@ export default function StudentDialog({ trigger }: StudentDialogProps) {
             </Select>
           </div>
 
-          {/* Block */}
+        
           <div className="flex flex-col">
             <Label>Block</Label>
             <Select value={blockId} onValueChange={setBlockId}>

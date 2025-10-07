@@ -32,6 +32,7 @@ export function AppSidebar() {
   const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
 
   const { user } = useAuth();
+  console.log("the sidebar", user?.user_type)
 
   const getMenuItems = () => {
     if (!user) return baseItems;

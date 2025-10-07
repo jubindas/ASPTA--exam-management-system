@@ -23,6 +23,7 @@ import { createSchools, updateSchool } from "@/service/schoolApi";
 import { toast } from "sonner";
 import type { SubDivision } from "@/table-types/sub-division-types";
 import type { Block } from "@/table-types/block-table-types";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CenterDialogProps {
   mode: "create" | "edit";
@@ -41,6 +42,7 @@ export default function CenterDialog({
   schoolData,
 }: CenterDialogProps) {
   const queryClient = useQueryClient();
+  const { user, loading } = useAuth();
 
   const { data: subDivisions = [] } = useQuery<SubDivision[]>({
     queryKey: ["subDivisions"],
@@ -58,31 +60,24 @@ export default function CenterDialog({
   const [centerName, setCenterName] = useState<string>("");
   const [filteredBlocks, setFilteredBlocks] = useState<Block[]>([]);
 
+ 
   useEffect(() => {
-    if (mode === "edit" && schoolData) {
-      setSubDivisionId(String(schoolData.subdivision.id));
-      setBlockId(String(schoolData.block.id));
-      setCenterName(schoolData.name);
-    } else {
-      setSubDivisionId("");
-      setBlockId("");
-      setCenterName("");
-    }
-  }, [mode, schoolData]);
-
-  useEffect(() => {
-    if (mode === "edit" && schoolData) {
-      if (subDivisions.length && blocks.length) {
+    if (!loading) {
+      if (mode === "edit" && schoolData) {
         setSubDivisionId(String(schoolData.subdivision.id));
         setBlockId(String(schoolData.block.id));
         setCenterName(schoolData.name);
+      } else if (user?.user_type === "subdivision") {
+        setSubDivisionId(String(user.id)); 
+        setCenterName("");
+      } else {
+        setSubDivisionId("");
+        setBlockId("");
+        setCenterName("");
       }
-    } else {
-      setSubDivisionId("");
-      setBlockId("");
-      setCenterName("");
     }
-  }, [mode, schoolData, subDivisions, blocks]);
+  }, [mode, schoolData, user, loading]);
+
 
   useEffect(() => {
     if (!subDivisionId) {
@@ -138,6 +133,8 @@ export default function CenterDialog({
     });
   };
 
+  if (loading) return null; 
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -156,29 +153,40 @@ export default function CenterDialog({
         </DialogHeader>
 
         <div className="grid gap-4 mt-4">
-        
-          <div>
+          <div className="grid gap-2">
             <Label>Sub Division</Label>
-            <Select value={subDivisionId} onValueChange={setSubDivisionId}>
-              <SelectTrigger className="w-full mt-1">
-                <SelectValue placeholder="Select Sub Division" />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                {subDivisions.length > 0 ? (
-                  subDivisions.map((sd) => (
-                    <SelectItem key={sd.id} value={String(sd.id)}>
-                      {sd.name}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <div className="p-2 text-sm text-zinc-500">
-                    No Sub Divisions found
-                  </div>
-                )}
-              </SelectContent>
-            </Select>
+            {user?.user_type === "subdivision" ? (
+              <Input
+                value={
+                  subDivisions.find((sd) => sd.id === Number(subDivisionId))
+                    ?.name || ""
+                }
+                disabled
+                className="bg-zinc-100 text-zinc-700 border border-zinc-300 cursor-not-allowed"
+              />
+            ) : (
+              <Select value={subDivisionId} onValueChange={setSubDivisionId}>
+                <SelectTrigger className="w-full mt-1">
+                  <SelectValue placeholder="Select Sub Division" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {subDivisions.length > 0 ? (
+                    subDivisions.map((sd) => (
+                      <SelectItem key={sd.id} value={String(sd.id)}>
+                        {sd.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="p-2 text-sm text-zinc-500">
+                      No Sub Divisions found
+                    </div>
+                  )}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
+       
           <div>
             <Label>Block</Label>
             <Select value={blockId} onValueChange={setBlockId}>
