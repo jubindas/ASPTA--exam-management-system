@@ -11,14 +11,16 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-import { Home, MapPin, Building2, User, Users, Download  } from "lucide-react";
+import { Home, MapPin, Building2, User, Users, Download } from "lucide-react";
+
+import { useAuth } from "@/hooks/useAuth";
 
 const baseItems = [
   { title: "Home", url: "/", icon: Home },
   { title: "Block", url: "/block", icon: MapPin },
   { title: "School", url: "/school", icon: Building2 },
   { title: "Student", url: "/student", icon: User },
-  { title: "Download", url: "/download", icon: Download  },
+  { title: "Download", url: "/download", icon: Download },
 ];
 
 const adminItems = [
@@ -29,21 +31,21 @@ export function AppSidebar() {
   const location = useLocation();
   const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
 
+  const { user } = useAuth();
+
   const getMenuItems = () => {
-    if (currentUser?.role === "admin") {
-      const [home, ...rest] = baseItems;
-      return [home, ...adminItems, ...rest];
-    }
+    if (!user) return baseItems;
 
-    if (currentUser?.role === "subdiv") {
-      return baseItems;
+    switch (user.user_type) {
+      case "admin":
+        return [...baseItems.slice(0, 1), ...adminItems, ...baseItems.slice(1)];
+      case "subdivision":
+        return baseItems; 
+      case "block":
+        return baseItems.filter((item) => item.title !== "Block");
+      default:
+        return baseItems;
     }
-
-    if (currentUser?.role === "block") {
-      return baseItems.filter((item) => item.title !== "Block");
-    }
-
-    return baseItems;
   };
 
   const menuItems = getMenuItems();

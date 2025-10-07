@@ -6,21 +6,25 @@ import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const mutationLogin = useMutation({
-    mutationFn: (data: { email: string; password: string }) =>
-      AdminLogin(data.email, data.password),
+    mutationFn: (data: { email: string; password: string }) => AdminLogin(data),
     onSuccess: (data) => {
       console.log("Login successful:", data);
 
       const { user, token } = data;
 
-      login(user, token);
+      if (!user || !token) {
+        console.error("⚠️ Missing user or token in response");
+        alert("Unexpected response format. Please contact support.");
+        return;
+      }
 
+      login(user, token);
       navigate("/", { replace: true });
     },
     onError: (error) => {

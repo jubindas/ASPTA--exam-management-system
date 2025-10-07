@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchDashboardData } from "@/service/dashboardApi";
 import { School, Layers, Users, MapPin } from "lucide-react";
+import Loader from "@/components/Loader";
 
 export default function Home() {
   const { data, isLoading, isError } = useQuery({
@@ -8,8 +9,11 @@ export default function Home() {
     queryFn: fetchDashboardData,
   });
 
-  if (isLoading) return <div className="p-6 text-center">Loading...</div>;
-  if (isError) return <div className="p-6 text-center text-red-500">Failed to load data</div>;
+  if (isLoading) return <Loader />;
+  if (isError)
+    return (
+      <div className="p-6 text-center text-red-500">Failed to load data</div>
+    );
 
   const stats = data?.data || {};
 
@@ -54,16 +58,21 @@ export default function Home() {
               {card.icon}
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-600">{card.title}</h2>
-              <p className={`text-3xl font-bold mt-1 text-${card.color}-600`}>{card.value}</p>
+              <h2 className="text-lg font-semibold text-gray-600">
+                {card.title}
+              </h2>
+              <p className={`text-3xl font-bold mt-1 text-${card.color}-600`}>
+                {card.value}
+              </p>
             </div>
           </div>
         ))}
       </div>
 
-     
       <div className="mt-10">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-700">Recent Subdivisions</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+          Recent Subdivisions
+        </h2>
         {data?.recent_subdivisions && data.recent_subdivisions.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {data.recent_subdivisions.map((subdiv: string, index: number) => (

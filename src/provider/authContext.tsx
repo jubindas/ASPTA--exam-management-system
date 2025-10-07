@@ -1,13 +1,11 @@
 import { createContext, useState, useEffect, type ReactNode } from "react";
 
-
 export interface User {
-  name?: string;
+  id: number;
+  name: string;
   email: string;
+  user_type: "admin" | "subdivision" | "block";
   password?: string;
-  role: "admin" | "subdiv" | "block";
-  subDivision?: string;
-  blockName?: string;
 }
 
 export interface AuthContextType {
@@ -26,13 +24,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // On mount, check localStorage for auth info
   useEffect(() => {
     const storedToken = localStorage.getItem("authToken");
-    if (storedToken) {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) setUser(JSON.parse(storedUser) as User);
+    const storedUser = localStorage.getItem("user");
+
+    if (storedToken && storedUser) {
       setToken(storedToken);
+      setUser(JSON.parse(storedUser) as User);
     }
+
     setLoading(false);
   }, []);
 

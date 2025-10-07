@@ -12,7 +12,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { updateSubdivisionPassword, type UpdatePasswordData } from "@/service/subDivisionApi";
+import {
+  updateSubdivisionPassword,
+  type UpdatePasswordData,
+} from "@/service/subDivisionApi";
 import { useAuth } from "@/hooks/useAuth";
 
 interface UpdatePasswordDialogProps {
@@ -34,7 +37,8 @@ export default function UpdatePasswordDialog({
   const mutation = useMutation({
     mutationFn: async () => {
       if (!token) throw new Error("Not authenticated");
-      if (newPassword !== confirmPassword) throw new Error("Passwords do not match");
+      if (newPassword !== confirmPassword)
+        throw new Error("Passwords do not match");
 
       const data: UpdatePasswordData = {
         old_password: currentPassword,
@@ -52,9 +56,8 @@ export default function UpdatePasswordDialog({
       queryClient.invalidateQueries({ queryKey: ["subdivisions"] });
       onSuccess?.();
     },
-    onError: (err: any) => {
+    onError: (err) => {
       console.error("Failed to update password:", err);
-      toast.error(err?.message || err?.error || "Failed to update password");
     },
   });
 
@@ -86,7 +89,9 @@ export default function UpdatePasswordDialog({
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="currentPassword" className="text-zinc-700">Current Password</Label>
+            <Label htmlFor="currentPassword" className="text-zinc-700">
+              Current Password
+            </Label>
             <Input
               id="currentPassword"
               type="password"
@@ -97,7 +102,9 @@ export default function UpdatePasswordDialog({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="newPassword" className="text-zinc-700">New Password</Label>
+            <Label htmlFor="newPassword" className="text-zinc-700">
+              New Password
+            </Label>
             <Input
               id="newPassword"
               type="password"
@@ -108,7 +115,9 @@ export default function UpdatePasswordDialog({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="confirmPassword" className="text-zinc-700">Confirm New Password</Label>
+            <Label htmlFor="confirmPassword" className="text-zinc-700">
+              Confirm New Password
+            </Label>
             <Input
               id="confirmPassword"
               type="password"
