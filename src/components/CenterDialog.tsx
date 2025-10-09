@@ -1,6 +1,6 @@
-"use client";
 
 import { useState, useEffect } from "react";
+
 import {
   Dialog,
   DialogContent,
@@ -8,9 +8,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
 import { Label } from "@/components/ui/label";
+
 import { Input } from "@/components/ui/input";
+
 import { Button } from "@/components/ui/button";
+
 import {
   Select,
   SelectContent,
@@ -18,28 +22,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { fetchSubDivisions } from "@/service/subDivisionApi";
+
 import { getBlockList } from "@/service/blockApi";
+
 import { createSchools, updateSchool } from "@/service/schoolApi";
+
 import { toast } from "sonner";
+
 import type { SubDivision } from "@/table-types/sub-division-types";
+
 import type { Block } from "@/table-types/block-table-types";
+
 import { useAuth } from "@/hooks/useAuth";
 
 interface CenterDialogProps {
   mode: "create" | "edit";
   trigger?: React.ReactNode;
-  schoolData?: {
+ schoolData?: {
+  id: number;
+  name: string;
+  block: {
     id: number;
     name: string;
-    block: {
-      id: number;
-      name: string;
-      subdivision: { id: number; name: string };
-    };
-    subdivision: { id: number; name: string };
+    subdivision?: { id: number; name: string }; 
   };
+  subdivision?: { id: number; name: string }; 
+};
+
 }
 
 export default function CenterDialog({
@@ -67,14 +80,12 @@ export default function CenterDialog({
   const [filteredBlocks, setFilteredBlocks] = useState<Block[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Initialize values based on mode or user type
   useEffect(() => {
     if (loading || isLoadingBlocks || isLoadingSubDivisions) {
       setIsInitialized(false);
       return;
     }
 
-    // Only initialize once when dialog opens
     if (!open) {
       setIsInitialized(false);
       return;
@@ -83,17 +94,17 @@ export default function CenterDialog({
     if (isInitialized) return;
 
     if (mode === "edit" && schoolData) {
-      // Edit mode: use school data
-      setSubDivisionId(String(schoolData.subdivision.id));
+  
+      setSubDivisionId(schoolData.subdivision ? String(schoolData.subdivision.id) : "");
       setBlockId(String(schoolData.block.id));
       setCenterName(schoolData.name);
     } else if (user?.user_type === "subdivision") {
-      // Subdivision user: pre-select subdivision
+    
       setSubDivisionId(String(user.id));
       setBlockId("");
       setCenterName("");
     } else if (user?.user_type === "block") {
-      // Block user: pre-select both block and subdivision
+   
       const userBlock = blocks.find((b) => b.id === user.id);
       if (userBlock && userBlock.subdivision) {
         setBlockId(String(userBlock.id));
@@ -101,7 +112,7 @@ export default function CenterDialog({
       }
       setCenterName("");
     } else {
-      // Admin user: clear all fields
+   
       setSubDivisionId("");
       setBlockId("");
       setCenterName("");
@@ -110,7 +121,6 @@ export default function CenterDialog({
     setIsInitialized(true);
   }, [mode, schoolData, user, loading, blocks, isLoadingBlocks, isLoadingSubDivisions, open, isInitialized]);
 
-  // Filter blocks based on subdivision
   useEffect(() => {
     if (!subDivisionId) {
       setFilteredBlocks([]);
@@ -120,21 +130,17 @@ export default function CenterDialog({
     const filtered = blocks.filter((b) => b.subdivision?.id === sid);
     setFilteredBlocks(filtered);
 
-    // Only clear blockId if it's not valid for the current subdivision
-    // and user is not a block user (block users should keep their pre-selected block)
     if (user?.user_type !== "block" && !filtered.some((b) => String(b.id) === blockId)) {
       setBlockId("");
     }
   }, [subDivisionId, blocks, blockId, user?.user_type]);
 
-  // Reset initialization flag when dialog closes
   useEffect(() => {
     if (!open) {
       setIsInitialized(false);
     }
   }, [open]);
 
-  // Mutation for creating/updating center
   const mutation = useMutation({
     mutationFn: async (data: {
       center_name: string;
@@ -152,7 +158,6 @@ export default function CenterDialog({
         `School ${mode === "create" ? "created" : "updated"} successfully`
       );
       setOpen(false);
-      // Reset fields
       if (user?.user_type === "admin") {
         setCenterName("");
         setSubDivisionId("");
@@ -180,7 +185,6 @@ export default function CenterDialog({
     });
   };
 
-  // Get display names for disabled fields
   const getSubDivisionName = () => {
     const subdivision = subDivisions.find((sd) => sd.id === Number(subDivisionId));
     return subdivision?.name || "";

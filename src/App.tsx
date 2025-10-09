@@ -5,7 +5,7 @@ import {
 } from "react-router-dom";
 import React, { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider } from "@/provider/authContext"; // make sure AuthProvider exports useAuth
+import { AuthProvider } from "@/provider/authContext";
 import RootLayout from "./components/RootLayout";
 import GenerateAdmitPage from "./pages/GenerateAdmitPage";
 import Downloads from "./pages/Downloads";

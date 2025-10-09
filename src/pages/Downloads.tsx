@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -7,127 +8,99 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 import { Download, Layers, FolderTree, School } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
-import type { SubDivision } from "@/table-types/sub-division-types";
-
-import { useEffect, useState } from "react";
-
-import * as XLSX from "xlsx-js-style";
-
-import type { Block } from "@/table-types/block-table-types";
-
-import type { Center } from "@/table-types/center-table-types";
-
-
+import { fetchSubDivisions } from "@/service/subDivisionApi";
+import { getBlockList } from "@/service/blockApi";
+import { getSchools } from "@/service/schoolApi";
+import { getStudents } from "@/service/studentsApi";
 
 export default function Downloads() {
-  const [subDivisions, setSubDivisions] = useState<SubDivision[]>([]);
-  const [selectedSub, setSelectedSub] = useState<string | null>(null);
-  const [blocks, setBlocks] = useState<Block[]>([]);
-  const [selectedBlock, setSelectedBlock] = useState<string | null>(null);
-  const [schools, setSchools] = useState<Center[]>([]);
-  const [selectedSchool, setSelectedSchool] = useState<string | null>(null);
-  const [selectedClass, setSelectedClass] = useState<string | null>(null);
-
-  useEffect(() => {
-    const subDiv = JSON.parse(localStorage.getItem("subDivisions") || "[]");
-    setSubDivisions(subDiv);
-
-    const blocksData = JSON.parse(localStorage.getItem("blocks") || "[]");
-    setBlocks(blocksData);
-
-    const schoolData = JSON.parse(localStorage.getItem("centers") || "[]");
-    console.log("the school data is:", schoolData);
-    setSchools(schoolData);
-  }, []);
-
-  console.log("schools data is:", schools);
-
-const handleDownload = () => {
-  const studentsData = JSON.parse(localStorage.getItem("students") || "[]");
-
-  console.log("Selected Values:", {
-    selectedSub,
-    selectedBlock,
-    selectedSchool,
-    selectedClass,
+  // 🧭 Subdivisions
+  const {
+    data: subDivisions = [],
+    isLoading: loadingSubs,
+    error: subError,
+  } = useQuery({
+    queryKey: ["subDivisions"],
+    queryFn: fetchSubDivisions,
   });
 
-  const filtered = studentsData.filter((s: any) => {
-    const matchSub =
-      !selectedSub || s.subDivision === selectedSub || s.subDivisionId === selectedSub;
-
-    const matchBlock =
-      !selectedBlock || s.block === selectedBlock || s.blockId === selectedBlock;
-
-    const matchSchool =
-      !selectedSchool || s.centerName === selectedSchool || s.centerId === selectedSchool;
-
-    const matchClass = !selectedClass || s.studentClass === selectedClass;
-
-    return matchSub && matchBlock && matchSchool && matchClass;
+  // 🧭 Blocks
+  const {
+    data: blocks = [],
+    isLoading: loadingBlocks,
+    error: blockError,
+  } = useQuery({
+    queryKey: ["blocks"],
+    queryFn: getBlockList,
   });
 
-  console.log("Filtered Students:", filtered);
 
-  if (filtered.length === 0) {
-    alert("No students found for this selection!");
-    return;
-  }
-
-
-  const worksheet: any = {};
-
- 
-  XLSX.utils.sheet_add_aoa(
-    worksheet,
-    [[selectedSchool || "Center Name"]],
-    { origin: "A1" }
-  );
-
- 
-  const keys = Object.keys(filtered[0] || {});
-  worksheet["!merges"] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: keys.length - 1 } }
-  ];
-
- 
-  if (worksheet["A1"]) {
-    worksheet["A1"].s = {
-      font: { bold: true, sz: 14, color: { rgb: "008000" } },
-      alignment: { horizontal: "center", vertical: "center" },
-    };
-  }
-
-  XLSX.utils.sheet_add_json(worksheet, filtered, {
-    origin: "A3",
-    skipHeader: false,
-  });
-
-  keys.forEach((idx) => {
-    const cellRef = XLSX.utils.encode_cell({ r: 2, c: idx }); 
-    if (worksheet[cellRef]) {
-      worksheet[cellRef].s = {
-        font: { bold: true, color: { rgb: "008000" } },
-        alignment: { horizontal: "center" },
-      };
-    }
+  const {
+    data: schools = [],
+    isLoading: loadingSchools,
+    error: schoolError,
+  } = useQuery({
+    queryKey: ["schools"],
+    queryFn: getSchools,
   });
 
   
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Students");
+  const { data: studentsData } = useQuery({
+    queryKey: ["students"],
+    queryFn: getStudents,
+  });
 
-  XLSX.writeFile(
-    workbook,
-    `Students_${selectedSub || "all"}_${selectedBlock || "all"}_${selectedSchool || "all"}_${selectedClass || "all"}.xlsx`
-  );
-};
+  const [selectedSub, setSelectedSub] = useState<string>("");
+  const [selectedBlock, setSelectedBlock] = useState<string>("");
+  const [selectedSchool, setSelectedSchool] = useState<string>("");
+  const [selectedClass, setSelectedClass] = useState<string>("");
 
+  useEffect(() => {
+    console.log("🟢 Subdivisions fetched:", subDivisions);
+    console.log("🟢 Blocks fetched:", blocks);
+    console.log("🟢 Schools fetched:", schools);
+    console.log("🟢 Students fetched:", studentsData);
+  }, [subDivisions, blocks, schools, studentsData]);
+
+  useEffect(() => {
+    console.log("➡️ Selected Sub Division:", selectedSub);
+  }, [selectedSub]);
+
+  useEffect(() => {
+    console.log("➡️ Selected Block:", selectedBlock);
+  }, [selectedBlock]);
+
+  useEffect(() => {
+    console.log("➡️ Selected School:", selectedSchool);
+  }, [selectedSchool]);
+
+  useEffect(() => {
+    console.log("➡️ Selected Class:", selectedClass);
+  }, [selectedClass]);
+
+  const handleDownload = () => {
+    console.log("📦 Download Triggered with data:");
+    console.table({
+      selectedSub,
+      selectedBlock,
+      selectedSchool,
+      selectedClass,
+    });
+    alert("Download started — check console logs for debug info");
+  };
+
+  // 🧨 Error logging
+  if (subError || blockError || schoolError) {
+    console.error("❌ Error fetching data:", {
+      subError,
+      blockError,
+      schoolError,
+    });
+  }
 
   return (
     <div className="p-10 flex justify-center mt-6">
@@ -140,23 +113,25 @@ const handleDownload = () => {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          <p className="text-sm text-zinc-600">
-            Please select the required <span className="font-medium">Sub</span>,{" "}
-            <span className="font-medium">Div</span>, and{" "}
-            <span className="font-medium">School</span> to proceed with
-            downloading the data.
-          </p>
-
+          {/* 🏢 Sub Division */}
           <div className="grid gap-2">
             <label className="flex items-center gap-2 text-sm font-medium text-zinc-700">
-              <Layers className="h-4 w-4  text-zinc-800" /> Sub Division
+              <Layers className="h-4 w-4 text-zinc-800" /> Sub Division
             </label>
-            <Select onValueChange={(value) => setSelectedSub(value)}>
+            <Select onValueChange={setSelectedSub}>
               <SelectTrigger className="w-full bg-white border border-zinc-300 rounded-md h-[42px]">
-                <SelectValue placeholder="Select Sub" />
+                <SelectValue
+                  placeholder={
+                    loadingSubs
+                      ? "Loading Subdivisions..."
+                      : subDivisions.length === 0
+                      ? "No Subdivisions Found"
+                      : "Select Sub Division"
+                  }
+                />
               </SelectTrigger>
               <SelectContent className="bg-white border border-zinc-300 rounded-md">
-                {subDivisions.map((item: SubDivision) => (
+                {subDivisions.map((item: any) => (
                   <SelectItem key={item.id} value={item.name}>
                     {item.name}
                   </SelectItem>
@@ -165,51 +140,66 @@ const handleDownload = () => {
             </Select>
           </div>
 
+          {/* 🧱 Blocks */}
           <div className="grid gap-2">
             <label className="flex items-center gap-2 text-sm font-medium text-zinc-700">
               <FolderTree className="h-4 w-4 text-zinc-800" /> Blocks
             </label>
-            <Select onValueChange={(value) => setSelectedBlock(value)}>
+            <Select onValueChange={setSelectedBlock}>
               <SelectTrigger className="w-full bg-white border border-zinc-300 rounded-md h-[42px]">
-                <SelectValue placeholder="Select Block" />
+                <SelectValue
+                  placeholder={
+                    loadingBlocks
+                      ? "Loading Blocks..."
+                      : blocks.length === 0
+                      ? "No Blocks Found"
+                      : "Select Block"
+                  }
+                />
               </SelectTrigger>
               <SelectContent className="bg-white border border-zinc-300 rounded-md">
-                {blocks
-                  .filter((b: Block) => b.subDivision === selectedSub)
-                  .map((item: Block) => (
-                    <SelectItem key={item.id} value={item.blockName}>
-                      {item.blockName}
-                    </SelectItem>
-                  ))}
+                {blocks.map((item: any, index: number) => (
+                  <SelectItem key={item.id ?? index} value={item.blockName}>
+                    {item.blockName}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
+          {/* 🏫 Schools */}
           <div className="grid gap-2">
             <label className="flex items-center gap-2 text-sm font-medium text-zinc-700">
               <School className="h-4 w-4 text-zinc-800" /> Schools
             </label>
-            <Select onValueChange={(value) => setSelectedSchool(value)}>
+            <Select onValueChange={setSelectedSchool}>
               <SelectTrigger className="w-full bg-white border border-zinc-300 rounded-md h-[42px]">
-                <SelectValue placeholder="Select School" />
+                <SelectValue
+                  placeholder={
+                    loadingSchools
+                      ? "Loading Schools..."
+                      : schools.length === 0
+                      ? "No Schools Found"
+                      : "Select School"
+                  }
+                />
               </SelectTrigger>
               <SelectContent className="bg-white border border-zinc-300 rounded-md">
-                {schools
-                  .filter((sch: Center) => sch.block === selectedBlock)
-                  .map((item: Center) => (
-                    <SelectItem key={item.id} value={item.centerName}>
-                      {item.centerName}
-                    </SelectItem>
-                  ))}
+                {schools.map((item: any, index: number) => (
+                  <SelectItem key={item.id ?? index} value={item.centerName}>
+                    {item.centerName}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
+          {/* 📚 Class */}
           <div className="grid gap-2">
             <label className="flex items-center gap-2 text-sm font-medium text-zinc-700">
               <School className="h-4 w-4 text-zinc-800" /> Class
             </label>
-            <Select onValueChange={(value) => setSelectedClass(value)}>
+            <Select onValueChange={setSelectedClass}>
               <SelectTrigger className="w-full bg-white border border-zinc-300 rounded-md h-[42px]">
                 <SelectValue placeholder="Select Class" />
               </SelectTrigger>
@@ -220,6 +210,7 @@ const handleDownload = () => {
             </Select>
           </div>
 
+          {/* 💾 Download Button */}
           <button
             onClick={handleDownload}
             className="mt-4 px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"

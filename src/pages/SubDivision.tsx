@@ -1,4 +1,3 @@
-
 import { DataTable } from "@/components/data-table";
 
 import { getColumns } from "@/table-columns/sub-division-table-columns";
@@ -11,15 +10,17 @@ import SubDivisionDialog from "@/components/SubDivisionDialog";
 
 import type { SubDivision } from "@/table-types/sub-division-types";
 
-
+import Loader from "@/components/Loader";
 
 export default function SubDivision() {
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["subDivisions"],
     queryFn: fetchSubDivisions,
   });
 
-  console.log("the sub division",data )
+  console.log("the sub division", data);
+
+  if (isLoading) return <Loader />;
 
   return (
     <div className="p-6 bg-zinc-100 min-h-screen mt-8">

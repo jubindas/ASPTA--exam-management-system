@@ -10,6 +10,8 @@ import CenterDialog from "@/components/CenterDialog";
 
 import { useAuth } from "@/hooks/useAuth";
 
+import Loader from "@/components/Loader";
+
 interface Center {
   id: number;
   subDivision: string;
@@ -18,7 +20,7 @@ interface Center {
 }
 
 export default function Center() {
-  const { data: schools } = useQuery({
+  const { data: schools, isLoading } = useQuery({
     queryKey: ["schools"],
     queryFn: getSchools,
   });
@@ -44,6 +46,7 @@ export default function Center() {
   );
 
   if (loading) return null;
+    if(isLoading) return <Loader />
 
   return (
     <div className="p-6 bg-zinc-100 min-h-screen mt-8">

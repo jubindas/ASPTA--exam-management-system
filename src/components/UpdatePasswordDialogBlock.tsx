@@ -19,40 +19,41 @@ import { Button } from "@/components/ui/button";
 
 import { useAuth } from "@/hooks/useAuth";
 
-import { updateSubdivisionPassword } from "@/service/subDivisionApi";
-
-import type { SubDivision } from "@/table-types/sub-division-types";
+import { updateBlockPassword } from "@/service/blockApi";
 
 import { Eye, EyeOff } from "lucide-react";
 
-interface UpdatePasswordDialogProps {
+interface UpdatePasswordDialogBlockProps {
   trigger?: React.ReactNode;
-  data: SubDivision;
+  updatePass: {
+    id: number;
+    password: string;
+  };
 }
 
-export default function UpdatePasswordDialog({
+export default function UpdatePasswordDialogBlock({
   trigger,
-  data,
-}: UpdatePasswordDialogProps) {
+  updatePass,
+}: UpdatePasswordDialogBlockProps) {
   const queryClient = useQueryClient();
-
   const { token } = useAuth();
   const [open, setOpen] = useState(false);
   const [newPassword, setNewPassword] = useState("");
+
   const [showPassword, setShowPassword] = useState(false);
 
   const mutation = useMutation({
     mutationFn: () =>
-      updateSubdivisionPassword(
+      updateBlockPassword(
         {
-          user_id: data.id,
-          old_password: data.password,
+          user_id: updatePass.id,
+          old_password: updatePass.password,
           new_password: newPassword,
         },
         token
       ),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["subDivisions"] });
+      queryClient.invalidateQueries({ queryKey: ["blocks"] });
       setOpen(false);
       setNewPassword("");
     },
@@ -98,7 +99,7 @@ export default function UpdatePasswordDialog({
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-0 h-6 w-6"
             >
-              {showPassword ? (
+               {showPassword ? (
                 <EyeOff className="mt-4 h-7 w-5 text-zinc-600"/>
               ) : (
                 <Eye className=" mt-4 h-7 w-5 text-zinc-600" />
@@ -119,7 +120,7 @@ export default function UpdatePasswordDialog({
           )}
         </div>
 
-        <div className=" p-4 flex justify-end">
+        <div className="p-4 flex justify-end">
           <Button
             onClick={() => mutation.mutate()}
             disabled={!newPassword || mutation.isPending}

@@ -46,7 +46,12 @@ export const columns = (): ColumnDef<Block>[] => [
         subdivision: row.original.subdivision,
       };
 
-      return <BlockTableDropdown block={block} />;
+      const updatePass = {
+        id: row.original.id,
+        password: row.original.password
+      }
+
+      return <BlockTableDropdown block={block} updatePass={updatePass}/>;
     },
   },
 ];

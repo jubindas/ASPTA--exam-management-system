@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
+
 import { SidebarTrigger } from "./ui/sidebar";
+
 import { User, LogOut } from "lucide-react";
+
 import { useAuth } from "@/hooks/useAuth";
 
 export default function Navbar() {

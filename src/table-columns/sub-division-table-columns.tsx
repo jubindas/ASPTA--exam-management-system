@@ -39,7 +39,7 @@ export const getColumns = (): ColumnDef<SubDivision>[] => [
     cell: ({ row }) => (
       <SubDivisionTableDropdown
         id={row.original.id}
-        rowData={{ name: row.original.name, id: row.original.id }}
+        rowData={{ name: row.original.name, id: row.original.id, password: row.original.password, email: row.original.email}}
       />
     ),
   },

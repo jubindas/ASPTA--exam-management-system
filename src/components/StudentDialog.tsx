@@ -215,7 +215,12 @@ export default function StudentDialog({
       !blockId ||
       !schoolId
     ) {
-      toast.error("Please fill all fields!");
+      toast("Please fill all fields!");
+      return;
+    }
+
+    if (mobile.length !== 10) {
+      toast("Mobile number must be exactly 10 digits!");
       return;
     }
 
@@ -361,7 +366,7 @@ export default function StudentDialog({
                 <SelectValue placeholder="Select Class" />
               </SelectTrigger>
               <SelectContent className="bg-white">
-                {["IV", "V", "VI", "VII"].map((c) => (
+                {["IV", "V"].map((c) => (
                   <SelectItem key={c} value={c}>
                     Class {c}
                   </SelectItem>

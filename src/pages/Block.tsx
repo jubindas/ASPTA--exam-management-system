@@ -5,11 +5,12 @@ import type { Block } from "@/table-types/block-table-types";
 import { getBlockList } from "@/service/blockApi";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
+import Loader from "@/components/Loader";
 
 export default function Block() {
   const { user, loading } = useAuth();
 
-  const { data: blockData } = useQuery({
+  const { data: blockData, isLoading } = useQuery({
     queryKey: ["blocks"],
     queryFn: getBlockList,
   });
@@ -26,6 +27,8 @@ export default function Block() {
   console.log("the filterd data", filteredBlockData);
 
   if (loading) return null;
+
+  if(isLoading) return <Loader />
 
   return (
     <div className="p-6 bg-zinc-100 mt-8">

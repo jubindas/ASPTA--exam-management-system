@@ -1,10 +1,13 @@
 import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
+
 import {
   Popover,
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,22 +17,32 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+
 import { MoreHorizontal, Edit, Trash2 } from "lucide-react";
+
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 import { deleteSubDivision } from "@/service/subDivisionApi";
+
 import { toast } from "sonner";
+
 import SubDivisionDialog from "@/components/SubDivisionDialog";
+
 import UpdatePasswordDialog from "@/components/UpdatePasswordDialog";
+
+import { useAuth } from "@/hooks/useAuth";
 
 export default function SubDivisionTableDropdown({
   id,
   rowData,
 }: {
   id: number;
-  rowData: { name: string; id: number };
+  rowData: { name: string; id: number; password: string; email: string };
 }) {
   const queryClient = useQueryClient();
   const [openDialog, setOpenDialog] = useState(false);
+
+  const { user } = useAuth();
 
   const deleteMutation = useMutation({
     mutationFn: () => deleteSubDivision(id),
@@ -60,7 +73,7 @@ export default function SubDivisionTableDropdown({
 
         <PopoverContent
           align="end"
-          className="w-36 p-2 bg-white border border-zinc-200 shadow-lg rounded-md"
+          className="w-45 p-2 bg-white border border-zinc-200 shadow-lg rounded-md"
         >
           <div className="flex flex-col">
             <SubDivisionDialog
@@ -76,18 +89,20 @@ export default function SubDivisionTableDropdown({
                 </Button>
               }
             />
-
-            <UpdatePasswordDialog
-              trigger={
-                <Button
-                  variant="ghost"
-                  className="justify-start text-left text-sm hover:bg-blue-100 text-blue-600 w-full mt-1"
-                >
-                  <Edit className="h-4 w-4 mr-2 text-blue-600" />
-                  Update Password
-                </Button>
-              }
-            />
+            {user?.user_type === "admin" && (
+              <UpdatePasswordDialog
+                data={rowData}
+                trigger={
+                  <Button
+                    variant="ghost"
+                    className="justify-start text-left text-sm hover:bg-zinc-100 w-full text-zinc-700"
+                  >
+                    <Edit className="h-4 w-4 mr-2 text-blue-600" />
+                    Update Password
+                  </Button>
+                }
+              />
+            )}
 
             <Button
               variant="ghost"

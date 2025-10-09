@@ -1,7 +1,5 @@
 import { axiosInstance } from "@/lib/axios";
 
-
-
 export const fetchSubDivisions = async () => {
   try {
     const response = await axiosInstance.get("/subdivisions");
@@ -26,17 +24,21 @@ export const createSubDivision = async (subDivision: {
   }
 };
 
-
-export const updateSubDivision = async (id: number, subDivision: { name: string }) => {
+export const updateSubDivision = async (
+  id: number,
+  subDivision: { name: string }
+) => {
   try {
-    const response = await axiosInstance.put(`/subdivisions/${id}`, subDivision);
+    const response = await axiosInstance.put(
+      `/subdivisions/${id}`,
+      subDivision
+    );
     return response.data;
   } catch (error) {
     console.error("Error updating subdivision:", error);
     throw error;
   }
 };
-
 
 export const deleteSubDivision = async (id: number) => {
   try {
@@ -48,31 +50,34 @@ export const deleteSubDivision = async (id: number) => {
   }
 };
 
-
-
-export interface UpdatePasswordData {
+interface UpdatePasswordPayload {
+  user_id: number;
   old_password: string;
   new_password: string;
 }
 
-
 export const updateSubdivisionPassword = async (
-  data: UpdatePasswordData,
-  token: string
+  payload: UpdatePasswordPayload,
+  token: string | null,
 ) => {
   try {
     const response = await axiosInstance.post(
       "/subdivisions/change-password",
-      data,
+      payload,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
     );
+
     return response.data;
-  } catch (error) {
-    console.error("Failed to update subdivision password:", error);
- 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    console.error(
+      "Failed to update subdivision password:",
+      error.response?.data || error.message
+    );
+    throw error;
   }
 };

@@ -61,3 +61,37 @@ export const deleteBlock = async (id: number) => {
     throw error;
   }
 };
+
+
+
+interface UpdatePasswordPayload {
+  user_id: number;
+  old_password: string;
+  new_password: string;
+}
+
+export const updateBlockPassword = async (
+  payload: UpdatePasswordPayload,
+  token: string | null,
+) => {
+  try {
+    const response = await axiosInstance.post(
+      "/blocks/change-password",
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response.data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    console.error(
+      "Failed to update subdivision password:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};

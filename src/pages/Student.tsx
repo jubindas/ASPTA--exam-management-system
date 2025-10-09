@@ -12,8 +12,10 @@ import { getStudents } from "@/service/studentsApi";
 
 import { useAuth } from "@/hooks/useAuth";
 
+import Loader from "@/components/Loader";
+
 export default function Student() {
-  const { data: studentsData } = useQuery({
+  const { data: studentsData, isLoading } = useQuery({
     queryKey: ["students"],
     queryFn: getStudents,
   });
@@ -38,7 +40,10 @@ export default function Student() {
       })
     : [];
 
+  console.log("Filtered Data  ", filteredStudents);
+
   if (loading) return null;
+  if (isLoading) return <Loader />;
 
   return (
     <div className="p-6 bg-zinc-100 min-h-screen mt-8">
