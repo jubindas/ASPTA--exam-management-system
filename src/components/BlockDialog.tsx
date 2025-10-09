@@ -137,6 +137,8 @@ export default function BlockDialog({
       password: randomPassword,
     };
 
+    console.log("the block paylod", payload);
+
     mutation.mutate(payload);
 
     if (mode === "create") {

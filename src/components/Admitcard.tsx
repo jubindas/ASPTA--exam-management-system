@@ -50,7 +50,7 @@ const AdmitCard: React.FC<AdmitCardProps> = ({
                   className="absolute top-0 w-14 h-14"
                 />
                 <h2 className="font-bold text-lg">
-                  অসম বাচিক প্ৰাথমিক শিক্ষক সন্মিলনী
+                  অসম ৰাজ্যিক  প্ৰাথমিক শিক্ষক সন্মিলনী
                 </h2>
                 <h3 className="font-semibold text-sm">
                   প্ৰজ্ঞান প্ৰতিভা সন্ধানী পৰীক্ষা ২০২6 | PRAGYNAN PRATIBHA

@@ -16,7 +16,7 @@ export const createBlock = async (blockData: {
   password: string;
 }) => {
   try {
-  
+    console.log("the block backend data", blockData);
 
     const response = await axiosInstance.post("/blocks", blockData);
 
@@ -62,8 +62,6 @@ export const deleteBlock = async (id: number) => {
   }
 };
 
-
-
 interface UpdatePasswordPayload {
   user_id: number;
   old_password: string;
@@ -72,7 +70,7 @@ interface UpdatePasswordPayload {
 
 export const updateBlockPassword = async (
   payload: UpdatePasswordPayload,
-  token: string | null,
+  token: string | null
 ) => {
   try {
     const response = await axiosInstance.post(
