@@ -3,20 +3,31 @@ import {
   RouterProvider,
   Navigate,
 } from "react-router-dom";
+
 import React, { lazy, Suspense } from "react";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import { AuthProvider } from "@/provider/authContext";
+
 import RootLayout from "./components/RootLayout";
+
 import GenerateAdmitPage from "./pages/GenerateAdmitPage";
+
 import Downloads from "./pages/Downloads";
 
 import { useAuth } from "./hooks/useAuth";
 
 const Home = lazy(() => import("@/pages/Home"));
+
 const Block = lazy(() => import("./pages/Block"));
+
 const Center = lazy(() => import("./pages/Center"));
+
 const Student = lazy(() => import("./pages/Student"));
+
 const SubDivision = lazy(() => import("./pages/SubDivision"));
+
 const Login = lazy(() => import("./pages/Login"));
 
 const Loader = () => <div className="p-6 text-center">Loading...</div>;
@@ -24,20 +35,30 @@ const Loader = () => <div className="p-6 text-center">Loading...</div>;
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { user, token } = useAuth();
+  const { user, token, loading } = useAuth();
+
+  if (loading) {
+    return <Loader />;
+  }
 
   if (!user || !token) {
     return <Navigate to="/login" replace />;
   }
+
   return <>{children}</>;
 };
 
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, token } = useAuth();
+  const { user, token, loading } = useAuth();
+
+  if (loading) {
+    return <Loader />;
+  }
 
   if (user && token) {
     return <Navigate to="/" replace />;
   }
+
   return <>{children}</>;
 };
 
