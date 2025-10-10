@@ -1,5 +1,4 @@
 import { Link, useLocation } from "react-router-dom";
-
 import {
   Sidebar,
   SidebarContent,
@@ -29,10 +28,9 @@ const adminItems = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}");
 
   const { user } = useAuth();
-  console.log("the sidebar", user?.user_type)
+  console.log("the sidebar", user?.user_type);
 
   const getMenuItems = () => {
     if (!user) return baseItems;
@@ -41,7 +39,8 @@ export function AppSidebar() {
       case "admin":
         return [...baseItems.slice(0, 1), ...adminItems, ...baseItems.slice(1)];
       case "subdivision":
-        return baseItems; 
+        return baseItems;
+
       case "block":
         return baseItems.filter((item) => item.title !== "Block");
       default:
@@ -52,32 +51,38 @@ export function AppSidebar() {
   const menuItems = getMenuItems();
 
   return (
-    <Sidebar className="bg-zinc-900 text-white w-64 shadow-lg">
-      <SidebarContent className="py-6">
-        <div className="px-6 mb-10 flex items-center space-x-4">
+    <Sidebar
+      className="!bg-zinc-900 text-white w-full sm:w-64 md:w-64 lg:w-64 shadow-lg"
+      style={{ backgroundColor: "#18181b" }}
+    >
+      <SidebarContent
+        className="py-3 sm:py-6 !bg-zinc-900"
+        style={{ backgroundColor: "#18181b" }}
+      >
+        <div className="px-3 sm:px-6 mb-6 sm:mb-10 flex items-center space-x-2 sm:space-x-4">
           <img
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHavAqEKhY8MRX7NntKRnkGqFTk42uJT_TuA&s"
             alt="Avatar"
-            className="h-12 w-12 rounded-full border-2 border-zinc-700"
+            className="h-10 w-10 sm:h-12 sm:w-12 rounded-full border-2 border-zinc-700 flex-shrink-0"
           />
-          <div>
-            <p className="text-sm text-zinc-400">Welcome,</p>
-            <h2 className="text-lg font-bold">
-              {currentUser?.role === "admin"
+          <div className="min-w-0">
+            <p className="text-xs sm:text-sm text-zinc-400">Welcome,</p>
+            <h2 className="text-base text-white sm:text-lg font-bold truncate">
+              {user?.user_type === "admin"
                 ? "Admin"
-                : currentUser?.role === "subdiv"
+                : user?.user_type === "subdivision"
                 ? "Sub-Division"
                 : "Block"}
             </h2>
           </div>
         </div>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-2xl font-extrabold tracking-wide text-white px-6 mb-6">
+          <SidebarGroupLabel className="text-xl sm:text-2xl font-extrabold tracking-wide text-white px-3 sm:px-6 mb-4 sm:mb-6">
             ASPTA
           </SidebarGroupLabel>
 
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-3">
+            <SidebarMenu className="space-y-2 sm:space-y-3">
               {menuItems.map((item) => {
                 const isActive = location.pathname === item.url;
                 return (
@@ -85,15 +90,15 @@ export function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <Link
                         to={item.url}
-                        className={`flex items-center space-x-5 px-6 py-4 rounded-xl text-lg font-semibold transition-all duration-300
+                        className={`flex items-center space-x-3 sm:space-x-5 px-3 sm:px-6 py-3 sm:py-4 rounded-xl text-base sm:text-lg font-semibold transition-all duration-300 !text-white
                           ${
                             isActive
-                              ? "bg-zinc-700 text-white shadow-md scale-[1.02]"
-                              : "hover:bg-zinc-800 hover:text-white"
+                              ? "bg-zinc-700 text-white shadow-md scale-[1.02] "
+                              : "text-white hover:bg-zinc-800 hover:text-white"
                           }`}
                       >
-                        <item.icon className="h-7 w-7" />
-                        <span>{item.title}</span>
+                        <item.icon className="h-6 w-6 sm:h-7 sm:w-7 flex-shrink-0" />
+                        <span className="truncate">{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
