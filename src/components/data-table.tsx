@@ -47,7 +47,6 @@ export function DataTable<TData, TValue>({
   enablePagination = false,
   hideTableInPrint = true,
 }: DataTableProps<TData, TValue>) {
-  
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -62,21 +61,21 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     state: { sorting, columnFilters },
-     initialState: {
-    pagination: {
-      pageSize: 100, 
+    initialState: {
+      pagination: {
+        pageSize: 10,
+      },
     },
-  },
   });
 
   return (
     <div
       className={`${
         hideTableInPrint ? "print:hidden" : ""
-      }  backdrop-blur border rounded-lg border-zinc-300 overflow-hidden`}
+      } bg-white  overflow-hidden`}
     >
       {filterOptions?.enableFilter && (
-        <div className="flex w-full px-4 py-3 bg-inherit border-b border-zinc-700/60">
+        <div className="flex w-full px-4 py-3 bg-zinc-100">
           <DataTableFilter
             table={table}
             placeholder={filterOptions.filterPlaceholder}
@@ -85,63 +84,65 @@ export function DataTable<TData, TValue>({
         </div>
       )}
 
-      <Table className="">
-        <TableHeader className="">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className="bg-zinc-300 rounded-2xl">
-              {headerGroup.headers.map((header, index) => (
-                <TableHead
-                  key={header.id}
-                  className={`text-black text-xs font-medium uppercase  tracking-wider py-4 px-6 text-left
-            ${index === 0 ? "rounded-tl-lg" : ""}
-            ${index === headerGroup.headers.length - 1 ? "rounded-tr-lg" : ""}`}
-                >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
+    <div className="overflow-hidden rounded-tl-lg rounded-tr-lg rounded-l-lg rounded-r-lg border border-zinc-300">
+  <Table className="w-full border-collapse">
+    <TableHeader>
+      {table.getHeaderGroups().map((headerGroup) => (
+        <TableRow key={headerGroup.id} className="bg-zinc-300">
+          {headerGroup.headers.map((header, index) => (
+            <TableHead
+              key={header.id}
+              className={`text-black text-xs font-medium uppercase tracking-wider py-4 px-6 text-left
+                ${index === 0 ? "rounded-tl-lg" : ""}
+                ${index === headerGroup.headers.length - 1 ? "rounded-tr-lg" : ""}`}
+            >
+              {header.isPlaceholder
+                ? null
+                : flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
+            </TableHead>
           ))}
-        </TableHeader>
+        </TableRow>
+      ))}
+    </TableHeader>
 
-        <TableBody className="">
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row, rowIndex) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-                className={`bg-zinc-50 hover:bg-zinc-100 transition-colors ${
-                  rowIndex !== table.getRowModel().rows.length - 1
-                    ? "border-b border-zinc-300"
-                    : ""
-                }`}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    className="text-black text-sm py-4 px-6"
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
+    <TableBody>
+      {table.getRowModel().rows.length ? (
+        table.getRowModel().rows.map((row, rowIndex) => (
+          <TableRow
+            key={row.id}
+            className={`bg-zinc-50 hover:bg-zinc-100 transition-colors ${
+              rowIndex !== table.getRowModel().rows.length - 1
+                ? "border-b border-zinc-300"
+                : ""
+            }`}
+          >
+            {row.getVisibleCells().map((cell) => (
               <TableCell
-                colSpan={columns.length}
-                className="h-24 text-center text-zinc-500"
+                key={cell.id}
+                className="text-black text-sm py-4 px-6"
               >
-                No results found 
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            ))}
+          </TableRow>
+        ))
+      ) : (
+        <TableRow>
+          <TableCell
+            colSpan={columns.length}
+            className="h-24 text-center text-zinc-500"
+          >
+            No results found
+          </TableCell>
+        </TableRow>
+      )}
+    </TableBody>
+  </Table>
+</div>
+
 
       {enablePagination && (
         <div className="bg-zinc-50 border-r border-l border-b rounded-b-lg border-zinc-300">

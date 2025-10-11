@@ -1,7 +1,5 @@
 import { DataTable } from "@/components/data-table";
-
 import { columns } from "@/table-columns/block-table-columns";
-
 import BlockDialog from "@/components/BlockDialog";
 import type { Block } from "@/table-types/block-table-types";
 import { getBlockList } from "@/service/blockApi";
@@ -19,7 +17,6 @@ export default function Block() {
 
   const filteredBlockData = blockData?.filter((b: Block) => {
     if (!user) return true;
-
     if (user.user_type === "subdivision") {
       return b.subdivision?.name === user.name;
     }
@@ -30,38 +27,28 @@ export default function Block() {
   if (isLoading) return <Loader />;
 
   return (
-    <div className="p-4 sm:p-6 bg-zinc-100 mt-8">
-
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 sm:gap-0">
-        <h1 className="text-xl sm:text-2xl font-semibold text-zinc-800 tracking-tight">
+     <div className="p-6 bg-zinc-100 min-h-screen mt-8">
+      <div className="flex flex-wrap justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold text-zinc-800 tracking-tight">
           Block List
         </h1>
-       
-      </div>
-
-   
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 sm:gap-0">
-        <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-700 mt-2 sm:mt-0">
-          <span className="font-medium">Search:</span>
-          <input
-            type="text"
-            placeholder="Type to search..."
-            className="border border-zinc-300 rounded-md px-3 py-2 bg-white text-zinc-800 placeholder-zinc-400 shadow-sm focus:ring-2 focus:ring-zinc-500 focus:outline-none transition-all w-full sm:w-64"
-          />
-        </div>
-         <BlockDialog mode="create" />
+        <BlockDialog mode="create" />
       </div>
 
      
-      <div className="bg-white rounded-xl shadow-md overflow-x-auto">
         {filteredBlockData && (
-          <DataTable<Block, unknown>
+          <DataTable
             columns={columns()}
             data={filteredBlockData}
-            enablePagination
+            enablePagination={true}
+            filterOptions={{
+              enableFilter: true,
+              filterPlaceholder: "Search blocks...",
+              filterCol: "name",
+            }}
           />
         )}
-      </div>
+    
     </div>
   );
 }

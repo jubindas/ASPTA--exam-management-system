@@ -30,7 +30,7 @@ const SubDivision = lazy(() => import("./pages/SubDivision"));
 
 const Login = lazy(() => import("./pages/Login"));
 
-const Loader = () => <div className="p-6 text-center">Loading...</div>;
+const Loader = lazy(() => import("./components/Loader"));
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,

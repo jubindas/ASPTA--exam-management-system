@@ -44,7 +44,7 @@ export function DataTablePagination<TData>({
             side="top"
             className="bg-zinc-300 text-zinc-900 border border-zinc-700/60"
           >
-            {[100, 150, 200].map((pageSize) => (
+            {[10, 50, 100, 150, 200].map((pageSize) => (
               <SelectItem
                 key={pageSize}
                 value={`${pageSize}`}

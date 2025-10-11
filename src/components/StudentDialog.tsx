@@ -248,7 +248,7 @@ export default function StudentDialog({
     blocks.find((b) => b.id === Number(blockId))?.name || "";
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+   <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
           <Button className="bg-zinc-800 text-white hover:bg-zinc-700 px-4 py-2 rounded-md">
@@ -257,25 +257,25 @@ export default function StudentDialog({
         )}
       </DialogTrigger>
 
-      <DialogContent className="max-w-3xl bg-white text-zinc-900 rounded-xl p-8">
+      <DialogContent className="max-w-3xl w-[95vw] sm:w-full bg-white text-zinc-900 rounded-xl p-4 sm:p-6 md:p-8 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">
+          <DialogTitle className="text-lg sm:text-xl font-semibold">
             {mode === "create" ? "Add Student" : "Edit Student"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-4 sm:mt-6">
           <div className="flex flex-col">
             <Label className="text-sm font-medium mb-2">Sub Division</Label>
             {isSubDivisionDisabled ? (
               <Input
                 value={getSubDivisionName()}
                 disabled
-                className="w-full bg-zinc-100 border border-zinc-300 rounded-md px-3 py-2 text-zinc-700 cursor-not-allowed"
+                className="w-full bg-zinc-100 border border-zinc-300 rounded-md px-3 py-2 text-sm sm:text-base text-zinc-700 cursor-not-allowed"
               />
             ) : (
               <Select value={subDivisionId} onValueChange={setSubDivisionId}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full text-sm sm:text-base">
                   <SelectValue placeholder="Select Sub Division" />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
@@ -295,11 +295,11 @@ export default function StudentDialog({
               <Input
                 value={getBlockName()}
                 disabled
-                className="w-full bg-zinc-100 border border-zinc-300 rounded-md px-3 py-2 text-zinc-700 cursor-not-allowed"
+                className="w-full bg-zinc-100 border border-zinc-300 rounded-md px-3 py-2 text-sm sm:text-base text-zinc-700 cursor-not-allowed"
               />
             ) : (
               <Select value={blockId} onValueChange={setBlockId}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full text-sm sm:text-base">
                   <SelectValue placeholder="Select Block" />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
@@ -316,7 +316,7 @@ export default function StudentDialog({
           <div className="flex flex-col">
             <Label className="text-sm font-medium mb-2">School</Label>
             <Select value={schoolId} onValueChange={setSchoolId}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full text-sm sm:text-base">
                 <SelectValue placeholder="Select School" />
               </SelectTrigger>
               <SelectContent className="bg-white">
@@ -335,7 +335,7 @@ export default function StudentDialog({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter Student Name"
-              className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-zinc-500 focus:outline-none"
+              className="w-full border border-zinc-300 rounded-md px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-zinc-500 focus:outline-none"
             />
           </div>
 
@@ -345,7 +345,7 @@ export default function StudentDialog({
               value={guardianName}
               onChange={(e) => setGuardianName(e.target.value)}
               placeholder="Enter Guardian Name"
-              className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-zinc-500 focus:outline-none"
+              className="w-full border border-zinc-300 rounded-md px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-zinc-500 focus:outline-none"
             />
           </div>
 
@@ -355,14 +355,14 @@ export default function StudentDialog({
               value={mobile}
               onChange={(e) => setMobile(e.target.value)}
               placeholder="Enter Mobile Number"
-              className="w-full border border-zinc-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-zinc-500 focus:outline-none"
+              className="w-full border border-zinc-300 rounded-md px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-zinc-500 focus:outline-none"
             />
           </div>
 
           <div className="flex flex-col">
             <Label className="text-sm font-medium mb-2">Class</Label>
             <Select value={studentClass} onValueChange={setStudentClass}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full text-sm sm:text-base">
                 <SelectValue placeholder="Select Class" />
               </SelectTrigger>
               <SelectContent className="bg-white">
@@ -378,7 +378,7 @@ export default function StudentDialog({
           <div className="flex flex-col">
             <Label className="text-sm font-medium mb-2">Medium</Label>
             <Select value={medium} onValueChange={setMedium}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full text-sm sm:text-base">
                 <SelectValue placeholder="Select Medium" />
               </SelectTrigger>
               <SelectContent className="bg-white">
@@ -392,10 +392,10 @@ export default function StudentDialog({
           </div>
         </div>
 
-        <div className="flex justify-end mt-8">
+        <div className="flex justify-end mt-6 sm:mt-8">
           <Button
             onClick={handleSave}
-            className="bg-zinc-800 text-white hover:bg-zinc-700 w-40 h-10 rounded-md"
+            className="bg-zinc-800 text-white hover:bg-zinc-700 w-full sm:w-40 h-10 rounded-md text-sm sm:text-base"
           >
             {mode === "create" ? "Save Student" : "Update Student"}
           </Button>
