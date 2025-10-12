@@ -4,45 +4,54 @@ import StudentTableDropdown from "@/table-dropdown/student-table-dropdown";
 
 export const studentsColumns = (): ColumnDef<Student>[] => [
   {
-    accessorKey: "uuid",
+    accessorKey: "student_id",
     header: "Student UUID",
     cell: ({ row }) => (
-      <span className="text-sm font-medium">{row.getValue("uuid")}</span>
+      <span className="text-sm font-medium">{row.getValue("student_id")}</span>
     ),
   },
   {
-    accessorKey: "name",
+    accessorKey: "student_name",
     header: "Student",
     cell: ({ row }) => (
       <span className="max-w-[70px] truncate font-medium text-zinc-900">
-        {row.getValue("name")}
+        {row.getValue("student_name")}
       </span>
     ),
   },
   {
-    accessorKey: "guardianName",
+    accessorKey: "gender",
+    header: "Gender",
+    cell: ({ row }) => (
+      <span className="max-w-[70px] truncate text-zinc-700">
+        {row.getValue("gender")}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "guardian_name",
     header: "Guardian",
     cell: ({ row }) => (
       <span className="max-w-[70px] truncate text-zinc-700">
-        {row.getValue("guardianName")}
+        {row.getValue("guardian_name")}
       </span>
     ),
   },
   {
-    accessorKey: "mobile",
+    accessorKey: "phone",
     header: "Mobile",
     cell: ({ row }) => (
       <span className="w-20 truncate text-zinc-700">
-        {row.getValue("mobile")}
+        {row.getValue("phone")}
       </span>
     ),
   },
   {
-    accessorKey: "studentClass",
+    accessorKey: "class",
     header: "Class",
     cell: ({ row }) => (
       <span className="w-16 truncate text-zinc-700">
-        {row.getValue("studentClass")}
+        {row.getValue("class")}
       </span>
     ),
   },
@@ -56,54 +65,19 @@ export const studentsColumns = (): ColumnDef<Student>[] => [
     ),
   },
   {
-    accessorKey: "subDivision",
-    header: "Sub Division",
-    cell: ({ row }) => (
-      <span className="w-24 truncate text-zinc-700">
-        {row.getValue("subDivision") ?? "-"}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "block",
-    header: "Block",
-    cell: ({ row }) => (
-      <span className="w-24 truncate text-zinc-700">
-        {row.getValue("block") ?? "-"}
-      </span>
-    ),
-  },
-  {
-    accessorKey: "centerName",
+    accessorKey: "school",
     header: "School Name",
-    cell: ({ row }) => (
-      <span
-        className="w-28 truncate text-zinc-700"
-        title={row.getValue("centerName")}
-      >
-        {row.getValue("centerName") ?? "-"}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const schoolName = row.original.school?.center_name;
+      return <span className="w-20 truncate text-zinc-700">{schoolName}</span>;
+    },
   },
   {
     id: "actions",
     header: "Action",
     cell: ({ row }) => {
-      const student = {
-        id: row.original.id,
-        uuid: row.original.uuid,
-        name: row.original.name,
-        guardianName: row.original.guardianName,
-        mobile: row.original.mobile,
-        studentClass: row.original.studentClass,
-        medium: row.original.medium,
-        subDivision: row.original.subDivision,
-        block: row.original.block,
-        centerName: row.original.centerName,
-      };
-
+      const student: Student = row.original;
       console.log("Student row data:", student);
-
       return <StudentTableDropdown student={student} />;
     },
   },

@@ -16,9 +16,12 @@ import { fetchSubDivisions } from "@/service/subDivisionApi";
 import { getBlockList } from "@/service/blockApi";
 import { getSchools } from "@/service/schoolApi";
 import { getStudents } from "@/service/studentsApi";
+import type { Block } from "@/table-types/block-table-types";
+import type { Center } from "@/table-types/center-table-types";
+import type { SubDivision } from "@/table-types/sub-division-types";
 
 export default function Downloads() {
-  // 🧭 Subdivisions
+  
   const {
     data: subDivisions = [],
     isLoading: loadingSubs,
@@ -28,7 +31,6 @@ export default function Downloads() {
     queryFn: fetchSubDivisions,
   });
 
-  // 🧭 Blocks
   const {
     data: blocks = [],
     isLoading: loadingBlocks,
@@ -66,21 +68,6 @@ export default function Downloads() {
     console.log("🟢 Students fetched:", studentsData);
   }, [subDivisions, blocks, schools, studentsData]);
 
-  useEffect(() => {
-    console.log("➡️ Selected Sub Division:", selectedSub);
-  }, [selectedSub]);
-
-  useEffect(() => {
-    console.log("➡️ Selected Block:", selectedBlock);
-  }, [selectedBlock]);
-
-  useEffect(() => {
-    console.log("➡️ Selected School:", selectedSchool);
-  }, [selectedSchool]);
-
-  useEffect(() => {
-    console.log("➡️ Selected Class:", selectedClass);
-  }, [selectedClass]);
 
   const handleDownload = () => {
     console.log("📦 Download Triggered with data:");
@@ -93,7 +80,6 @@ export default function Downloads() {
     alert("Download started — check console logs for debug info");
   };
 
-  // 🧨 Error logging
   if (subError || blockError || schoolError) {
     console.error("❌ Error fetching data:", {
       subError,
@@ -113,7 +99,6 @@ export default function Downloads() {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* 🏢 Sub Division */}
           <div className="grid gap-2">
             <label className="flex items-center gap-2 text-sm font-medium text-zinc-700">
               <Layers className="h-4 w-4 text-zinc-800" /> Sub Division
@@ -131,7 +116,7 @@ export default function Downloads() {
                 />
               </SelectTrigger>
               <SelectContent className="bg-white border border-zinc-300 rounded-md">
-                {subDivisions.map((item: any) => (
+                {subDivisions.map((item: SubDivision) => (
                   <SelectItem key={item.id} value={item.name}>
                     {item.name}
                   </SelectItem>
@@ -139,8 +124,6 @@ export default function Downloads() {
               </SelectContent>
             </Select>
           </div>
-
-          {/* 🧱 Blocks */}
           <div className="grid gap-2">
             <label className="flex items-center gap-2 text-sm font-medium text-zinc-700">
               <FolderTree className="h-4 w-4 text-zinc-800" /> Blocks
@@ -158,16 +141,15 @@ export default function Downloads() {
                 />
               </SelectTrigger>
               <SelectContent className="bg-white border border-zinc-300 rounded-md">
-                {blocks.map((item: any, index: number) => (
-                  <SelectItem key={item.id ?? index} value={item.blockName}>
-                    {item.blockName}
+                {blocks.map((item: Block, index: number) => (
+                  <SelectItem key={item.id ?? index} value={item.name}>
+                    {item.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* 🏫 Schools */}
           <div className="grid gap-2">
             <label className="flex items-center gap-2 text-sm font-medium text-zinc-700">
               <School className="h-4 w-4 text-zinc-800" /> Schools
@@ -185,16 +167,15 @@ export default function Downloads() {
                 />
               </SelectTrigger>
               <SelectContent className="bg-white border border-zinc-300 rounded-md">
-                {schools.map((item: any, index: number) => (
-                  <SelectItem key={item.id ?? index} value={item.centerName}>
-                    {item.centerName}
+                {schools.map((item: Center, index: number) => (
+                  <SelectItem key={item.id ?? index} value={item.center_name}>
+                    {item.center_name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* 📚 Class */}
           <div className="grid gap-2">
             <label className="flex items-center gap-2 text-sm font-medium text-zinc-700">
               <School className="h-4 w-4 text-zinc-800" /> Class
@@ -210,7 +191,6 @@ export default function Downloads() {
             </Select>
           </div>
 
-          {/* 💾 Download Button */}
           <button
             onClick={handleDownload}
             className="mt-4 px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition"

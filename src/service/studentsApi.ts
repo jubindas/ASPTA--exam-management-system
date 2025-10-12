@@ -1,24 +1,10 @@
 import { axiosInstance } from "@/lib/axios";
-import type { Student } from "@/table-types/student-table-types";
 
-export const getStudents = async (): Promise<Student[]> => {
+export const getStudents = async () => {
   try {
-    const response = await axiosInstance.get("/students");
-    const students = response.data.data;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return students.map((s: any) => ({
-      id: s.id,
-      uuid: s.student_id,
-      name: s.student_name,
-      guardianName: s.guardian_name,
-      mobile: s.phone,
-      studentClass: s.class,
-      medium: s.medium,
-      subDivision: s.subdivision?.name || "",
-      block: s.block?.name || "",
-      centerName: s.school?.center_name || "",
-    }));
+    const response = await axiosInstance.get(`/students`);
+    console.log("the datas are studens", response.data.data);
+    return response.data.data;
   } catch (error) {
     console.log(error);
     return [];
@@ -34,6 +20,7 @@ export const createStudent = async (studentData: {
   subdivision_id: number;
   block_id: number;
   school_id: number;
+  gender: string;
 }) => {
   try {
     const response = await axiosInstance.post("/students", studentData);
@@ -54,6 +41,7 @@ export const updateStudent = async (
     subdivision_id?: number;
     block_id?: number;
     school_id?: number;
+    gender: string;
   }
 ) => {
   try {

@@ -35,7 +35,7 @@ export default function StudentTableDropdown({
   const deleteMutation = useMutation({
     mutationFn: () => deleteStudent(student.id),
     onSuccess: () => {
-      toast.success(`Student ${student.name} deleted successfully`);
+      toast.success(`Student ${student.student_name} deleted successfully`);
       queryClient.invalidateQueries({ queryKey: ["students"] });
       setOpenDeleteDialog(false);
     },
@@ -46,7 +46,7 @@ export default function StudentTableDropdown({
   });
 
   const handleAddResult = () => {
-    toast(`Adding result for ${student.name}`);
+    toast(`Adding result for ${student.student_name}`);
   };
 
   return (
@@ -71,14 +71,14 @@ export default function StudentTableDropdown({
               mode="edit"
               studentData={{
                 id: student.id,
-                name: student.name,
-                guardianName: student.guardianName,
-                mobile: student.mobile,
-                studentClass: student.studentClass,
+                name: student.student_name,
+                guardianName: student.guardian_name,
+                mobile: student.phone,
+                studentClass: student.class,
                 medium: student.medium,
-                subdivision: student.subDivision ?? "",
-                block: student.block ?? "",
-                centerName: student.centerName ?? "",
+                subdivision: student.subdivision?.name ?? "",
+                block: student.block?.name ?? "",
+                centerName: student.school?.center_name ?? "",
               }}
               trigger={
                 <Button
@@ -116,7 +116,7 @@ export default function StudentTableDropdown({
         <AlertDialogContent className="bg-white">
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Are you sure you want to delete {student.name}?
+              Are you sure you want to delete {student.student_name}?
             </AlertDialogTitle>
           </AlertDialogHeader>
           <AlertDialogFooter>

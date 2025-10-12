@@ -4,7 +4,7 @@ import { studentsColumns } from "@/table-columns/student-table-columns";
 
 import StudentDialog from "@/components/StudentDialog";
 
-import type { Student } from "@/table-types/student-table-types";
+import type { Student,  } from "@/table-types/student-table-types";
 
 import { useQuery } from "@tanstack/react-query";
 
@@ -24,16 +24,18 @@ export default function Student() {
 
   const { user, loading } = useAuth();
 
+  console.log(user);
+
   const filteredStudents: Student[] = studentsData
-    ? studentsData.filter((s) => {
+    ? studentsData.filter((s: Student) => {
         if (!user) return true;
 
         if (user.user_type === "subdivision") {
-          return s.subDivision === user.name;
+          return s.subdivision?.name === user.name;
         }
 
         if (user.user_type === "block") {
-          return s.block === user.name;
+          return s.block?.name === user.name;
         }
 
         return true;
@@ -58,7 +60,7 @@ export default function Student() {
         {studentsData && (
           <DataTable
             columns={studentsColumns()}
-            data={filteredStudents}
+            data={studentsData}
             enablePagination={true}
             filterOptions={{
               enableFilter: true,

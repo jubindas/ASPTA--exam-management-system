@@ -49,6 +49,7 @@ interface StudentData {
   mobile: string;
   studentClass: string;
   medium: string;
+  gender?: string;
   subdivision?: { id: number; name: string } | string | null;
   block?: { id: number; name: string } | string | null;
   school?: { id: number; center_name: string } | null;
@@ -96,6 +97,7 @@ export default function StudentDialog({
   const [mobile, setMobile] = useState("");
   const [studentClass, setStudentClass] = useState("");
   const [medium, setMedium] = useState("");
+  const [gender, setGender] = useState("");
 
   useEffect(() => {
     if (!open || loading) return;
@@ -107,6 +109,7 @@ export default function StudentDialog({
     setMobile(studentData?.mobile || "");
     setStudentClass(studentData?.studentClass || "");
     setMedium(studentData?.medium || "");
+    setGender(studentData?.gender || "");
 
     let initialSubDivisionId = "";
     let initialBlockId = "";
@@ -211,6 +214,7 @@ export default function StudentDialog({
       !mobile ||
       !studentClass ||
       !medium ||
+      !gender ||
       !subDivisionId ||
       !blockId ||
       !schoolId
@@ -230,6 +234,7 @@ export default function StudentDialog({
       phone: mobile,
       class: studentClass,
       medium,
+      gender,
       subdivision_id: Number(subDivisionId),
       block_id: Number(blockId),
       school_id: Number(schoolId),
@@ -357,6 +362,22 @@ export default function StudentDialog({
               placeholder="Enter Mobile Number"
               className="w-full border border-zinc-300 rounded-md px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-zinc-500 focus:outline-none"
             />
+          </div>
+
+          <div className="flex flex-col">
+            <Label className="text-sm font-medium mb-2">Gender</Label>
+            <Select value={gender} onValueChange={setGender}>
+              <SelectTrigger className="w-full text-sm sm:text-base">
+                <SelectValue placeholder="Select Gender" />
+              </SelectTrigger>
+              <SelectContent className="bg-white">
+                {["male", "female", "other"].map((g) => (
+                  <SelectItem key={g} value={g}>
+                    {g}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="flex flex-col">

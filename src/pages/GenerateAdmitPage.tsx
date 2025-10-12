@@ -36,15 +36,15 @@ export default function GenerateAdmitPage() {
 
       {filteredStudents.length > 0 ? (
         filteredStudents.map((student) => (
-          <div key={student.uuid} className="mb-6">
+          <div key={student.id} className="mb-6">
             <AdmitCard
-              uuid={student.uuid}
-              studentName={student.name}
-              schoolName={student.centerName || ""}
-              className={student.studentClass}
+              uuid={student.student_id}
+              studentName={student.student_name}
+              schoolName={student.school?.center_name || ""}
+              className={student.class}
               medium={student.medium}
-              block={student.block}
-              district={student.subDivision || ""}
+              block={student.block?.name}
+              district={student.subdivision?.name || ""}
               examDate="23rd March, 2026"
               examTime="11 AM to 01 PM"
             />
