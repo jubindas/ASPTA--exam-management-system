@@ -22,12 +22,21 @@ export const studentsColumns = (): ColumnDef<Student>[] => [
   {
     accessorKey: "gender",
     header: "Gender",
-    cell: ({ row }) => (
-      <span className="max-w-[70px] truncate text-zinc-700">
-        {row.getValue("gender")}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const gender = row.getValue("gender");
+      let displayGender = "";
+      if (gender === "male") displayGender = "Male";
+      else if (gender === "female") displayGender = "Female";
+       else if (gender === "other") displayGender = "Other";
+
+      return (
+        <span className="max-w-[70px] truncate text-zinc-700">
+          {displayGender}
+        </span>
+      );
+    },
   },
+
   {
     accessorKey: "guardian_name",
     header: "Guardian",
