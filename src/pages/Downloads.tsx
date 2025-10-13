@@ -1,6 +1,6 @@
-"use client";
 
 import { useState, useEffect } from "react";
+
 import {
   Select,
   SelectContent,
@@ -8,16 +8,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Download, Layers, FolderTree, School } from "lucide-react";
+
 import { useQuery } from "@tanstack/react-query";
 
 import { fetchSubDivisions } from "@/service/subDivisionApi";
+
 import { getBlockList } from "@/service/blockApi";
+
 import { getSchools } from "@/service/schoolApi";
+
 import { getStudents } from "@/service/studentsApi";
+
 import type { Block } from "@/table-types/block-table-types";
+
 import type { Center } from "@/table-types/center-table-types";
+
 import type { SubDivision } from "@/table-types/sub-division-types";
 
 export default function Downloads() {

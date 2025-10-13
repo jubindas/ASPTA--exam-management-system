@@ -52,24 +52,24 @@ export default function Center() {
     <div className="p-6 bg-zinc-100 min-h-screen mt-8">
       <div className="flex flex-wrap justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-zinc-800 tracking-tight">
-          Center List
+          School Lists
         </h1>
 
         <CenterDialog mode="create" />
       </div>
 
-        {schools && (
-          <DataTable
-            columns={columns()}
-            data={filteredSchools}
-            enablePagination={true}
-            filterOptions={{
-              enableFilter: true,
-              filterPlaceholder: "Search Schools...",
-              filterCol: "center_name",
-            }}
-          />
-        )}
+      {schools && (
+        <DataTable
+          columns={columns()}
+          data={filteredSchools}
+          enablePagination={true}
+          filterOptions={{
+            enableFilter: true,
+            filterPlaceholder: "Search Schools...",
+            filterCol: "center_name",
+          }}
+        />
+      )}
     </div>
   );
 }

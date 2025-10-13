@@ -205,7 +205,7 @@ export default function CenterDialog({
       <DialogTrigger asChild>
         {trigger || (
           <Button className="bg-zinc-800 text-white hover:bg-zinc-700">
-            {mode === "create" ? "Add Center" : "Edit Center"}
+            {mode === "create" ? "Add School" : "Edit School"}
           </Button>
         )}
       </DialogTrigger>
@@ -213,7 +213,7 @@ export default function CenterDialog({
       <DialogContent className="max-w-lg bg-white text-zinc-900 rounded-xl p-6">
         <DialogHeader>
           <DialogTitle>
-            {mode === "create" ? "Add Center" : "Edit Center"}
+            {mode === "create" ? "Add School" : "Edit School"}
           </DialogTitle>
         </DialogHeader>
 
@@ -279,11 +279,11 @@ export default function CenterDialog({
           </div>
 
           <div className="grid gap-2">
-            <Label>Center Name</Label>
+            <Label>School Name</Label>
             <Input
               value={centerName}
               onChange={(e) => setCenterName(e.target.value)}
-              placeholder="Enter Center Name"
+              placeholder="Enter School Name"
               
             />
           </div>
@@ -300,8 +300,8 @@ export default function CenterDialog({
                 ? "Saving..."
                 : "Updating..."
               : mode === "create"
-              ? "Save Center"
-              : "Update Center"}
+              ? "Save School"
+              : "Update School"}
           </Button>
         </div>
       </DialogContent>

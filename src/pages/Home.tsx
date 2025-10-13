@@ -1,7 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
+
 import { fetchDashboardData } from "@/service/dashboardApi";
+
 import { School, Layers, Users, MapPin } from "lucide-react";
+
 import Loader from "@/components/Loader";
+
 
 export default function Home() {
   const { data, isLoading, isError } = useQuery({

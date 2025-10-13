@@ -1,7 +1,11 @@
 import { useLocation } from "react-router-dom";
+
 import { useQuery } from "@tanstack/react-query";
+
 import { getStudents } from "@/service/studentsApi";
+
 import AdmitCard from "@/components/Admitcard";
+
 import type { Student } from "@/table-types/student-table-types";
 
 export default function GenerateAdmitPage() {
