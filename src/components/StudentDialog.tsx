@@ -42,6 +42,22 @@ import type { Block } from "@/table-types/block-table-types";
 
 import type { Center } from "@/table-types/center-table-types";
 
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandItem,
+  CommandEmpty,
+  CommandGroup,
+} from "@/components/ui/command";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 interface StudentData {
   id: number;
   name: string;
@@ -86,6 +102,8 @@ export default function StudentDialog({
   });
 
   const [open, setOpen] = useState(false);
+
+  const [subDivisionOpen, setSubDivisionOpen] = useState(false);
   const [subDivisionId, setSubDivisionId] = useState<string>("");
   const [blockId, setBlockId] = useState<string>("");
   const [schoolId, setSchoolId] = useState<string>("");
@@ -210,11 +228,8 @@ export default function StudentDialog({
   const handleSave = () => {
     if (
       !name ||
-      !guardianName ||
-      !mobile ||
       !studentClass ||
       !medium ||
-      !gender ||
       !subDivisionId ||
       !blockId ||
       !schoolId
@@ -253,7 +268,7 @@ export default function StudentDialog({
     blocks.find((b) => b.id === Number(blockId))?.name || "";
 
   return (
-   <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
           <Button className="bg-zinc-800 text-white hover:bg-zinc-700 px-4 py-2 rounded-md">
@@ -270,32 +285,73 @@ export default function StudentDialog({
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-4 sm:mt-6">
-          <div className="flex flex-col">
-            <Label className="text-sm font-medium mb-2">Sub Division</Label>
+          <div className="grid gap-2">
+            <Label>Sub Division *</Label>
             {isSubDivisionDisabled ? (
               <Input
                 value={getSubDivisionName()}
                 disabled
-                className="w-full bg-zinc-100 border border-zinc-300 rounded-md px-3 py-2 text-sm sm:text-base text-zinc-700 cursor-not-allowed"
+                className="bg-zinc-100 text-zinc-700 border border-zinc-300 cursor-not-allowed"
               />
             ) : (
-              <Select value={subDivisionId} onValueChange={setSubDivisionId}>
-                <SelectTrigger className="w-full text-sm sm:text-base">
-                  <SelectValue placeholder="Select Sub Division" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {subDivisions.map((sd) => (
-                    <SelectItem key={sd.id} value={String(sd.id)}>
-                      {sd.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={subDivisionOpen} onOpenChange={setSubDivisionOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className="w-full justify-between"
+                  >
+                    {subDivisionId
+                      ? subDivisions.find(
+                          (sd) => sd.id === Number(subDivisionId)
+                        )?.name
+                      : "Select Sub Division..."}
+                    <ChevronsUpDown className="opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+
+                <PopoverContent className="w-80 p-0">
+                  <Command className="bg-white">
+                    <CommandInput
+                      placeholder="Search Sub Division..."
+                      className="h-9"
+                    />
+                    <CommandList>
+                      <CommandEmpty>No Sub Division found.</CommandEmpty>
+                      <CommandGroup className="bg-white">
+                        {[...subDivisions]
+                          .sort((a, b) => a.name.localeCompare(b.name))
+                          .map((sd) => (
+                            <CommandItem
+                              key={sd.id}
+                              value={sd.name}
+                              onSelect={() => {
+                                setSubDivisionId(String(sd.id));
+                                setSubDivisionOpen(false);
+                              }}
+                            >
+                              {sd.name}
+                              <Check
+                                className={cn(
+                                  "ml-auto",
+                                  String(subDivisionId) === String(sd.id)
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             )}
           </div>
 
           <div className="flex flex-col">
-            <Label className="text-sm font-medium mb-2">Block</Label>
+            <Label className="text-sm font-medium mb-2">Block *</Label>
+
             {isBlockDisabled ? (
               <Input
                 value={getBlockName()}
@@ -307,35 +363,50 @@ export default function StudentDialog({
                 <SelectTrigger className="w-full text-sm sm:text-base">
                   <SelectValue placeholder="Select Block" />
                 </SelectTrigger>
+
                 <SelectContent className="bg-white">
-                  {filteredBlocks.map((b) => (
-                    <SelectItem key={b.id} value={String(b.id)}>
-                      {b.name}
-                    </SelectItem>
-                  ))}
+                  {filteredBlocks && filteredBlocks.length > 0 ? (
+                    filteredBlocks.map((b) => (
+                      <SelectItem key={b.id} value={String(b.id)}>
+                        {b.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="p-2 text-sm text-zinc-500">
+                      No Blocks available
+                    </div>
+                  )}
                 </SelectContent>
               </Select>
             )}
           </div>
 
           <div className="flex flex-col">
-            <Label className="text-sm font-medium mb-2">School</Label>
+            <Label className="text-sm font-medium mb-2">School *</Label>
+
             <Select value={schoolId} onValueChange={setSchoolId}>
               <SelectTrigger className="w-full text-sm sm:text-base">
                 <SelectValue placeholder="Select School" />
               </SelectTrigger>
+
               <SelectContent className="bg-white">
-                {filteredCenters.map((c) => (
-                  <SelectItem key={c.id} value={String(c.id)}>
-                    {c.center_name}
-                  </SelectItem>
-                ))}
+                {filteredCenters && filteredCenters.length > 0 ? (
+                  filteredCenters.map((c) => (
+                    <SelectItem key={c.id} value={String(c.id)}>
+                      {c.center_name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="p-2 text-sm text-zinc-500">
+                    No Schools available
+                  </div>
+                )}
               </SelectContent>
             </Select>
           </div>
 
           <div className="flex flex-col">
-            <Label className="text-sm font-medium mb-2">Student Name</Label>
+            <Label className="text-sm font-medium mb-2">Student Name *</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -357,8 +428,15 @@ export default function StudentDialog({
           <div className="flex flex-col">
             <Label className="text-sm font-medium mb-2">Mobile</Label>
             <Input
+              type="number"
               value={mobile}
-              onChange={(e) => setMobile(e.target.value)}
+              onChange={(e) => {
+                const input = e.target.value;
+
+                if (input.length <= 10) {
+                  setMobile(input);
+                }
+              }}
               placeholder="Enter Mobile Number"
               className="w-full border border-zinc-300 rounded-md px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-zinc-500 focus:outline-none"
             />
@@ -373,7 +451,7 @@ export default function StudentDialog({
               <SelectContent className="bg-white">
                 {["male", "female", "other"].map((g) => (
                   <SelectItem key={g} value={g}>
-                    {g}
+                    {g.charAt(0).toUpperCase() + g.slice(1)}{" "}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -381,7 +459,7 @@ export default function StudentDialog({
           </div>
 
           <div className="flex flex-col">
-            <Label className="text-sm font-medium mb-2">Class</Label>
+            <Label className="text-sm font-medium mb-2">Class *</Label>
             <Select value={studentClass} onValueChange={setStudentClass}>
               <SelectTrigger className="w-full text-sm sm:text-base">
                 <SelectValue placeholder="Select Class" />
@@ -397,7 +475,7 @@ export default function StudentDialog({
           </div>
 
           <div className="flex flex-col">
-            <Label className="text-sm font-medium mb-2">Medium</Label>
+            <Label className="text-sm font-medium mb-2">Medium *</Label>
             <Select value={medium} onValueChange={setMedium}>
               <SelectTrigger className="w-full text-sm sm:text-base">
                 <SelectValue placeholder="Select Medium" />

@@ -26,8 +26,9 @@ export default function Student() {
 
   console.log(user);
 
-  const filteredStudents: Student[] = studentsData
-    ? studentsData.filter((s: Student) => {
+const filteredStudents: Student[] = studentsData
+  ? studentsData
+      .filter((s: Student) => {
         if (!user) return true;
 
         if (user.user_type === "subdivision") {
@@ -40,7 +41,10 @@ export default function Student() {
 
         return true;
       })
-    : [];
+     
+      .sort((a: Student, b: Student) => a.student_id.localeCompare(b.student_id))
+  : [];
+
 
   console.log("Filtered Data  ", filteredStudents);
 
@@ -60,12 +64,12 @@ export default function Student() {
         {studentsData && (
           <DataTable
             columns={studentsColumns()}
-            data={studentsData}
+            data={filteredStudents}
             enablePagination={true}
             filterOptions={{
               enableFilter: true,
               filterPlaceholder: "Search Students...",
-              filterCol: "name",
+              filterCol: "student_name",
             }}
           />
         )}

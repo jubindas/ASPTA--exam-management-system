@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 
 import {
@@ -12,8 +11,6 @@ import {
 import { Label } from "@/components/ui/label";
 
 import { Input } from "@/components/ui/input";
-
-import { Button } from "@/components/ui/button";
 
 import {
   Select,
@@ -39,20 +36,36 @@ import type { Block } from "@/table-types/block-table-types";
 
 import { useAuth } from "@/hooks/useAuth";
 
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandItem,
+  CommandEmpty,
+  CommandGroup,
+} from "@/components/ui/command";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 interface CenterDialogProps {
   mode: "create" | "edit";
   trigger?: React.ReactNode;
- schoolData?: {
-  id: number;
-  name: string;
-  block: {
+  schoolData?: {
     id: number;
     name: string;
-    subdivision?: { id: number; name: string }; 
+    block: {
+      id: number;
+      name: string;
+      subdivision?: { id: number; name: string };
+    };
+    subdivision?: { id: number; name: string };
   };
-  subdivision?: { id: number; name: string }; 
-};
-
 }
 
 export default function CenterDialog({
@@ -63,10 +76,11 @@ export default function CenterDialog({
   const queryClient = useQueryClient();
   const { user, loading } = useAuth();
 
-  const { data: subDivisions = [], isLoading: isLoadingSubDivisions } = useQuery<SubDivision[]>({
-    queryKey: ["subDivisions"],
-    queryFn: fetchSubDivisions,
-  });
+  const { data: subDivisions = [], isLoading: isLoadingSubDivisions } =
+    useQuery<SubDivision[]>({
+      queryKey: ["subDivisions"],
+      queryFn: fetchSubDivisions,
+    });
 
   const { data: blocks = [], isLoading: isLoadingBlocks } = useQuery<Block[]>({
     queryKey: ["blocks"],
@@ -74,6 +88,7 @@ export default function CenterDialog({
   });
 
   const [open, setOpen] = useState(false);
+  const [subDivisionOpen, setSubDivisionOpen] = useState(false);
   const [subDivisionId, setSubDivisionId] = useState<string>("");
   const [blockId, setBlockId] = useState<string>("");
   const [centerName, setCenterName] = useState<string>("");
@@ -94,17 +109,16 @@ export default function CenterDialog({
     if (isInitialized) return;
 
     if (mode === "edit" && schoolData) {
-  
-      setSubDivisionId(schoolData.subdivision ? String(schoolData.subdivision.id) : "");
+      setSubDivisionId(
+        schoolData.subdivision ? String(schoolData.subdivision.id) : ""
+      );
       setBlockId(String(schoolData.block.id));
       setCenterName(schoolData.name);
     } else if (user?.user_type === "subdivision") {
-    
       setSubDivisionId(String(user.id));
       setBlockId("");
       setCenterName("");
     } else if (user?.user_type === "block") {
-   
       const userBlock = blocks.find((b) => b.id === user.id);
       if (userBlock && userBlock.subdivision) {
         setBlockId(String(userBlock.id));
@@ -112,14 +126,23 @@ export default function CenterDialog({
       }
       setCenterName("");
     } else {
-   
       setSubDivisionId("");
       setBlockId("");
       setCenterName("");
     }
 
     setIsInitialized(true);
-  }, [mode, schoolData, user, loading, blocks, isLoadingBlocks, isLoadingSubDivisions, open, isInitialized]);
+  }, [
+    mode,
+    schoolData,
+    user,
+    loading,
+    blocks,
+    isLoadingBlocks,
+    isLoadingSubDivisions,
+    open,
+    isInitialized,
+  ]);
 
   useEffect(() => {
     if (!subDivisionId) {
@@ -130,7 +153,10 @@ export default function CenterDialog({
     const filtered = blocks.filter((b) => b.subdivision?.id === sid);
     setFilteredBlocks(filtered);
 
-    if (user?.user_type !== "block" && !filtered.some((b) => String(b.id) === blockId)) {
+    if (
+      user?.user_type !== "block" &&
+      !filtered.some((b) => String(b.id) === blockId)
+    ) {
       setBlockId("");
     }
   }, [subDivisionId, blocks, blockId, user?.user_type]);
@@ -186,7 +212,9 @@ export default function CenterDialog({
   };
 
   const getSubDivisionName = () => {
-    const subdivision = subDivisions.find((sd) => sd.id === Number(subDivisionId));
+    const subdivision = subDivisions.find(
+      (sd) => sd.id === Number(subDivisionId)
+    );
     return subdivision?.name || "";
   };
 
@@ -197,7 +225,8 @@ export default function CenterDialog({
 
   if (loading) return null;
 
-  const isSubDivisionDisabled = user?.user_type === "subdivision" || user?.user_type === "block";
+  const isSubDivisionDisabled =
+    user?.user_type === "subdivision" || user?.user_type === "block";
   const isBlockDisabled = user?.user_type === "block";
 
   return (
@@ -218,7 +247,6 @@ export default function CenterDialog({
         </DialogHeader>
 
         <div className="grid gap-4 mt-4">
-      
           <div className="grid gap-2">
             <Label>Sub Division</Label>
             {isSubDivisionDisabled ? (
@@ -228,22 +256,59 @@ export default function CenterDialog({
                 className="bg-zinc-100 text-zinc-700 border border-zinc-300 cursor-not-allowed"
               />
             ) : (
-              <Select value={subDivisionId} onValueChange={setSubDivisionId}>
-                <SelectTrigger className="w-full mt-1">
-                  <SelectValue placeholder="Select Sub Division" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {subDivisions.map((sd) => (
-                    <SelectItem key={sd.id} value={String(sd.id)}>
-                      {sd.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={subDivisionOpen} onOpenChange={setSubDivisionOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className="w-full justify-between"
+                  >
+                    {subDivisionId
+                      ? subDivisions.find(
+                          (sd) => sd.id === Number(subDivisionId)
+                        )?.name
+                      : "Select Sub Division..."}
+                    <ChevronsUpDown className="opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+
+                <PopoverContent className="w-80 p-0">
+                  <Command>
+                    <CommandInput
+                      placeholder="Search Sub Division..."
+                      className="h-9"
+                    />
+                    <CommandList>
+                      <CommandEmpty>No Sub Division found.</CommandEmpty>
+                      <CommandGroup className="bg-white">
+                        {[...subDivisions].sort((a, b) => a.name.localeCompare(b.name)).map((sd) => (
+                          <CommandItem
+                            key={sd.id}
+                            value={sd.name}
+                            onSelect={() => {
+                              setSubDivisionId(String(sd.id));
+                              setSubDivisionOpen(false);
+                            }}
+                          >
+                            {sd.name}
+                            <Check
+                              className={cn(
+                                "ml-auto",
+                                String(subDivisionId) === String(sd.id)
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             )}
           </div>
 
-      
           <div className="grid gap-2">
             <Label>Block</Label>
             {isBlockDisabled ? (
@@ -253,8 +318,8 @@ export default function CenterDialog({
                 className="bg-zinc-100 text-zinc-700 border border-zinc-300 cursor-not-allowed"
               />
             ) : (
-              <Select 
-                value={blockId} 
+              <Select
+                value={blockId}
                 onValueChange={setBlockId}
                 disabled={!subDivisionId}
               >
@@ -284,7 +349,6 @@ export default function CenterDialog({
               value={centerName}
               onChange={(e) => setCenterName(e.target.value)}
               placeholder="Enter School Name"
-              
             />
           </div>
         </div>

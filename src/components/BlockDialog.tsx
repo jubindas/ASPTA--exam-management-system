@@ -15,12 +15,23 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+
+import { Check, ChevronsUpDown } from "lucide-react";
+
+import { cn } from "@/lib/utils";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -61,6 +72,7 @@ export default function BlockDialog({
   const [open, setOpen] = useState(false);
   const [blockName, setBlockName] = useState("");
   const [subDivision, setSubDivision] = useState("");
+  const [subDivisionOpen, setSubDivisionOpen] = useState(false);
 
   const { user, loading } = useAuth();
 
@@ -148,6 +160,12 @@ export default function BlockDialog({
     }
   };
 
+  const isSubDivisionDisabled = user?.user_type === "subdivision";
+
+  const getSubDivisionName = () => {
+    return subDivision;
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -167,38 +185,67 @@ export default function BlockDialog({
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="subDivision" className="text-zinc-700">
-              Sub Division
-            </Label>
-
-            {user?.user_type === "subdivision" ? (
+            <Label>Sub Division</Label>
+            {isSubDivisionDisabled ? (
               <Input
-                value={subDivision}
+                value={getSubDivisionName()}
                 disabled
-                className="bg-zinc-100 text-zinc-900 border border-zinc-300 cursor-not-allowed"
+                className="bg-zinc-100 text-zinc-700 border border-zinc-300 cursor-not-allowed"
               />
             ) : (
-              <Select
-                value={subDivision}
-                onValueChange={(val) => setSubDivision(val)}
-              >
-                <SelectTrigger className="w-full h-10 mt-1 bg-white border border-zinc-300 rounded-md">
-                  <SelectValue placeholder="Select Sub Division" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {subDivisionData.length > 0 ? (
-                    subDivisionData.map((sd: SubDivision) => (
-                      <SelectItem key={sd.id} value={sd.name}>
-                        {sd.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <div className="p-2 text-sm text-zinc-500">
-                      No Sub Divisions found
-                    </div>
-                  )}
-                </SelectContent>
-              </Select>
+              <Popover open={subDivisionOpen} onOpenChange={setSubDivisionOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className="w-full justify-between"
+                  >
+                    {subDivision
+                      ? subDivisionData.find(
+                          (sd: SubDivision) => sd.name === subDivision
+                        )?.name
+                      : "Select Sub Division..."}
+                    <ChevronsUpDown className="opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-0">
+                  <Command className="bg-white">
+                    <CommandInput
+                      placeholder="Search Sub Division..."
+                      className="h-9"
+                    />
+                    <CommandList>
+                      <CommandEmpty>No Sub Division found.</CommandEmpty>
+                      <CommandGroup className="bg-white">
+                        {[...subDivisionData]
+                          .sort((a: SubDivision, b: SubDivision) =>
+                            a.name.localeCompare(b.name)
+                          )
+                          .map((sd: SubDivision) => (
+                            <CommandItem
+                              key={sd.id}
+                              value={sd.name}
+                              onSelect={() => {
+                                setSubDivision(sd.name);
+                                setSubDivisionOpen(false);
+                              }}
+                            >
+                              {sd.name}
+                              <Check
+                                className={cn(
+                                  "ml-auto",
+                                  subDivision === sd.name
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                            </CommandItem>
+                          ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             )}
           </div>
 

@@ -3,6 +3,11 @@ import { axiosInstance } from "@/lib/axios";
 export const fetchSubDivisions = async () => {
   try {
     const response = await axiosInstance.get("/subdivisions");
+
+    if (response.status !== 200) {
+      throw new Error("Error fetching Sub Division. Please try again.");
+    }
+
     return response.data.data;
   } catch (error) {
     console.error("Error fetching subdivisions:", error);
@@ -17,6 +22,11 @@ export const createSubDivision = async (subDivision: {
 }) => {
   try {
     const response = await axiosInstance.post("/subdivisions", subDivision);
+
+    if (response.status !== 201) {
+      throw new Error("Error creating Sub Division . Please try again.");
+    }
+
     return response.data;
   } catch (error) {
     console.error("Error creating subdivision:", error);
@@ -33,6 +43,11 @@ export const updateSubDivision = async (
       `/subdivisions/${id}`,
       subDivision
     );
+
+    if (response.status !== 200) {
+      throw new Error("Error Updating Sub Division. Please try again.");
+    }
+
     return response.data;
   } catch (error) {
     console.error("Error updating subdivision:", error);
@@ -43,6 +58,11 @@ export const updateSubDivision = async (
 export const deleteSubDivision = async (id: number) => {
   try {
     const response = await axiosInstance.delete(`/subdivisions/${id}`);
+
+    if (response.status !== 200) {
+      throw new Error("Error Delete Sub Division. Please try again.");
+    }
+
     return response.data;
   } catch (error) {
     console.error("Error deleting subdivision:", error);
@@ -58,7 +78,7 @@ interface UpdatePasswordPayload {
 
 export const updateSubdivisionPassword = async (
   payload: UpdatePasswordPayload,
-  token: string | null,
+  token: string | null
 ) => {
   try {
     const response = await axiosInstance.post(
@@ -70,6 +90,10 @@ export const updateSubdivisionPassword = async (
         },
       }
     );
+
+    if (response.status !== 200) {
+      throw new Error("Error Updating Password. Please try again.");
+    }
 
     return response.data;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
