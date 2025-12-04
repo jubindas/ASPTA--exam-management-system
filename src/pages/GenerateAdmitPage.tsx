@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useLocation } from "react-router-dom";
 
 import { useQuery } from "@tanstack/react-query";
 
-import { getStudents } from "@/service/studentsApi";
+import { getStudentsByBlock } from "@/service/studentsApi";
 
 import AdmitCard from "@/components/Admitcard";
 
@@ -13,21 +14,19 @@ export default function GenerateAdmitPage() {
   const blockData = location.state?.block;
 
   const { data: students, isLoading } = useQuery<Student[]>({
-    queryKey: ["students"],
-    queryFn: getStudents,
+    queryKey: ["students", blockData?.id],
+    queryFn: () => getStudentsByBlock(blockData!.id),
+    enabled: !!blockData,
   });
-
-  if (isLoading) return <p>Loading students...</p>;
 
   if (!blockData)
     return <p className="text-red-500 font-bold">No block selected!</p>;
 
-  const filteredStudents =
-    students?.filter((s) => s.block === blockData.name) || [];
+  if (isLoading) return <p>Loading students...</p>;
 
   return (
     <div className="p-3">
-      {filteredStudents.length > 0 && (
+      {students && students.length > 0 && (
         <div className="flex justify-end mb-4">
           <button
             onClick={() => window.print()}
@@ -38,8 +37,8 @@ export default function GenerateAdmitPage() {
         </div>
       )}
 
-      {filteredStudents.length > 0 ? (
-        filteredStudents.map((student) => (
+      {students && students.length > 0 ? (
+        students.map((student: any) => (
           <div key={student.id} className="mb-6">
             <AdmitCard
               uuid={student.student_id}
@@ -47,7 +46,7 @@ export default function GenerateAdmitPage() {
               schoolName={student.school?.center_name || ""}
               className={student.class}
               medium={student.medium}
-              block={student.block?.name}
+              block={blockData.name}
               district={student.subdivision?.name || ""}
               examDate="23rd March, 2026"
               examTime="11 AM to 01 PM"
