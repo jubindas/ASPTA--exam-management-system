@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 
 import {
@@ -30,7 +29,6 @@ import type { Center } from "@/table-types/center-table-types";
 import type { SubDivision } from "@/table-types/sub-division-types";
 
 export default function Downloads() {
-  
   const {
     data: subDivisions = [],
     isLoading: loadingSubs,
@@ -49,7 +47,6 @@ export default function Downloads() {
     queryFn: getBlockList,
   });
 
-
   const {
     data: schools = [],
     isLoading: loadingSchools,
@@ -59,15 +56,17 @@ export default function Downloads() {
     queryFn: getSchools,
   });
 
-  
   const { data: studentsData } = useQuery({
     queryKey: ["students"],
-    queryFn: getStudents,
+    queryFn: () => getStudents(),
   });
 
   const [selectedSub, setSelectedSub] = useState<string>("");
+
   const [selectedBlock, setSelectedBlock] = useState<string>("");
+
   const [selectedSchool, setSelectedSchool] = useState<string>("");
+
   const [selectedClass, setSelectedClass] = useState<string>("");
 
   useEffect(() => {
@@ -76,7 +75,6 @@ export default function Downloads() {
     console.log("🟢 Schools fetched:", schools);
     console.log("🟢 Students fetched:", studentsData);
   }, [subDivisions, blocks, schools, studentsData]);
-
 
   const handleDownload = () => {
     console.log("📦 Download Triggered with data:");

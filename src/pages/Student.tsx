@@ -1,13 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DataTable } from "@/components/data-table";
+
 import { studentsColumns } from "@/table-columns/student-table-columns";
+
 import StudentDialog from "@/components/StudentDialog";
+
 import type { Student } from "@/table-types/student-table-types";
 
 import { useQuery } from "@tanstack/react-query";
+
 import { getStudents } from "@/service/studentsApi";
 
 import { useAuth } from "@/hooks/useAuth";
+
 import Loader from "@/components/Loader";
 
 import { useState } from "react";
@@ -17,7 +22,7 @@ export default function Student() {
   const [pageSize, setPageSize] = useState(10);
 
   const { data, isLoading } = useQuery<any>({
-    queryKey: ["students", page, pageSize],
+    queryKey: [`students-${page}-${pageSize}`],
     queryFn: () => getStudents(page, pageSize),
     placeholderData: (prev: any) => prev,
   });

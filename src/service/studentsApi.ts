@@ -1,10 +1,13 @@
 import { axiosInstance } from "@/lib/axios";
 
-export const getStudents = async (page: number, perPage: number) => {
+export const getStudents = async (page?: number, perPage?: number) => {
+  const url =
+    page && perPage
+      ? `/students?page=${page}&per_page=${perPage}`
+      : `/students`;
+
   try {
-    const response = await axiosInstance.get(
-      `/students?page=${page}&per_page=${perPage}`
-    );
+    const response = await axiosInstance.get(url);
 
     if (response.status !== 200) {
       throw new Error("Error fetching students. Please try again.");
