@@ -27,7 +27,7 @@ export const studentsColumns = (): ColumnDef<Student>[] => [
       let displayGender = "";
       if (gender === "male") displayGender = "Male";
       else if (gender === "female") displayGender = "Female";
-       else if (gender === "other") displayGender = "Other";
+      else if (gender === "other") displayGender = "Other";
 
       return (
         <span className="max-w-[70px] truncate text-zinc-700">
@@ -37,15 +37,15 @@ export const studentsColumns = (): ColumnDef<Student>[] => [
     },
   },
 
-  {
-    accessorKey: "guardian_name",
-    header: "Guardian",
-    cell: ({ row }) => (
-      <span className="max-w-[70px] truncate text-zinc-700">
-        {row.getValue("guardian_name")}
-      </span>
-    ),
-  },
+  // {
+  //   accessorKey: "guardian_name",
+  //   header: "Guardian",
+  //   cell: ({ row }) => (
+  //     <span className="max-w-[70px] truncate text-zinc-700">
+  //       {row.getValue("guardian_name")}
+  //     </span>
+  //   ),
+  // },
   {
     accessorKey: "phone",
     header: "Mobile",
@@ -86,7 +86,6 @@ export const studentsColumns = (): ColumnDef<Student>[] => [
     header: "Action",
     cell: ({ row }) => {
       const student: Student = row.original;
-      console.log("Student row data:", student);
       return <StudentTableDropdown student={student} />;
     },
   },

@@ -14,16 +14,28 @@ import { Home, MapPin, Building2, User, Users, Download } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
 
-const baseItems = [
+const adminItems = [
   { title: "Home", url: "/", icon: Home },
+  { title: "Sub Division", url: "/subdivision", icon: Users },
   { title: "Block", url: "/block", icon: MapPin },
   { title: "School", url: "/school", icon: Building2 },
   { title: "Student", url: "/student", icon: User },
   { title: "Download", url: "/download", icon: Download },
 ];
 
-const adminItems = [
-  { title: "Sub Division", url: "/subdivision", icon: Users },
+const subDivisionItems = [
+  { title: "Home", url: "/", icon: Home },
+  { title: "Block", url: "/block", icon: MapPin },
+  { title: "School", url: "/school", icon: Building2 },
+  { title: "students", url: "/sub-division-student", icon: User },
+  { title: "Download", url: "/download", icon: Download },
+];
+
+const blockItems = [
+  { title: "Home", url: "/", icon: Home },
+  { title: "School", url: "/school", icon: Building2 },
+  { title: "students", url: "/block-student", icon: User },
+  { title: "Download", url: "/download", icon: Download },
 ];
 
 export function AppSidebar() {
@@ -33,18 +45,20 @@ export function AppSidebar() {
   console.log("the sidebar", user?.user_type);
 
   const getMenuItems = () => {
-    if (!user) return baseItems;
+    if (!user) return null;
 
     switch (user.user_type) {
       case "admin":
-        return [...baseItems.slice(0, 1), ...adminItems, ...baseItems.slice(1)];
+        return adminItems;
+
       case "subdivision":
-        return baseItems;
+        return subDivisionItems;
 
       case "block":
-        return baseItems.filter((item) => item.title !== "Block");
+        return blockItems;
+
       default:
-        return baseItems;
+        return [];
     }
   };
 
@@ -83,7 +97,7 @@ export function AppSidebar() {
 
           <SidebarGroupContent>
             <SidebarMenu className="space-y-2 sm:space-y-3">
-              {menuItems.map((item) => {
+              {menuItems?.map((item) => {
                 const isActive = location.pathname === item.url;
                 return (
                   <SidebarMenuItem key={item.title}>

@@ -1,10 +1,34 @@
 import { axiosInstance } from "@/lib/axios";
 
-export const getStudents = async () => {
+export const getStudents = async (page: number, perPage: number) => {
   try {
-    const response = await axiosInstance.get(`/students`);
-    console.log("the datas are studens", response.data.data);
+    const response = await axiosInstance.get(
+      `/students?page=${page}&per_page=${perPage}`
+    );
 
+    if (response.status !== 200) {
+      throw new Error("Error fetching students. Please try again.");
+    }
+
+    return response.data;
+  } catch (error) {
+    console.log(error);
+
+    return {
+      data: [],
+      pagination: {
+        total: 0,
+        current_page: 1,
+        last_page: 1,
+        per_page: perPage,
+      },
+    };
+  }
+};
+
+export const getStudentsBySubDiv = async (id: number) => {
+  try {
+    const response = await axiosInstance.get(`subdivisions/${id}/students`);
     if (response.status !== 200) {
       throw new Error("Error fetching students. Please try again.");
     }
@@ -12,7 +36,22 @@ export const getStudents = async () => {
     return response.data.data;
   } catch (error) {
     console.log(error);
-    return [];
+  }
+};
+
+export const getStudentsByBlock = async (id: number) => {
+  try {
+    const response = await axiosInstance.get(`/blocks/${id}/students`);
+
+    if (response.status !== 200) {
+      throw new Error("Error fetching students. Please try again.");
+    }
+
+    console.log("the datas are backend", response.data.data);
+
+    return response.data.data;
+  } catch (error) {
+    console.log(error);
   }
 };
 

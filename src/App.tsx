@@ -13,6 +13,8 @@ import { AuthProvider } from "@/provider/authContext";
 import { useAuth } from "./hooks/useAuth";
 
 import RootLayout from "./components/RootLayout";
+import SubDivStudents from "./pages/SubDivStudents";
+import BlockStudents from "./pages/BlockStudents";
 
 const Home = lazy(() => import("@/pages/Home"));
 
@@ -31,9 +33,6 @@ const Loader = lazy(() => import("./components/Loader"));
 const GenerateAdmitPage = lazy(() => import("./pages/GenerateAdmitPage"));
 
 const Downloads = lazy(() => import("./pages/Downloads"));
-
-
-
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -54,7 +53,6 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return <>{children}</>;
 };
-
 
 const router = createBrowserRouter([
   {
@@ -98,10 +96,26 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "sub-division-student",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <SubDivStudents />
+          </Suspense>
+        ),
+      },
+      {
         path: "subdivision",
         element: (
           <Suspense fallback={<Loader />}>
             <SubDivision />
+          </Suspense>
+        ),
+      },
+      {
+        path: "block-student",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <BlockStudents />
           </Suspense>
         ),
       },
