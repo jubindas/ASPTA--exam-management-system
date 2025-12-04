@@ -16,10 +16,10 @@ export default function Student() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<any>({
     queryKey: ["students", page, pageSize],
     queryFn: () => getStudents(page, pageSize),
-    placeholderData: (prev) => prev,
+    placeholderData: (prev: any) => prev,
   });
 
   const { loading } = useAuth();
