@@ -40,6 +40,7 @@ interface ServerPaginationProps {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  isLoading?: boolean; // ✅ ADD THIS
 }
 
 interface DataTableProps<TData, TValue> {
@@ -169,9 +170,9 @@ export function DataTable<TData, TValue>({
       {enablePagination && (
         <div className="bg-zinc-50 border rounded-b-lg border-zinc-300">
           {serverPagination ? (
-            <div className="flex items-center justify-between px-4 py-3 w-full">
+            <div className="flex items-center justify-between px-4 py-3 w-full flex-wrap gap-3">
               <div className="flex items-center space-x-2">
-                <p className="text-xs md:text-sm font-medium text-zinc-600 whitespace-nowrap">
+                <p className="text-xs md:text-sm font-medium text-zinc-600">
                   Rows per page
                 </p>
 
@@ -179,20 +180,15 @@ export function DataTable<TData, TValue>({
                   value={String(pageSize)}
                   onValueChange={(value) => onPageSizeChange?.(Number(value))}
                 >
-                  <SelectTrigger className="h-8 w-[72px] bg-zinc-300 text-zinc-900 border border-zinc-600/50 hover:border-zinc-500">
-                    <SelectValue placeholder={String(pageSize)} />
+                  <SelectTrigger className="h-8 w-[72px] bg-zinc-300 text-zinc-900 border border-zinc-600/50">
+                    <SelectValue />
                   </SelectTrigger>
-
                   <SelectContent
                     side="top"
-                    className="bg-zinc-300 text-zinc-900 border border-zinc-700/60"
+                    className="bg-zinc-300 text-zinc-900"
                   >
                     {[10, 25, 50, 100, 150, 200].map((size) => (
-                      <SelectItem
-                        key={size}
-                        value={String(size)}
-                        className="text-sm text-zinc-900 hover:bg-zinc-800/70"
-                      >
+                      <SelectItem key={size} value={String(size)}>
                         {size}
                       </SelectItem>
                     ))}
@@ -200,33 +196,97 @@ export function DataTable<TData, TValue>({
                 </Select>
               </div>
 
-              <span className="text-sm font-medium text-zinc-700">
-                Page {serverPagination.page} of {serverPagination.totalPages}
-              </span>
-
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-1 flex-wrap">
                 <button
-                  className="px-3 py-1 border rounded disabled:opacity-50"
-                  disabled={serverPagination.page === 1}
+                  disabled={
+                    serverPagination.page === 1 || serverPagination.isLoading
+                  }
                   onClick={() =>
                     serverPagination.onPageChange(serverPagination.page - 1)
                   }
+                  className="px-3 py-1 border rounded disabled:opacity-50"
                 >
                   Previous
                 </button>
 
                 <button
-                  className="px-3 py-1 border rounded disabled:opacity-50"
+                  disabled={serverPagination.isLoading}
+                  onClick={() => serverPagination.onPageChange(1)}
+                  className={`px-3 py-1 border rounded ${
+                    serverPagination.page === 1
+                      ? "bg-blue-500 text-white"
+                      : "bg-white"
+                  }`}
+                >
+                  1
+                </button>
+
+                {serverPagination.page > 4 && <span className="px-2">...</span>}
+
+                {Array.from({ length: serverPagination.totalPages })
+                  .slice(
+                    Math.max(1, serverPagination.page - 2),
+                    Math.min(
+                      serverPagination.totalPages - 1,
+                      serverPagination.page + 1
+                    )
+                  )
+                  .map((_, i) => {
+                    const page = i + Math.max(2, serverPagination.page - 2);
+
+                    return (
+                      <button
+                        key={page}
+                        disabled={serverPagination.isLoading}
+                        onClick={() => serverPagination.onPageChange(page)}
+                        className={`px-3 py-1 border rounded ${
+                          serverPagination.page === page
+                            ? "bg-blue-500 text-white"
+                            : "bg-white"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
+
+                {serverPagination.page < serverPagination.totalPages - 3 && (
+                  <span className="px-2">...</span>
+                )}
+
+                {serverPagination.totalPages > 1 && (
+                  <button
+                    disabled={serverPagination.isLoading}
+                    onClick={() =>
+                      serverPagination.onPageChange(serverPagination.totalPages)
+                    }
+                    className={`px-3 py-1 border rounded ${
+                      serverPagination.page === serverPagination.totalPages
+                        ? "bg-blue-500 text-white"
+                        : "bg-white"
+                    }`}
+                  >
+                    {serverPagination.totalPages}
+                  </button>
+                )}
+
+                <button
                   disabled={
-                    serverPagination.page === serverPagination.totalPages
+                    serverPagination.page === serverPagination.totalPages ||
+                    serverPagination.isLoading
                   }
                   onClick={() =>
                     serverPagination.onPageChange(serverPagination.page + 1)
                   }
+                  className="px-3 py-1 border rounded disabled:opacity-50"
                 >
-                  Next
+                  {serverPagination.isLoading ? "Loading..." : "Next"}
                 </button>
               </div>
+
+              <span className="text-sm font-medium text-zinc-700">
+                Page {serverPagination.page} of {serverPagination.totalPages}
+              </span>
             </div>
           ) : (
             <DataTablePagination table={table} />

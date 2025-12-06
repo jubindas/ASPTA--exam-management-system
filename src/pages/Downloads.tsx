@@ -70,10 +70,10 @@ export default function Downloads() {
   const [selectedClass, setSelectedClass] = useState<string>("");
 
   useEffect(() => {
-    console.log("🟢 Subdivisions fetched:", subDivisions);
-    console.log("🟢 Blocks fetched:", blocks);
-    console.log("🟢 Schools fetched:", schools);
-    console.log("🟢 Students fetched:", studentsData);
+    console.log("Subdivisions fetched:", subDivisions);
+    console.log("Blocks fetched:", blocks);
+    console.log("Schools fetched:", schools);
+    console.log("Students fetched:", studentsData);
   }, [subDivisions, blocks, schools, studentsData]);
 
   const handleDownload = () => {

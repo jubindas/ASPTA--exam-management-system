@@ -7,7 +7,7 @@ import StudentDialog from "@/components/StudentDialog";
 
 import type { Student } from "@/table-types/student-table-types";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { getStudents } from "@/service/studentsApi";
 
@@ -15,19 +15,30 @@ import { useAuth } from "@/hooks/useAuth";
 
 import Loader from "@/components/Loader";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+interface StudentResponse {
+  data: Student[];
+  pagination: {
+    last_page: number;
+    [key: string]: any;
+  };
+}
 
 export default function Student() {
   const [page, setPage] = useState(1);
+
   const [pageSize, setPageSize] = useState(10);
 
-  const { data, isLoading } = useQuery<any>({
-    queryKey: [`students-${page}-${pageSize}`],
-    queryFn: () => getStudents(page, pageSize),
-    placeholderData: (prev: any) => prev,
-  });
+  const queryClient = useQueryClient();
 
   const { loading } = useAuth();
+
+  const { data, isLoading, isFetching } = useQuery<StudentResponse>({
+    queryKey: [`students-${page}-${pageSize}`],
+    queryFn: () => getStudents(page, pageSize),
+    placeholderData: (previousData) => previousData,
+  });
 
   const students: Student[] = data?.data || [];
   const meta = data?.pagination;
@@ -35,6 +46,15 @@ export default function Student() {
   const sortedStudents = [...students].sort((a: any, b: any) =>
     a.student_id.localeCompare(b.student_id)
   );
+
+  useEffect(() => {
+    if (meta && page < meta.last_page) {
+      queryClient.prefetchQuery({
+        queryKey: [`students-${page + 1}-${pageSize}`],
+        queryFn: () => getStudents(page + 1, pageSize),
+      });
+    }
+  }, [page, pageSize, meta?.last_page, queryClient, meta]);
 
   if (loading) return null;
   if (isLoading) return <Loader />;
@@ -54,6 +74,7 @@ export default function Student() {
           page,
           totalPages: meta?.last_page || 1,
           onPageChange: (p) => setPage(p),
+          isLoading: isFetching,
         }}
         pageSize={pageSize}
         onPageSizeChange={(size) => {
